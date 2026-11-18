@@ -32,6 +32,21 @@ export interface AssignmentRecord {
   note?: string | null;
   asset?: AssetRecord;
 }
+export interface AssetImportResult {
+  imported: number;
+  errors: Array<{ row: number; message: string }>;
+}
+
+export function importAssetsApi(file: File) {
+  const body = new FormData();
+  body.append("file", file);
+  return callApi<AssetImportResult, FormData>({
+    url: endPoints.asset.import,
+    method: api_methods.POST,
+    body,
+  });
+}
+
 export const assetsApi = {
   list: (query: ListQuery) => callApi<Paginated<AssetRecord>, ListQuery>({ url: endPoints.asset.list, method: api_methods.POST, body: query }),
   unassigned: (query: ListQuery) => callApi<Paginated<AssetRecord>, ListQuery>({ url: endPoints.asset.unassignedList, method: api_methods.POST, body: query }),
