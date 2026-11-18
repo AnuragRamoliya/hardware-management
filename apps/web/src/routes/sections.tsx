@@ -79,7 +79,7 @@ const Designations = lazy(() =>
   })),
 );
 const Locations = lazy(() =>
-  import("@/pages/Entities").then((module) => ({ default: module.Locations })),
+  import("@/pages/Locations").then((module) => ({ default: module.Locations })),
 );
 const Vendors = lazy(() =>
   import("@/pages/Entities").then((module) => ({ default: module.Vendors })),

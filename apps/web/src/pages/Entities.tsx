@@ -3,7 +3,6 @@ import {
   employeeConfig,
   userConfig,
   roleConfig,
-  locationConfig,
   vendorConfig,
   assetCategoryConfig,
 } from "@/pages/resources";
@@ -14,7 +13,7 @@ export const Users = () => <ResourcePage config={userConfig} />;
 export const Roles = () => <ResourcePage config={roleConfig} />;
 export { Departments } from "@/pages/Departments";
 export { Designations } from "@/pages/Designations";
-export const Locations = () => <ResourcePage config={locationConfig} />;
+export { Locations } from "@/pages/Locations";
 export const Vendors = () => <ResourcePage config={vendorConfig} />;
 export const AssetCategories = () => (
   <ResourcePage config={assetCategoryConfig} />
