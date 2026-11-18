@@ -10,6 +10,7 @@ import { useTheme } from "next-themes";
 import { Command } from "cmdk";
 import {
   Bell,
+  Building2,
   ChevronDown,
   Command as CommandIcon,
   KeyRound,
@@ -18,7 +19,6 @@ import {
   Menu,
   Moon,
   Search,
-  Settings2,
   ShieldCheck,
   Sun,
   UserRound,
@@ -71,28 +71,28 @@ const navigation: NavigationItem[] = [
     path: PATHS.PORTAL,
     icon: UserRound,
     roles: ["employee"],
-    group: "Portal",
-  },
-  {
-    label: "My assets",
-    path: PATHS.PORTAL_ASSETS,
-    icon: Laptop,
-    roles: ["employee"],
-    group: "Portal",
-  },
-  {
-    label: "My software",
-    path: PATHS.PORTAL_SOFTWARE,
-    icon: CommandIcon,
-    roles: ["employee"],
-    group: "Portal",
-  },
-  {
-    label: "My accounts",
-    path: PATHS.PORTAL_ACCOUNTS,
-    icon: KeyRound,
-    roles: ["employee"],
-    group: "Portal",
+    children: [
+      {
+        label: "Overview",
+        path: PATHS.PORTAL,
+        roles: ["employee"],
+      },
+      {
+        label: "My assets",
+        path: PATHS.PORTAL_ASSETS,
+        roles: ["employee"],
+      },
+      {
+        label: "My software",
+        path: PATHS.PORTAL_SOFTWARE,
+        roles: ["employee"],
+      },
+      {
+        label: "My accounts",
+        path: PATHS.PORTAL_ACCOUNTS,
+        roles: ["employee"],
+      },
+    ],
   },
   {
     label: "Employees",
@@ -102,36 +102,37 @@ const navigation: NavigationItem[] = [
     permission: "employee",
   },
   {
-    label: "Asset categories",
-    path: PATHS.ASSET_CATEGORIES,
-    icon: Settings2,
-    roles: ["admin", "hardware"],
-    permission: "asset_category",
-    group: "Inventory",
-  },
-  {
     label: "Assets",
     path: PATHS.ASSETS,
     icon: Laptop,
     roles: ["admin", "hardware", "hr"],
     permission: "asset",
-    group: "Inventory",
-  },
-  {
-    label: "Unassigned assets",
-    path: PATHS.ASSET_UNASSIGNED,
-    icon: Laptop,
-    roles: ["admin", "hardware"],
-    permission: "asset",
-    group: "Inventory",
-  },
-  {
-    label: "Maintenance",
-    path: PATHS.ASSET_MAINTENANCE,
-    icon: Settings2,
-    roles: ["admin", "hardware", "hr"],
-    permission: "asset_maintenance",
-    group: "Inventory",
+    children: [
+      {
+        label: "All assets",
+        path: PATHS.ASSETS,
+        roles: ["admin", "hardware", "hr"],
+        permission: "asset",
+      },
+      {
+        label: "Unassigned assets",
+        path: PATHS.ASSET_UNASSIGNED,
+        roles: ["admin", "hardware"],
+        permission: "asset",
+      },
+      {
+        label: "Asset categories",
+        path: PATHS.ASSET_CATEGORIES,
+        roles: ["admin", "hardware"],
+        permission: "asset_category",
+      },
+      {
+        label: "Maintenance",
+        path: PATHS.ASSET_MAINTENANCE,
+        roles: ["admin", "hardware", "hr"],
+        permission: "asset_maintenance",
+      },
+    ],
   },
   {
     label: "Software",
@@ -139,7 +140,6 @@ const navigation: NavigationItem[] = [
     icon: CommandIcon,
     roles: ["admin", "hardware", "hr"],
     permission: "software",
-    group: "Software",
   },
   {
     label: "Credentials",
@@ -147,7 +147,6 @@ const navigation: NavigationItem[] = [
     icon: KeyRound,
     roles: ["admin", "hardware"],
     permission: "credential",
-    group: "Credentials",
     children: [
       {
         label: "Credentials",
@@ -182,67 +181,67 @@ const navigation: NavigationItem[] = [
     ],
   },
   {
-    label: "Departments",
+    label: "Organization",
     path: PATHS.DEPARTMENTS,
-    icon: UsersRound,
-    roles: ["admin", "hr"],
-    permission: "department",
-    group: "Organization",
+    icon: Building2,
+    roles: ["admin", "hr", "hardware"],
+    children: [
+      {
+        label: "Departments",
+        path: PATHS.DEPARTMENTS,
+        roles: ["admin", "hr"],
+        permission: "department",
+      },
+      {
+        label: "Designations",
+        path: PATHS.DESIGNATIONS,
+        roles: ["admin", "hr"],
+        permission: "designation",
+      },
+      {
+        label: "Locations",
+        path: PATHS.LOCATIONS,
+        roles: ["admin", "hr"],
+        permission: "location",
+      },
+      {
+        label: "Vendors",
+        path: PATHS.VENDORS,
+        roles: ["admin", "hardware"],
+        permission: "vendor",
+      },
+    ],
   },
   {
-    label: "Designations",
-    path: PATHS.DESIGNATIONS,
-    icon: Settings2,
-    roles: ["admin", "hr"],
-    permission: "designation",
-    group: "Organization",
-  },
-  {
-    label: "Locations",
-    path: PATHS.LOCATIONS,
-    icon: Settings2,
-    roles: ["admin", "hr"],
-    permission: "location",
-    group: "Organization",
-  },
-  {
-    label: "Vendors",
-    path: PATHS.VENDORS,
-    icon: Settings2,
-    roles: ["admin", "hardware"],
-    permission: "vendor",
-    group: "Organization",
-  },
-  {
-    label: "Users",
+    label: "Administration",
     path: PATHS.USERS,
-    icon: Users,
-    roles: ["admin"],
-    permission: "user",
-    group: "Administration",
-  },
-  {
-    label: "Roles & access",
-    path: PATHS.ROLES,
     icon: ShieldCheck,
     roles: ["admin"],
-    permission: "role",
-    group: "Administration",
-  },
-  {
-    label: "Audit logs",
-    path: PATHS.AUDIT_LOGS,
-    icon: ShieldCheck,
-    roles: ["admin"],
-    permission: "audit_log",
-    group: "Administration",
-  },
-  {
-    label: "Design system",
-    path: PATHS.DESIGN_SYSTEM,
-    icon: Settings2,
-    roles: ["admin"],
-    group: "Administration",
+    children: [
+      {
+        label: "Users",
+        path: PATHS.USERS,
+        roles: ["admin"],
+        permission: "user",
+      },
+      {
+        label: "Roles & access",
+        path: PATHS.ROLES,
+        roles: ["admin"],
+        permission: "role",
+      },
+      {
+        label: "Audit logs",
+        path: PATHS.AUDIT_LOGS,
+        roles: ["admin"],
+        permission: "audit_log",
+      },
+      {
+        label: "Design system",
+        path: PATHS.DESIGN_SYSTEM,
+        roles: ["admin"],
+      },
+    ],
   },
 ];
 
@@ -446,7 +445,12 @@ export function AppShell() {
               const isParentOpen = openSubmenus[item.label] ?? false;
               const isChildActive =
                 hasChildren &&
-                item.children!.some((c) => location.pathname === c.path);
+                item.children!.some(
+                  (c) =>
+                    location.pathname === c.path ||
+                    (c.path !== "/" &&
+                      location.pathname.startsWith(c.path + "/")),
+                );
 
               return (
                 <div key={item.path || item.label}>
@@ -506,7 +510,20 @@ export function AppShell() {
                           {isParentOpen && (
                             <div className="ml-5 mt-1 space-y-1 border-l border-border/60 pl-3">
                               {item.children!.map((child) => {
-                                const active = location.pathname === child.path;
+                                const active =
+                                  location.pathname === child.path ||
+                                  (child.path !== "/" &&
+                                    location.pathname.startsWith(
+                                      child.path + "/",
+                                    ) &&
+                                    !item.children!.some(
+                                      (other) =>
+                                        other.path !== child.path &&
+                                        other.path.length > child.path.length &&
+                                        location.pathname.startsWith(
+                                          other.path,
+                                        ),
+                                    ));
                                 return (
                                   <NavLink
                                     key={child.path}
