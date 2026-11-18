@@ -1,0 +1,57 @@
+# UI conformance audit
+
+Read-only baseline audit for the standard in `UI_STANDARDS.md` (2026-11-18). This audit records current code before module refactors; it is not a claim that the acceptance checks have already passed.
+
+Codes: **N** native/ad-hoc controls outside `components/ui`; **F** field catalogue/FormProvider/FormSection/FormGrid/FormActions mismatch; **Y** inline or absent co-located yup schema/constants; **D** not Drawer/full-screen Sheet or no dirty guard/edit-prefill skeleton; **Q** query hooks/API messages/invalidation pattern mismatch; **L** list toolbar/filter/config/table/mobile-state mismatch; **C** destructive confirmation, toast, or duplicated behavior; **P** button/route/sidebar permission gap; **T** typing/constants/tokens issue; **A** responsive/accessibility verification outstanding. `PASS` means checked; `FAIL` means at least one listed gap. Breakpoint, dark/light, keyboard and axe checks have not been run in a browser; those remain `A` until verified.
+
+| Page / form / dialog / filter | Files | Audit |
+| --- | --- | --- |
+| Login form | `src/pages/Login.tsx` | **FAIL F,Y** — RHF resolver exists, but schema/messages are inline; not `FormProvider`/standard sections/actions. |
+| Forgot password, OTP, reset forms | `src/pages/AuthFlow.tsx` | **FAIL F,Y,N** — schemas are inline and controls/forms vary by flow. |
+| Profile details form | `src/pages/Profile.tsx` | **FAIL F,Y,Q,N** — inline schema, direct query/mutation in page, tab buttons are ad hoc. |
+| Password change form | `src/pages/Profile.tsx` | **FAIL F,Y,N** — inline schema and no shared form sections/actions. |
+| Profile preferences | `src/pages/Profile.tsx` | **FAIL N,A** — preference controls are page-local. |
+| Dashboard cards and charts | `src/pages/Dashboard.tsx` | **FAIL Q,T,A** — data query is page-local; visual breakpoint/theme checks outstanding. |
+| Employees list toolbar, filters, table | `src/pages/ResourcePage.tsx`, `src/pages/resources.ts` | **FAIL L,Q,A** — shared list exists, but toolbar/filters are embedded in CommonTable and no chips/reset contract for all resources. |
+| Employee create/edit form | `src/pages/ResourcePage.tsx`, `src/pages/resources.ts` | **FAIL F,Y,D,N** — fields are RHF-backed, but schema is dynamically built inline; form uses dialog and lacks dirty guard/prefill skeleton. |
+| Employee CSV/XLSX import dialog | `src/pages/ResourcePage.tsx` | **FAIL F,D,N,A** — custom dialog/file input; no standard import dialog component. |
+| Employee detail tabs and inventory actions | `src/pages/EmployeeDetail.tsx` | **FAIL N,Q,P,A** — detail tabs and actions are local; no consistent detail header/timeline layout. |
+| Users list and form | `src/pages/ResourcePage.tsx`, `src/pages/resources.ts` | **FAIL L,F,Y,D,A** — generic page pattern; same inline schema/dialog limitations as Employees. |
+| Roles list and form | `src/pages/ResourcePage.tsx`, `src/pages/resources.ts` | **FAIL L,F,Y,D,A** — generic page pattern. |
+| Role permission editor | `src/pages/Roles.tsx` | **FAIL N,Q,A** — separate permission editor with page-local query/mutation and controls. |
+| Departments list/form | `src/pages/ResourcePage.tsx`, `src/pages/resources.ts` | **FAIL L,F,Y,D,A** — generic page pattern. |
+| Designations list/form | `src/pages/ResourcePage.tsx`, `src/pages/resources.ts` | **FAIL L,F,Y,D,A** — generic page pattern. |
+| Locations list/form | `src/pages/ResourcePage.tsx`, `src/pages/resources.ts` | **FAIL L,F,Y,D,A** — generic page pattern. |
+| Vendors list/form | `src/pages/ResourcePage.tsx`, `src/pages/resources.ts` | **FAIL L,F,Y,D,A** — phone field currently plain text; generic page pattern. |
+| Asset Categories list/form | `src/pages/ResourcePage.tsx`, `src/pages/resources.ts` | **FAIL L,F,Y,D,A** — generic page pattern. |
+| Audit Logs filters/table | `src/pages/ResourcePage.tsx`, `src/pages/resources.ts` | **FAIL L,Q,A** — shared table; filter configuration is in a central resource config rather than a co-located file. |
+| Assets list/filter toolbar/table | `src/pages/Assets.tsx` | **FAIL N,F,L,Q,C,P,T,A** — local state forms, native select/textarea/buttons, row actions not consistently permission-gated, filters inline. |
+| Unassigned Assets list | `src/pages/Assets.tsx` | **FAIL N,L,Q,C,P,A** — shares list implementation but uses local actions and does not expose bulk workflow. |
+| Asset create/edit form | `src/pages/Assets.tsx` | **FAIL N,F,Y,D,Q** — local form state, inline validation, no drawer/dirty guard; foreign-key selects are native. |
+| Asset assign/return/transfer/maintenance dialogs | `src/pages/Assets.tsx` | **FAIL N,F,Y,D,Q,C** — native controls and ad-hoc form state; async mutation error toast exists. |
+| Asset import and QR dialogs | `src/pages/Assets.tsx` | **FAIL N,D,Q,A** — custom dialog; import report exists but not shared; QR fetch is local. |
+| Asset detail tabs/overview/history/maintenance/accessories/activity | `src/pages/AssetDetail.tsx` | **FAIL N,Q,T,A** — local tab controls/data queries and repeated record rendering. |
+| Maintenance list/filter/table | `src/pages/Maintenance.tsx` | **FAIL L,Q,A** — CommonTable is used, filter fields are inline and page owns query. |
+| Software list/filter/table | `src/pages/Software.tsx` | **FAIL N,F,L,Q,C,P,A** — native controls and local form state; filter config inline. |
+| Software create/edit/assign dialogs | `src/pages/Software.tsx` | **FAIL N,F,Y,D,Q** — ad-hoc state/forms, native inputs, no dirty guard. |
+| Software detail tabs/overview/assigned users/activity | `src/pages/SoftwareDetail.tsx` | **FAIL N,Q,A** — local tabs and queries. |
+| License list/add form | `src/pages/SoftwareDetail.tsx` | **FAIL N,F,Y,D,Q** — inline table and form; no license schema file. |
+| Portal home | `src/pages/Portal.tsx` | **FAIL A** — responsive checks outstanding. |
+| Portal My Assets | `src/pages/PortalAssets.tsx` | **FAIL L,Q,A** — read-only query/cards; mobile/desktop conformance not visually verified. |
+| Portal My Software | `src/pages/PortalSoftware.tsx` | **FAIL L,Q,A** — read-only query/cards; mobile/desktop conformance not visually verified. |
+| Notifications list/read action | `src/pages/Notifications.tsx` | **FAIL Q,C,A** — query/mutation lives in page; common query hook not present. |
+| Design System examples | `src/pages/DesignSystem.tsx` | **FAIL F,L,A** — does not yet show the complete standard form/list/detail/dialog states. |
+
+**Baseline:** 35 audited artifacts; 0 fully passing; 35 fail at least one listed standard. This is an implementation audit, not an accessibility certification. The responsive, light/dark, keyboard, axe, and screenshot-baseline checks are still unverified.
+
+## Refactor pass status
+
+The baseline rows above describe the initial audit. A focused pass since then added the shared `FormLayout`, `KeyValueEditor`, `RowActionsMenu`, dirty-form drawer state hook, validation helpers, and co-located Login/Profile schemas. Asset, Software, and Maintenance filter configurations are now separate module files. Login and Profile use shared RHF fields; Assets and Software use the shared row action menu. These changes reduce the recorded gaps but do not make any complete artifact PASS: the broader module-by-module conversion and browser verification remain outstanding. The UI guard currently reports 15 legacy files with native controls on an explicit migration allowlist.
+
+## Shared-component gaps repeated across 3+ modules
+
+- Form section/grid/actions; responsive dirty-guarded form drawer; co-located schema/message convention.
+- List query hooks, filter config modules, active-filter chips/reset, and a consistent row-actions menu.
+- Detail header/tab/key-value/timeline primitives (Employee, Asset, Software).
+- Standard action/import dialogs and loading-prefill state.
+- Resource-specific status options/constants and typed RHF field adapters.
