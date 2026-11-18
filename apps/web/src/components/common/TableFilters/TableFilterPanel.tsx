@@ -5,11 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useAsyncOptions } from "@/hooks/use-async-options";
 import { useDebounce } from "@/hooks/use-debounce";
-import type {
-  FilterField,
-  FilterValue,
-  FilterValues,
-} from "./types";
+import type { FilterField, FilterValue, FilterValues } from "./types";
+import type { OptionItem } from "@/types/select";
 
 function isEmpty(value: FilterValue): boolean {
   if (value === null || value === undefined || value === "") return true;
@@ -37,12 +34,13 @@ function displayValue(
     return value
       .map((item) =>
         field.type === "async-select"
-          ? asyncLabels[String(item)] ?? String(item)
+          ? (asyncLabels[String(item)] ?? String(item))
           : field.type === "select" ||
               field.type === "multiselect" ||
               field.type === "status"
-            ? field.options.find((option) => String(option.value) === String(item))
-                ?.label ?? String(item)
+            ? (field.options.find(
+                (option) => String(option.value) === String(item),
+              )?.label ?? String(item))
             : String(item),
       )
       .join(", ");
@@ -50,10 +48,7 @@ function displayValue(
   if (field.type === "async-select" && value != null) {
     return asyncLabels[String(value)] ?? String(value);
   }
-  if (
-    (field.type === "select" || field.type === "status") &&
-    value != null
-  ) {
+  if ((field.type === "select" || field.type === "status") && value != null) {
     return (
       field.options.find((option) => String(option.value) === String(value))
         ?.label ?? String(value)
@@ -88,9 +83,10 @@ function AsyncFilterControl({
   onLabels: (labels: Record<string, string>) => void;
 }) {
   const dependency = field.dependsOn ? values[field.dependsOn] : undefined;
-  const filters = field.dependsOn && !isEmpty(dependency)
-    ? { [field.dependsOn]: dependency }
-    : {};
+  const filters =
+    field.dependsOn && !isEmpty(dependency)
+      ? { [field.dependsOn]: dependency }
+      : {};
   const options = useAsyncOptions({
     endpoint: field.endpoint,
     filters,
@@ -108,16 +104,18 @@ function AsyncFilterControl({
   useEffect(() => {
     const known = new Map<string, string>();
     hydratedOptions.forEach((option, id) => known.set(id, option.label));
-    options.data?.rows.forEach((option) =>
-      known.set(String(option.value), option.label),
-    );
+    options.data?.rows?.forEach((option) => {
+      if (option && option.value !== undefined && option.value !== null) {
+        known.set(String(option.value), option.label ?? String(option.value));
+      }
+    });
     if (known.size) onLabels(Object.fromEntries(known));
   }, [onLabels, options.data?.rows, hydratedOptions]);
 
   useEffect(() => {
-    const unresolved = selectedIdsKey.split("|").filter(
-      (id) => !hydratedOptions.has(id),
-    );
+    const unresolved = selectedIdsKey
+      .split("|")
+      .filter((id) => !hydratedOptions.has(id));
     if (selectedIdsKey && unresolved.length) void hydrateIds(unresolved);
   }, [hydrateIds, hydratedOptions, selectedIdsKey]);
 
@@ -138,22 +136,33 @@ function AsyncFilterControl({
         onChange={(event) => options.setSearch(event.target.value)}
       />
       <div className="max-h-36 overflow-y-auto rounded-md border p-1">
-        {options.data?.rows.map((option) => {
-          const id = String(option.value);
-          const checked = selectedIds.includes(id);
-          return (
-            <label key={id} className="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-muted">
-              <input
-                type={field.multiple ? "checkbox" : "radio"}
-                name={`filter-${field.key}`}
-                checked={checked}
-                onChange={(event) => updateSelection(id, event.target.checked)}
-              />
-              <span>{option.label}</span>
-            </label>
-          );
-        })}
-        {!options.isLoading && !options.data?.rows.length && (
+        {options.data?.rows
+          ?.filter((option): option is OptionItem =>
+            Boolean(
+              option && option.value !== undefined && option.value !== null,
+            ),
+          )
+          .map((option) => {
+            const id = String(option.value);
+            const checked = selectedIds.includes(id);
+            return (
+              <label
+                key={id}
+                className="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-muted"
+              >
+                <input
+                  type={field.multiple ? "checkbox" : "radio"}
+                  name={`filter-${field.key}`}
+                  checked={checked}
+                  onChange={(event) =>
+                    updateSelection(id, event.target.checked)
+                  }
+                />
+                <span>{option.label}</span>
+              </label>
+            );
+          })}
+        {!options.isLoading && !options.data?.rows?.length && (
           <p className="px-2 py-3 text-center text-xs text-muted-foreground">
             No options found
           </p>
@@ -171,7 +180,12 @@ function AsyncFilterControl({
         </Button>
       )}
       {selectedIds.length > 0 && (
-        <Button type="button" variant="ghost" size="sm" onClick={() => onChange(field.multiple ? [] : "")}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => onChange(field.multiple ? [] : "")}
+        >
           Clear {field.label.toLowerCase()}
         </Button>
       )}
@@ -207,8 +221,16 @@ function FilterControl({
     );
   }
   const id = `filter-${field.key}`;
-  const label = <label htmlFor={id} className="block text-xs font-medium">{field.label}</label>;
-  if (field.type === "text" || field.type === "date" || field.type === "number") {
+  const label = (
+    <label htmlFor={id} className="block text-xs font-medium">
+      {field.label}
+    </label>
+  );
+  if (
+    field.type === "text" ||
+    field.type === "date" ||
+    field.type === "number"
+  ) {
     return (
       <div className="space-y-2">
         {label}
@@ -217,7 +239,13 @@ function FilterControl({
           type={field.type}
           placeholder={field.placeholder}
           value={String(value ?? "")}
-          onChange={(event) => onChange(field.type === "number" && event.target.value ? Number(event.target.value) : event.target.value)}
+          onChange={(event) =>
+            onChange(
+              field.type === "number" && event.target.value
+                ? Number(event.target.value)
+                : event.target.value,
+            )
+          }
         />
       </div>
     );
@@ -226,22 +254,45 @@ function FilterControl({
     const range = rangeValue(value);
     const inputType = field.type === "daterange" ? "date" : "number";
     const updateRange = (key: "from" | "to", raw: string) =>
-      onChange({ ...range, [key]: inputType === "number" && raw ? Number(raw) : raw });
+      onChange({
+        ...range,
+        [key]: inputType === "number" && raw ? Number(raw) : raw,
+      });
     return (
       <fieldset className="space-y-2">
         <legend className="text-xs font-medium">{field.label}</legend>
         <div className="grid grid-cols-2 gap-2">
-          <Input aria-label={`${field.label} from`} type={inputType} value={range.from} onChange={(event) => updateRange("from", event.target.value)} />
-          <Input aria-label={`${field.label} to`} type={inputType} value={range.to} onChange={(event) => updateRange("to", event.target.value)} />
+          <Input
+            aria-label={`${field.label} from`}
+            type={inputType}
+            value={range.from}
+            onChange={(event) => updateRange("from", event.target.value)}
+          />
+          <Input
+            aria-label={`${field.label} to`}
+            type={inputType}
+            value={range.to}
+            onChange={(event) => updateRange("to", event.target.value)}
+          />
         </div>
       </fieldset>
     );
   }
   if (field.type === "boolean") {
     return (
-      <label htmlFor={id} className="flex min-h-10 items-center justify-between gap-3 text-xs font-medium">
+      <label
+        htmlFor={id}
+        className="flex min-h-10 items-center justify-between gap-3 text-xs font-medium"
+      >
         {field.label}
-        <input id={id} type="checkbox" checked={value === true} onChange={(event) => onChange(event.target.checked ? true : undefined)} />
+        <input
+          id={id}
+          type="checkbox"
+          checked={value === true}
+          onChange={(event) =>
+            onChange(event.target.checked ? true : undefined)
+          }
+        />
       </label>
     );
   }
@@ -253,7 +304,13 @@ function FilterControl({
           {field.options.map((option) => {
             const active = String(value ?? "") === String(option.value);
             return (
-              <button key={option.value} type="button" aria-pressed={active} className={`rounded-full border px-3 py-1.5 text-xs ${active ? "bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`} onClick={() => onChange(active ? undefined : option.value)}>
+              <button
+                key={option.value}
+                type="button"
+                aria-pressed={active}
+                className={`rounded-full border px-3 py-1.5 text-xs ${active ? "bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}
+                onClick={() => onChange(active ? undefined : option.value)}
+              >
                 {option.label}
               </button>
             );
@@ -271,8 +328,21 @@ function FilterControl({
           {field.options.map((option) => {
             const optionValue = String(option.value);
             return (
-              <label key={option.value} className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={selected.includes(optionValue)} onChange={(event) => onChange(event.target.checked ? [...selected, optionValue] : selected.filter((item) => item !== optionValue))} />
+              <label
+                key={option.value}
+                className="flex items-center gap-2 text-sm"
+              >
+                <input
+                  type="checkbox"
+                  checked={selected.includes(optionValue)}
+                  onChange={(event) =>
+                    onChange(
+                      event.target.checked
+                        ? [...selected, optionValue]
+                        : selected.filter((item) => item !== optionValue),
+                    )
+                  }
+                />
                 {option.label}
               </label>
             );
@@ -285,9 +355,20 @@ function FilterControl({
   return (
     <div className="space-y-2">
       {label}
-      <select id={id} className="h-10 w-full rounded-md border bg-card px-3 text-sm" value={String(value ?? "")} onChange={(event) => onChange(event.target.value || undefined)}>
-        <option value="">{field.placeholder ?? `All ${field.label.toLowerCase()}`}</option>
-        {field.options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+      <select
+        id={id}
+        className="h-10 w-full rounded-md border bg-card px-3 text-sm"
+        value={String(value ?? "")}
+        onChange={(event) => onChange(event.target.value || undefined)}
+      >
+        <option value="">
+          {field.placeholder ?? `All ${field.label.toLowerCase()}`}
+        </option>
+        {field.options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
       </select>
     </div>
   );
@@ -360,7 +441,9 @@ export function TableFilterPanel({
 
   const updateLabels = useCallback((labels: Record<string, string>) => {
     setAsyncLabels((previous) => {
-      if (Object.entries(labels).every(([key, label]) => previous[key] === label)) {
+      if (
+        Object.entries(labels).every(([key, label]) => previous[key] === label)
+      ) {
         return previous;
       }
       return { ...previous, ...labels };
@@ -389,11 +472,20 @@ export function TableFilterPanel({
     <>
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-semibold">Filters</h3>
-        <Button type="button" variant="ghost" size="sm" onClick={reset}>Clear all</Button>
+        <Button type="button" variant="ghost" size="sm" onClick={reset}>
+          Clear all
+        </Button>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {config.map((field, index) => (
-          <div key={field.key} ref={index === 0 ? firstFieldRef : undefined} style={field.width ? { gridColumn: `span ${field.width}` } : undefined} className="min-w-0">
+          <div
+            key={field.key}
+            ref={index === 0 ? firstFieldRef : undefined}
+            style={
+              field.width ? { gridColumn: `span ${field.width}` } : undefined
+            }
+            className="min-w-0"
+          >
             <FilterControl
               field={field}
               value={draft[field.key]}
@@ -407,8 +499,12 @@ export function TableFilterPanel({
       </div>
       {!applyOnChange && (
         <div className="sticky bottom-0 mt-5 flex justify-end gap-2 border-t bg-card py-3 pt-4">
-          <Button type="button" variant="ghost" onClick={reset}>Clear all</Button>
-          <Button type="button" onClick={apply}>Apply filters</Button>
+          <Button type="button" variant="ghost" onClick={reset}>
+            Clear all
+          </Button>
+          <Button type="button" onClick={apply}>
+            Apply filters
+          </Button>
         </div>
       )}
     </>
@@ -424,30 +520,52 @@ export function TableFilterPanel({
             onClick={() => setOpen(!open)}
           />
           {activeCount > 0 && (
-            <Button type="button" variant="ghost" size="sm" onClick={reset}>Reset</Button>
+            <Button type="button" variant="ghost" size="sm" onClick={reset}>
+              Reset
+            </Button>
           )}
         </div>
       )}
       {activeCount > 0 && (
-        <div className="flex flex-wrap items-center gap-2 px-4 pb-3" aria-label="Active filters">
+        <div
+          className="flex flex-wrap items-center gap-2 px-4 pb-3"
+          aria-label="Active filters"
+        >
           {Object.entries(active).map(([key, filterValue]) => {
             const field = config.find((item) => item.key === key);
             const label = field?.label ?? key;
             return (
-              <span key={key} className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs text-accent-foreground">
-                {label}: {field ? displayValue(field, filterValue, asyncLabels) : String(filterValue)}
-                <button type="button" aria-label={`Remove ${label} filter`} onClick={() => onApply(cleanFilters({ ...active, [key]: undefined }))}>
+              <span
+                key={key}
+                className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs text-accent-foreground"
+              >
+                {label}:{" "}
+                {field
+                  ? displayValue(field, filterValue, asyncLabels)
+                  : String(filterValue)}
+                <button
+                  type="button"
+                  aria-label={`Remove ${label} filter`}
+                  onClick={() =>
+                    onApply(cleanFilters({ ...active, [key]: undefined }))
+                  }
+                >
                   <X className="h-3 w-3" />
                 </button>
               </span>
             );
           })}
-          <Button type="button" variant="ghost" size="sm" onClick={reset}>Clear all</Button>
+          <Button type="button" variant="ghost" size="sm" onClick={reset}>
+            Clear all
+          </Button>
         </div>
       )}
       {mobile ? (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent id="table-filter-panel" className="fixed bottom-0 left-0 top-auto max-h-[85vh] w-full max-w-none translate-x-0 translate-y-0 rounded-b-none rounded-t-2xl p-5">
+          <DialogContent
+            id="table-filter-panel"
+            className="fixed bottom-0 left-0 top-auto max-h-[85vh] w-full max-w-none translate-x-0 translate-y-0 rounded-b-none rounded-t-2xl p-5"
+          >
             <DialogTitle className="sr-only">Filters</DialogTitle>
             {panelContent}
           </DialogContent>

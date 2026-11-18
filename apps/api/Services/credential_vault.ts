@@ -211,7 +211,21 @@ export class CredentialVaultService {
       ],
       order: [['name', 'ASC']],
     });
-    return rows.map(record);
+    const items = rows.map((r) => {
+      const rec = record(r);
+      return {
+        ...rec,
+        value: rec.id,
+        label: rec.name,
+        subLabel: rec.category,
+      };
+    });
+    return {
+      rows: items,
+      count: items.length,
+      hasMore: false,
+      page: 1,
+    };
   }
 
   // ==========================================

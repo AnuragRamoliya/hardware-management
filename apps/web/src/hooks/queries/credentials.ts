@@ -287,7 +287,15 @@ export function useCredentialTypeOptions() {
       const res = await credentialsApi.optionsTypes();
       if (!res.ok || !res.data)
         throw new Error(res.message || "Failed to load type options");
-      return res.data;
+      const raw = res.data;
+      if (Array.isArray(raw)) return raw;
+      if (
+        raw &&
+        Array.isArray((raw as unknown as { rows: CredentialTypeDto[] }).rows)
+      ) {
+        return (raw as unknown as { rows: CredentialTypeDto[] }).rows;
+      }
+      return [];
     },
   });
 }
