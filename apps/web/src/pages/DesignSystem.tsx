@@ -39,7 +39,14 @@ import type {
   FilterField,
   FilterValues,
 } from "@/components/common/TableFilters/types";
-import { FormActions, FormGrid, FormSection } from "@/components/common/FormLayout";
+import {
+  FormActions,
+  FormGrid,
+  FormSection,
+} from "@/components/common/FormLayout";
+import { KeyValueList, Timeline } from "@/components/common/DataDisplay";
+import { StatCard } from "@/components/common/StatCard";
+import { Laptop } from "lucide-react";
 
 const tableFilterPreview: FilterField[] = [
   {
@@ -167,117 +174,126 @@ export function DesignSystem() {
               onSubmit={methods.handleSubmit(() => undefined)}
               className="space-y-5"
             >
-              <FormSection title="Identity" description="Required fields are marked and validated inline.">
-              <FormGrid>
-              <RHFTextField
-                name="name"
-                label="Full name"
-                required
-                placeholder="Enter a name"
-                helperText="This is shown across your workspace."
-              />
-              <RHFTextField
-                name="email"
-                label="Email address"
-                type="email"
-                required
-                placeholder="name@company.com"
-              />
-              <RHFPasswordField
-                name="password"
-                label="Password"
-                required
-                strengthMeter
-                placeholder="At least 8 characters"
-              />
-              </FormGrid>
+              <FormSection
+                title="Identity"
+                description="Required fields are marked and validated inline."
+              >
+                <FormGrid>
+                  <RHFTextField
+                    name="name"
+                    label="Full name"
+                    required
+                    placeholder="Enter a name"
+                    helperText="This is shown across your workspace."
+                  />
+                  <RHFTextField
+                    name="email"
+                    label="Email address"
+                    type="email"
+                    required
+                    placeholder="name@company.com"
+                  />
+                  <RHFPasswordField
+                    name="password"
+                    label="Password"
+                    required
+                    strengthMeter
+                    placeholder="At least 8 characters"
+                  />
+                </FormGrid>
               </FormSection>
-              <FormSection title="Preferences" description="Use dedicated fields for dates, choices, money, and contact data.">
-              <FormGrid>
-              <RHFNumberField name="count" label="Quantity" />
-              <RHFSelect
-                name="status"
-                label="Status"
-                options={[
-                  { value: "active", label: "Active" },
-                  { value: "inactive", label: "Inactive" },
-                ]}
-              />
-              <RHFTextArea
-                name="notes"
-                label="Notes"
-                placeholder="Add additional context…"
-              />
-              <RHFCheckbox name="accept" label="I agree to the policy" />
-              <RHFSwitch
-                name="alerts"
-                label="Email notifications"
-                helperText="Receive important updates."
-              />
-              <RHFCurrencyField name="price" label="Monthly cost" />
-              <RHFCombobox
-                name="location"
-                label="Location"
-                options={[
-                  { value: "New York", label: "New York" },
-                  { value: "London", label: "London" },
-                ]}
-              />
-              <RHFMultiSelect
-                name="teams"
-                label="Teams"
-                options={[
-                  { value: "it", label: "IT" },
-                  { value: "hr", label: "People" },
-                  { value: "ops", label: "Operations" },
-                ]}
-              />
-              <RHFDatePicker name="date" label="Start date" />
-              <RHFDateRangePicker
-                fromName="start"
-                toName="end"
-                label="Date range"
-              />
-              <RHFTimePicker name="time" label="Preferred time" />
-              <RHFPhoneInput name="phone" label="Phone number" />
-              <RHFSegmentedControl
-                name="segment"
-                label="View period"
-                options={[
-                  { value: "week", label: "Week" },
-                  { value: "month", label: "Month" },
-                  { value: "year", label: "Year" },
-                ]}
-              />
-              <RHFRadioGroup
-                name="role"
-                label="Access role"
-                options={[
-                  { value: "admin", label: "Admin" },
-                  { value: "employee", label: "Employee" },
-                ]}
-              />
-              <RHFCheckboxGroup
-                name="permissions"
-                label="Permissions"
-                options={[
-                  { value: "read", label: "Read" },
-                  { value: "write", label: "Write" },
-                ]}
-              />
-              <RHFTagsInput name="tags" label="Tags" />
-              <RHFOtpInput name="otp" label="One-time code" />
-              <RHFFileUpload
-                name="attachment"
-                label="Attachment"
-                accept=".pdf,.csv"
-              />
-              <RHFImageUpload name="photo" label="Profile image" />
-              <RHFColorPicker name="color" label="Brand color" />
-              <RHFSearchInput name="review" label="Search" />
-              </FormGrid>
+              <FormSection
+                title="Preferences"
+                description="Use dedicated fields for dates, choices, money, and contact data."
+              >
+                <FormGrid>
+                  <RHFNumberField name="count" label="Quantity" />
+                  <RHFSelect
+                    name="status"
+                    label="Status"
+                    options={[
+                      { value: "active", label: "Active" },
+                      { value: "inactive", label: "Inactive" },
+                    ]}
+                  />
+                  <RHFTextArea
+                    name="notes"
+                    label="Notes"
+                    placeholder="Add additional context…"
+                  />
+                  <RHFCheckbox name="accept" label="I agree to the policy" />
+                  <RHFSwitch
+                    name="alerts"
+                    label="Email notifications"
+                    helperText="Receive important updates."
+                  />
+                  <RHFCurrencyField name="price" label="Monthly cost" />
+                  <RHFCombobox
+                    name="location"
+                    label="Location"
+                    options={[
+                      { value: "New York", label: "New York" },
+                      { value: "London", label: "London" },
+                    ]}
+                  />
+                  <RHFMultiSelect
+                    name="teams"
+                    label="Teams"
+                    options={[
+                      { value: "it", label: "IT" },
+                      { value: "hr", label: "People" },
+                      { value: "ops", label: "Operations" },
+                    ]}
+                  />
+                  <RHFDatePicker name="date" label="Start date" />
+                  <RHFDateRangePicker
+                    fromName="start"
+                    toName="end"
+                    label="Date range"
+                  />
+                  <RHFTimePicker name="time" label="Preferred time" />
+                  <RHFPhoneInput name="phone" label="Phone number" />
+                  <RHFSegmentedControl
+                    name="segment"
+                    label="View period"
+                    options={[
+                      { value: "week", label: "Week" },
+                      { value: "month", label: "Month" },
+                      { value: "year", label: "Year" },
+                    ]}
+                  />
+                  <RHFRadioGroup
+                    name="role"
+                    label="Access role"
+                    options={[
+                      { value: "admin", label: "Admin" },
+                      { value: "employee", label: "Employee" },
+                    ]}
+                  />
+                  <RHFCheckboxGroup
+                    name="permissions"
+                    label="Permissions"
+                    options={[
+                      { value: "read", label: "Read" },
+                      { value: "write", label: "Write" },
+                    ]}
+                  />
+                  <RHFTagsInput name="tags" label="Tags" />
+                  <RHFOtpInput name="otp" label="One-time code" />
+                  <RHFFileUpload
+                    name="attachment"
+                    label="Attachment"
+                    accept=".pdf,.csv"
+                  />
+                  <RHFImageUpload name="photo" label="Profile image" />
+                  <RHFColorPicker name="color" label="Brand color" />
+                  <RHFSearchInput name="review" label="Search" />
+                </FormGrid>
               </FormSection>
-              <FormActions submitting={methods.formState.isSubmitting} onCancel={() => methods.reset()} />
+              <FormActions
+                submitting={methods.formState.isSubmitting}
+                onCancel={() => methods.reset()}
+              />
             </FormProvider>
           </CardContent>
         </Card>
@@ -367,6 +383,68 @@ export function DesignSystem() {
             <Button variant="destructive" onClick={() => setConfirm(true)}>
               Open confirmation
             </Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <div>
+              <h2 className="text-sm font-semibold">
+                StatCard, KeyValue & Timeline
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Standard display components for dashboards, detail overviews,
+                and audit histories.
+              </p>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <StatCard
+                label="Active hardware"
+                value="142"
+                change={12}
+                icon={<Laptop className="h-4 w-4" />}
+              />
+              <StatCard
+                label="Pending maintenance"
+                value="7"
+                change={-3}
+                icon={<Bell className="h-4 w-4" />}
+              />
+            </div>
+            <div className="rounded-lg border p-4">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                Detail Key-Value Overview
+              </h3>
+              <KeyValueList
+                items={[
+                  { label: "Asset serial number", value: "AST-009281" },
+                  { label: "Assigned department", value: "Engineering" },
+                  { label: "Warranty expiration", value: "2027-11-18" },
+                ]}
+              />
+            </div>
+            <div className="rounded-lg border p-4">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                Activity Timeline
+              </h3>
+              <Timeline
+                items={[
+                  {
+                    id: 1,
+                    title: "Asset created",
+                    description: "Admin User created record AST-009281",
+                    time: "10:00 AM",
+                  },
+                  {
+                    id: 2,
+                    title: "Hardware assigned",
+                    description: "Hardware Manager assigned to John Doe",
+                    time: "11:30 AM",
+                  },
+                ]}
+              />
+            </div>
           </CardContent>
         </Card>
         <Card>
