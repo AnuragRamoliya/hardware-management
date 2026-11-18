@@ -65,6 +65,28 @@ const navigation: NavigationItem[] = [
     path: PATHS.PORTAL,
     icon: UserRound,
     roles: ["employee"],
+    group: "Portal",
+  },
+  {
+    label: "My assets",
+    path: PATHS.PORTAL_ASSETS,
+    icon: Laptop,
+    roles: ["employee"],
+    group: "Portal",
+  },
+  {
+    label: "My software",
+    path: PATHS.PORTAL_SOFTWARE,
+    icon: CommandIcon,
+    roles: ["employee"],
+    group: "Portal",
+  },
+  {
+    label: "My accounts",
+    path: PATHS.PORTAL_ACCOUNTS,
+    icon: KeyRound,
+    roles: ["employee"],
+    group: "Portal",
   },
   {
     label: "Employees",
@@ -72,66 +94,6 @@ const navigation: NavigationItem[] = [
     icon: UsersRound,
     roles: ["admin", "hr"],
     permission: "employee",
-  },
-  {
-    label: "My assets",
-    path: PATHS.PORTAL_ASSETS,
-    icon: Laptop,
-    roles: ["employee"],
-  },
-  {
-    label: "My software",
-    path: PATHS.PORTAL_SOFTWARE,
-    icon: CommandIcon,
-    roles: ["employee"],
-  },
-  {
-    label: "My accounts",
-    path: PATHS.PORTAL_ACCOUNTS,
-    icon: KeyRound,
-    roles: ["employee"],
-  },
-  {
-    label: "Users",
-    path: PATHS.USERS,
-    icon: Users,
-    roles: ["admin"],
-    permission: "user",
-  },
-  {
-    label: "Roles & access",
-    path: PATHS.ROLES,
-    icon: ShieldCheck,
-    roles: ["admin"],
-    permission: "role",
-  },
-  {
-    label: "Departments",
-    path: PATHS.DEPARTMENTS,
-    icon: UsersRound,
-    roles: ["admin", "hr"],
-    permission: "department",
-  },
-  {
-    label: "Designations",
-    path: PATHS.DESIGNATIONS,
-    icon: Settings2,
-    roles: ["admin", "hr"],
-    permission: "designation",
-  },
-  {
-    label: "Locations",
-    path: PATHS.LOCATIONS,
-    icon: Settings2,
-    roles: ["admin", "hr"],
-    permission: "location",
-  },
-  {
-    label: "Vendors",
-    path: PATHS.VENDORS,
-    icon: Settings2,
-    roles: ["admin", "hardware"],
-    permission: "vendor",
   },
   {
     label: "Asset categories",
@@ -214,17 +176,67 @@ const navigation: NavigationItem[] = [
     group: "Credentials",
   },
   {
+    label: "Departments",
+    path: PATHS.DEPARTMENTS,
+    icon: UsersRound,
+    roles: ["admin", "hr"],
+    permission: "department",
+    group: "Organization",
+  },
+  {
+    label: "Designations",
+    path: PATHS.DESIGNATIONS,
+    icon: Settings2,
+    roles: ["admin", "hr"],
+    permission: "designation",
+    group: "Organization",
+  },
+  {
+    label: "Locations",
+    path: PATHS.LOCATIONS,
+    icon: Settings2,
+    roles: ["admin", "hr"],
+    permission: "location",
+    group: "Organization",
+  },
+  {
+    label: "Vendors",
+    path: PATHS.VENDORS,
+    icon: Settings2,
+    roles: ["admin", "hardware"],
+    permission: "vendor",
+    group: "Organization",
+  },
+  {
+    label: "Users",
+    path: PATHS.USERS,
+    icon: Users,
+    roles: ["admin"],
+    permission: "user",
+    group: "Administration",
+  },
+  {
+    label: "Roles & access",
+    path: PATHS.ROLES,
+    icon: ShieldCheck,
+    roles: ["admin"],
+    permission: "role",
+    group: "Administration",
+  },
+  {
     label: "Audit logs",
     path: PATHS.AUDIT_LOGS,
     icon: ShieldCheck,
     roles: ["admin"],
     permission: "audit_log",
+    group: "Administration",
   },
   {
     label: "Design system",
     path: PATHS.DESIGN_SYSTEM,
     icon: Settings2,
     roles: ["admin"],
+    group: "Administration",
   },
 ];
 
@@ -324,98 +336,126 @@ export function AppShell() {
   }) => {
     const isCollapsed = collapsed && !forceExpanded;
     return (
-      <div className="flex h-full flex-col">
-        <div className="flex h-[68px] items-center justify-between border-b px-5">
+      <div className="flex h-full flex-col bg-card select-none">
+        {/* Header */}
+        <div className="flex h-[68px] shrink-0 items-center justify-between border-b px-5">
           <Link
             to={PATHS.ROOT}
+            onClick={onNavigate}
             className="flex items-center gap-2.5 font-semibold tracking-tight"
           >
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-xs font-bold text-primary-foreground shadow-xs">
               IT
             </span>
             {!isCollapsed && (
-              <span>
+              <span className="truncate text-sm font-bold tracking-tight text-foreground">
                 {siteName}
-                <span className="ml-1 text-primary">.</span>
+                <span className="ml-0.5 text-primary">.</span>
               </span>
             )}
           </Link>
           <button
-            aria-label="Collapse sidebar"
-            className="hidden rounded p-1 text-muted-foreground hover:bg-muted lg:block"
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="hidden rounded-lg p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground lg:block"
             onClick={() => setCollapsed((value) => !value)}
           >
             <ChevronDown
               className={cn(
-                "h-4 w-4 -rotate-90 transition",
+                "h-4 w-4 -rotate-90 transition-transform duration-200",
                 isCollapsed && "rotate-90",
               )}
             />
           </button>
           <button
             aria-label="Close navigation"
-            className="lg:hidden"
+            className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground lg:hidden"
             onClick={() => setMobileOpen(false)}
           >
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="px-3 pt-5">
+
+        {/* Scrollable Navigation Area */}
+        <div className="flex-1 overflow-y-auto px-3 py-4">
           {!isCollapsed && (
-            <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[.14em] text-muted-foreground">
+            <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[.14em] text-muted-foreground/80">
               Workspace
             </p>
           )}
           <nav aria-label="Main navigation" className="space-y-1">
-            {visibleNavigation.map((item, index) => (
-              <div key={item.path}>
-                {!isCollapsed &&
-                  item.group &&
-                  visibleNavigation[index - 1]?.group !== item.group && (
-                    <p className="mb-1 mt-4 px-3 text-[10px] font-semibold uppercase tracking-[.14em] text-muted-foreground">
-                      {item.group}
-                    </p>
+            {visibleNavigation.map((item, index) => {
+              const prevGroup = visibleNavigation[index - 1]?.group;
+              const isNewGroup = item.group && prevGroup !== item.group;
+              return (
+                <div key={item.path}>
+                  {isNewGroup && (
+                    <>
+                      {isCollapsed ? (
+                        <div className="my-2 border-t border-border/50" />
+                      ) : (
+                        <p className="mb-1.5 mt-5 px-3 text-[10px] font-semibold uppercase tracking-[.14em] text-muted-foreground/80">
+                          {item.group}
+                        </p>
+                      )}
+                    </>
                   )}
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  onClick={onNavigate}
-                  title={isCollapsed ? item.label : undefined}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex min-h-10 items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground",
-                      isActive && "bg-accent text-accent-foreground",
-                      isCollapsed && "justify-center px-0",
-                    )
-                  }
-                >
-                  <item.icon className="h-[17px] w-[17px] shrink-0" />
-                  {!isCollapsed && item.label}
-                </NavLink>
-              </div>
-            ))}
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={onNavigate}
+                    title={isCollapsed ? item.label : undefined}
+                    className={({ isActive }) =>
+                      cn(
+                        "group relative flex min-h-10 items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                        isActive &&
+                          "bg-primary/10 font-semibold text-primary dark:bg-primary/20",
+                        isCollapsed && "justify-center px-0",
+                      )
+                    }
+                  >
+                    <item.icon
+                      className={cn(
+                        "h-[18px] w-[18px] shrink-0 transition-transform duration-150 group-hover:scale-105",
+                        isCollapsed && "mx-auto",
+                      )}
+                    />
+                    {!isCollapsed && (
+                      <span className="truncate">{item.label}</span>
+                    )}
+                  </NavLink>
+                </div>
+              );
+            })}
           </nav>
         </div>
-        <div className="mt-auto border-t p-3">
+
+        {/* Footer with user info */}
+        <div className="shrink-0 border-t p-3">
           <NavLink
             to={PATHS.PROFILE}
             onClick={onNavigate}
+            title={
+              isCollapsed
+                ? `${user?.first_name || ""} ${user?.last_name || ""}`.trim()
+                : undefined
+            }
             className={({ isActive }) =>
               cn(
-                "flex min-h-12 items-center gap-3 rounded-lg px-2.5 hover:bg-muted",
-                isActive && "bg-muted",
+                "flex min-h-12 items-center gap-3 rounded-lg px-2.5 transition-colors hover:bg-muted",
+                isActive && "bg-muted font-semibold",
+                isCollapsed && "justify-center px-0",
               )
             }
           >
-            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-semibold text-primary shadow-xs">
               {user?.first_name?.[0] ?? "U"}
               {user?.last_name?.[0] ?? ""}
             </div>
             {!isCollapsed && (
               <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-medium">
+                <p className="truncate text-xs font-medium text-foreground">
                   {user
-                    ? `${user.first_name} ${user.last_name ?? ""}`
+                    ? `${user.first_name} ${user.last_name ?? ""}`.trim()
                     : "Workspace user"}
                 </p>
                 <p className="truncate text-[11px] capitalize text-muted-foreground">
@@ -426,7 +466,7 @@ export function AppShell() {
             {!isCollapsed && (
               <span
                 aria-hidden="true"
-                className="rounded p-1.5 text-muted-foreground"
+                className="rounded p-1 text-muted-foreground"
               >
                 <ChevronDown className="h-4 w-4" />
               </span>
@@ -441,21 +481,24 @@ export function AppShell() {
     <div className="min-h-screen">
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-30 hidden border-r bg-card transition-[width] duration-180 lg:block",
+          "fixed inset-y-0 left-0 z-30 hidden border-r bg-card transition-all duration-200 ease-in-out lg:block",
           collapsed ? "w-[72px]" : "w-[260px]",
         )}
       >
         <Sidebar />
       </aside>
       <Dialog open={mobileOpen} onOpenChange={setMobileOpen}>
-        <DialogContent className="left-0 top-0 h-dvh max-h-dvh w-[min(84vw,300px)] max-w-[300px] translate-x-0 translate-y-0 rounded-none p-0 sm:rounded-r-2xl">
+        <DialogContent
+          hideClose
+          className="fixed inset-y-0 left-0 z-50 h-full max-h-none w-[280px] max-w-[85vw] -translate-x-0 -translate-y-0 rounded-none border-r border-border bg-card p-0 shadow-2xl focus:outline-none"
+        >
           <DialogTitle className="sr-only">Workspace navigation</DialogTitle>
           <Sidebar onNavigate={() => setMobileOpen(false)} forceExpanded />
         </DialogContent>
       </Dialog>
       <main
         className={cn(
-          "min-h-screen transition-[margin] duration-180",
+          "min-h-screen transition-all duration-200 ease-in-out",
           collapsed ? "lg:ml-[72px]" : "lg:ml-[260px]",
         )}
       >
