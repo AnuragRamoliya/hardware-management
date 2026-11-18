@@ -23,10 +23,12 @@ export function DialogContent({
   id,
   className,
   children,
+  hideClose = false,
 }: {
   id?: string;
   className?: string;
   children: ReactNode;
+  hideClose?: boolean;
 }) {
   return (
     <DialogPrimitive.Portal>
@@ -39,12 +41,14 @@ export function DialogContent({
         )}
       >
         {children}
-        <DialogPrimitive.Close
-          aria-label="Close dialog"
-          className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground hover:bg-muted"
-        >
-          <X className="h-4 w-4" />
-        </DialogPrimitive.Close>
+        {!hideClose && (
+          <DialogPrimitive.Close
+            aria-label="Close dialog"
+            className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground hover:bg-muted"
+          >
+            <X className="h-4 w-4" />
+          </DialogPrimitive.Close>
+        )}
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
   );
