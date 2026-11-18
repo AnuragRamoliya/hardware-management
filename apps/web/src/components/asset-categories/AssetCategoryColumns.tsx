@@ -1,3 +1,4 @@
+import { Pencil, Trash2 } from "lucide-react";
 import type { TableColumn } from "@/components/common/CommonTable";
 import { RowActionsMenu } from "@/components/common/RowActionsMenu";
 import { StatusBadge } from "@/components/common/StatusBadge";
@@ -58,14 +59,19 @@ export function getAssetCategoryColumns(
         const menuActions = [];
         if (actions.canWrite !== false) {
           menuActions.push({
+            key: "edit",
             label: "Edit",
+            icon: Pencil,
             onSelect: () => actions.onEdit(row),
           });
         }
         if (actions.canDelete !== false) {
           menuActions.push({
+            key: "delete",
             label: "Delete",
+            icon: Trash2,
             destructive: true,
+            separatorBefore: true,
             onSelect: () => actions.onDelete(row),
           });
         }

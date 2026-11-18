@@ -26,17 +26,17 @@ idempotent MySQL upserts. Re-running `npm run migrate` and `npm run seed` is saf
 
 ## Scripts
 
-| Command             | Purpose                           |
-| ------------------- | --------------------------------- |
-| `npm run dev`       | Run TypeScript with file watching |
-| `npm run build`     | Compile to `dist/`                |
-| `npm start`         | Start the compiled API            |
-| `npm run migrate`   | Apply Sequelize migrations        |
-| `npm run seed`      | Apply idempotent seeders          |
+| Command                                  | Purpose                            |
+| ---------------------------------------- | ---------------------------------- |
+| `npm run dev`                            | Run TypeScript with file watching  |
+| `npm run build`                          | Compile to `dist/`                 |
+| `npm start`                              | Start the compiled API             |
+| `npm run migrate`                        | Apply Sequelize migrations         |
+| `npm run seed`                           | Apply idempotent seeders           |
 | `NODE_ENV=development npm run seed:bulk` | Insert 100,000 load-test employees |
-| `npm run lint`      | Run ESLint                        |
-| `npm run typecheck` | Run strict TypeScript checks      |
-| `npm test`          | Run Vitest and Supertest          |
+| `npm run lint`                           | Run ESLint                         |
+| `npm run typecheck`                      | Run strict TypeScript checks       |
+| `npm test`                               | Run Vitest and Supertest           |
 
 Husky runs lint-staged and TypeScript checks before commits.
 

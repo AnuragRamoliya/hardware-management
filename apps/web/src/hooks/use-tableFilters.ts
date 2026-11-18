@@ -33,7 +33,10 @@ function parseFilters(search: string): FilterValues {
 export function useTableFilters() {
   const location = useLocation();
   const navigate = useNavigate();
-  const filters = useMemo(() => parseFilters(location.search), [location.search]);
+  const filters = useMemo(
+    () => parseFilters(location.search),
+    [location.search],
+  );
   const writeFilters = useCallback(
     (nextFilters: FilterValues) => {
       const params = new URLSearchParams(location.search);

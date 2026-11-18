@@ -1,12 +1,48 @@
 'use strict';
 
 const firstNames = [
-  'Aarav', 'Aditi', 'Ananya', 'Arjun', 'Diya', 'Ishaan', 'Kavya', 'Maya', 'Neha', 'Rohan',
-  'Saanvi', 'Vikram', 'Zara', 'Adrian', 'Amelia', 'Daniel', 'Elena', 'Ethan', 'Grace', 'Lucas',
+  'Aarav',
+  'Aditi',
+  'Ananya',
+  'Arjun',
+  'Diya',
+  'Ishaan',
+  'Kavya',
+  'Maya',
+  'Neha',
+  'Rohan',
+  'Saanvi',
+  'Vikram',
+  'Zara',
+  'Adrian',
+  'Amelia',
+  'Daniel',
+  'Elena',
+  'Ethan',
+  'Grace',
+  'Lucas',
 ];
 const lastNames = [
-  'Shah', 'Patel', 'Mehta', 'Rao', 'Sharma', 'Kapoor', 'Desai', 'Nair', 'Singh', 'Iyer',
-  'Brown', 'Chen', 'Davis', 'Garcia', 'Johnson', 'Kim', 'Martin', 'Miller', 'Wilson', 'Wong',
+  'Shah',
+  'Patel',
+  'Mehta',
+  'Rao',
+  'Sharma',
+  'Kapoor',
+  'Desai',
+  'Nair',
+  'Singh',
+  'Iyer',
+  'Brown',
+  'Chen',
+  'Davis',
+  'Garcia',
+  'Johnson',
+  'Kim',
+  'Martin',
+  'Miller',
+  'Wilson',
+  'Wong',
 ];
 const rowCount = 100_000;
 const batchSize = 1_000;
@@ -23,7 +59,8 @@ module.exports = {
       const employees = [];
       for (let sequence = start; sequence <= end; sequence += 1) {
         const firstName = firstNames[(sequence - 1) % firstNames.length];
-        const lastName = lastNames[Math.floor((sequence - 1) / firstNames.length) % lastNames.length];
+        const lastName =
+          lastNames[Math.floor((sequence - 1) / firstNames.length) % lastNames.length];
         const suffix = String(sequence).padStart(6, '0');
         employees.push({
           employee_code: `LOADTEST-${suffix}`,

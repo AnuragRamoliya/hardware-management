@@ -14,11 +14,14 @@ export const softwareKeys = {
   lists: () => [...softwareKeys.all, "list"] as const,
   list: (query: ListQuery) => [...softwareKeys.lists(), query] as const,
   details: () => [...softwareKeys.all, "detail"] as const,
-  detail: (id: string | number) => [...softwareKeys.details(), String(id)] as const,
+  detail: (id: string | number) =>
+    [...softwareKeys.details(), String(id)] as const,
   licenses: (id: string | number, filterQuery?: unknown) =>
     [...softwareKeys.detail(id), "licenses", filterQuery] as const,
-  usage: (id: string | number) => [...softwareKeys.detail(id), "usage"] as const,
-  activity: (id: string | number) => [...softwareKeys.detail(id), "activity"] as const,
+  usage: (id: string | number) =>
+    [...softwareKeys.detail(id), "usage"] as const,
+  activity: (id: string | number) =>
+    [...softwareKeys.detail(id), "activity"] as const,
 };
 
 export function useSoftwareList(query: ListQuery) {
@@ -81,7 +84,10 @@ export function useSoftwareUsage(softwareId: string | number, enabled = true) {
   });
 }
 
-export function useSoftwareActivity(softwareId: string | number, enabled = true) {
+export function useSoftwareActivity(
+  softwareId: string | number,
+  enabled = true,
+) {
   return useQuery({
     queryKey: softwareKeys.activity(softwareId),
     enabled: Boolean(softwareId) && enabled,
@@ -121,7 +127,9 @@ export function useCreateSoftware() {
 export function useUpdateSoftware() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: Partial<SoftwareRecord> & { id: string | number }) => {
+    mutationFn: async (
+      payload: Partial<SoftwareRecord> & { id: string | number },
+    ) => {
       const response = await softwareApi.update(payload);
       if (!response.ok) throw new Error(response.message);
       return response.data;
@@ -129,7 +137,9 @@ export function useUpdateSoftware() {
     onSuccess: (_data, variables) => {
       toast.success("Software updated successfully");
       void queryClient.invalidateQueries({ queryKey: softwareKeys.all });
-      void queryClient.invalidateQueries({ queryKey: softwareKeys.detail(variables.id) });
+      void queryClient.invalidateQueries({
+        queryKey: softwareKeys.detail(variables.id),
+      });
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -172,7 +182,9 @@ export function useCreateLicense() {
     onSuccess: (_data, variables) => {
       toast.success("License added successfully");
       void queryClient.invalidateQueries({ queryKey: softwareKeys.all });
-      void queryClient.invalidateQueries({ queryKey: softwareKeys.detail(variables.software_id) });
+      void queryClient.invalidateQueries({
+        queryKey: softwareKeys.detail(variables.software_id),
+      });
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -183,7 +195,12 @@ export function useCreateLicense() {
 export function useUpdateLicense() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: Partial<LicenseRecord> & { id: string | number; software_id: string | number }) => {
+    mutationFn: async (
+      payload: Partial<LicenseRecord> & {
+        id: string | number;
+        software_id: string | number;
+      },
+    ) => {
       const response = await softwareApi.updateLicense(payload);
       if (!response.ok) throw new Error(response.message);
       return response.data;
@@ -191,7 +208,9 @@ export function useUpdateLicense() {
     onSuccess: (_data, variables) => {
       toast.success("License updated successfully");
       void queryClient.invalidateQueries({ queryKey: softwareKeys.all });
-      void queryClient.invalidateQueries({ queryKey: softwareKeys.detail(variables.software_id) });
+      void queryClient.invalidateQueries({
+        queryKey: softwareKeys.detail(variables.software_id),
+      });
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -202,7 +221,11 @@ export function useUpdateLicense() {
 export function useAssignSoftware() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { software_id: number; employee_id: number; license_id?: number }) => {
+    mutationFn: async (payload: {
+      software_id: number;
+      employee_id: number;
+      license_id?: number;
+    }) => {
       const response = await softwareApi.assign(payload);
       if (!response.ok) throw new Error(response.message);
       return response.data;
@@ -210,8 +233,12 @@ export function useAssignSoftware() {
     onSuccess: (_data, variables) => {
       toast.success("Software assigned successfully");
       void queryClient.invalidateQueries({ queryKey: softwareKeys.all });
-      void queryClient.invalidateQueries({ queryKey: softwareKeys.detail(variables.software_id) });
-      void queryClient.invalidateQueries({ queryKey: ["employee-software", String(variables.employee_id)] });
+      void queryClient.invalidateQueries({
+        queryKey: softwareKeys.detail(variables.software_id),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["employee-software", String(variables.employee_id)],
+      });
       void queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
     onError: (error: Error) => {

@@ -30,9 +30,19 @@ const employeeDefinition: ResourceDefinition = {
   searchFields: ['employee_code', 'first_name', 'last_name', 'email', 'phone'],
   optionFields: ['id', 'employee_code', 'first_name', 'last_name', 'email'],
   filterableFields: {
-    employee_code: 'text', first_name: 'text', last_name: 'text', email: 'text', phone: 'text',
-    department_id: 'number', designation_id: 'number', manager_id: 'number', location_id: 'number',
-    join_date: 'date', last_working_date: 'date', employment_status: 'number', status: 'number',
+    employee_code: 'text',
+    first_name: 'text',
+    last_name: 'text',
+    email: 'text',
+    phone: 'text',
+    department_id: 'number',
+    designation_id: 'number',
+    manager_id: 'number',
+    location_id: 'number',
+    join_date: 'date',
+    last_working_date: 'date',
+    employment_status: 'number',
+    status: 'number',
   },
 };
 const employeeFields = new Set(employeeDefinition.writableFields);

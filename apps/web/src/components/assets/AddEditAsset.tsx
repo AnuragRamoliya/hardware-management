@@ -17,7 +17,10 @@ import {
   RHFSegmentedControl,
   RHFTextArea,
 } from "@/components/hook-form/fields";
-import { KeyValueEditor, type KeyValueEntry } from "@/components/common/KeyValueEditor";
+import {
+  KeyValueEditor,
+  type KeyValueEntry,
+} from "@/components/common/KeyValueEditor";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ASSET_CONDITIONS } from "@/utils/constants";
 import { assetFormSchema, type AssetFormValues } from "./Asset.schema";
@@ -49,7 +52,12 @@ const defaultValues: AssetFormValues = {
   specs: [],
 };
 
-export function AddEditAsset({ open, onOpenChange, asset, loading }: AddEditAssetProps) {
+export function AddEditAsset({
+  open,
+  onOpenChange,
+  asset,
+  loading,
+}: AddEditAssetProps) {
   const isEdit = Boolean(asset?.id);
   const createMutation = useCreateAsset();
   const updateMutation = useUpdateAsset();
@@ -70,7 +78,10 @@ export function AddEditAsset({ open, onOpenChange, asset, loading }: AddEditAsse
   useEffect(() => {
     if (asset && open) {
       const specsEntries: KeyValueEntry[] = asset.specs
-        ? Object.entries(asset.specs).map(([key, value]) => ({ key, value: String(value) }))
+        ? Object.entries(asset.specs).map(([key, value]) => ({
+            key,
+            value: String(value),
+          }))
         : [];
 
       reset({
@@ -82,10 +93,14 @@ export function AddEditAsset({ open, onOpenChange, asset, loading }: AddEditAsse
         vendor_id: asset.vendor_id ?? null,
         location_id: asset.location_id ?? null,
         parent_asset_id: asset.parent_asset_id ?? null,
-        condition: (asset.condition as "new" | "good" | "fair" | "poor") ?? "good",
+        condition:
+          (asset.condition as "new" | "good" | "fair" | "poor") ?? "good",
         purchase_date: asset.purchase_date ?? null,
-        purchase_cost: asset.purchase_cost != null ? Number(asset.purchase_cost) : null,
-        warranty_start: (asset as unknown as Record<string, unknown>).warranty_start as string ?? null,
+        purchase_cost:
+          asset.purchase_cost != null ? Number(asset.purchase_cost) : null,
+        warranty_start:
+          ((asset as unknown as Record<string, unknown>)
+            .warranty_start as string) ?? null,
         warranty_end: asset.warranty_end ?? null,
         notes: asset.notes ?? "",
         specs: specsEntries,
@@ -113,7 +128,9 @@ export function AddEditAsset({ open, onOpenChange, asset, loading }: AddEditAsse
       category_id: values.category_id ? Number(values.category_id) : null,
       vendor_id: values.vendor_id ? Number(values.vendor_id) : null,
       location_id: values.location_id ? Number(values.location_id) : null,
-      parent_asset_id: values.parent_asset_id ? Number(values.parent_asset_id) : null,
+      parent_asset_id: values.parent_asset_id
+        ? Number(values.parent_asset_id)
+        : null,
       condition: values.condition as "new" | "good" | "fair" | "poor",
       purchase_date: values.purchase_date || null,
       purchase_cost: values.purchase_cost ?? null,
@@ -144,7 +161,9 @@ export function AddEditAsset({ open, onOpenChange, asset, loading }: AddEditAsse
         }
         onOpenChange(next);
       }}
-      title={isEdit ? `Edit asset: ${asset?.asset_tag}` : "Add new hardware asset"}
+      title={
+        isEdit ? `Edit asset: ${asset?.asset_tag}` : "Add new hardware asset"
+      }
       description={
         isEdit
           ? "Update equipment specifications, warranty dates, and procurement details."
@@ -231,22 +250,10 @@ export function AddEditAsset({ open, onOpenChange, asset, loading }: AddEditAsse
                   endpoint="vendor/options"
                   clearable
                 />
-                <RHFDatePicker
-                  name="purchase_date"
-                  label="Purchase Date"
-                />
-                <RHFCurrencyField
-                  name="purchase_cost"
-                  label="Purchase Cost"
-                />
-                <RHFDatePicker
-                  name="warranty_start"
-                  label="Warranty Start"
-                />
-                <RHFDatePicker
-                  name="warranty_end"
-                  label="Warranty End"
-                />
+                <RHFDatePicker name="purchase_date" label="Purchase Date" />
+                <RHFCurrencyField name="purchase_cost" label="Purchase Cost" />
+                <RHFDatePicker name="warranty_start" label="Warranty Start" />
+                <RHFDatePicker name="warranty_end" label="Warranty End" />
               </FormGrid>
             </FormSection>
 
@@ -257,7 +264,9 @@ export function AddEditAsset({ open, onOpenChange, asset, loading }: AddEditAsse
               <KeyValueEditor
                 label="Technical Specs"
                 value={specsValue}
-                onChange={(next) => setValue("specs", next, { shouldDirty: true })}
+                onChange={(next) =>
+                  setValue("specs", next, { shouldDirty: true })
+                }
                 keyPlaceholder="Property (e.g. RAM)"
                 valuePlaceholder="Value (e.g. 32GB)"
               />
@@ -277,7 +286,11 @@ export function AddEditAsset({ open, onOpenChange, asset, loading }: AddEditAsse
           </div>
 
           <FormActions
-            submitting={isSubmitting || createMutation.isPending || updateMutation.isPending}
+            submitting={
+              isSubmitting ||
+              createMutation.isPending ||
+              updateMutation.isPending
+            }
             submitLabel={isEdit ? "Update asset" : "Save asset"}
             onCancel={() => onOpenChange(false)}
           />

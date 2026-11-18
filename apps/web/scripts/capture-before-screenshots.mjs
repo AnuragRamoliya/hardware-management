@@ -16,16 +16,23 @@ async function getAdminSession() {
     envContent
       .split("\n")
       .filter((l) => l.includes("="))
-      .map((l) => [l.slice(0, l.indexOf("=")).trim(), l.slice(l.indexOf("=") + 1).trim()])
+      .map((l) => [
+        l.slice(0, l.indexOf("=")).trim(),
+        l.slice(l.indexOf("=") + 1).trim(),
+      ]),
   );
 
   const res = await fetch("http://localhost:8000/user/login", {
     method: "POST",
     headers: { "Content-Type": "application/json", "plain-text": "true" },
-    body: JSON.stringify({ email: env.SUPER_ADMIN_EMAIL, password: env.SUPER_ADMIN_PASSWORD }),
+    body: JSON.stringify({
+      email: env.SUPER_ADMIN_EMAIL,
+      password: env.SUPER_ADMIN_PASSWORD,
+    }),
   });
   const data = await res.json();
-  if (!data?.data?.token) throw new Error("Failed to log in: " + JSON.stringify(data));
+  if (!data?.data?.token)
+    throw new Error("Failed to log in: " + JSON.stringify(data));
   return {
     token: data.data.token,
     refreshToken: data.data.refresh_token,
@@ -158,10 +165,14 @@ async function run() {
       // 3b. Assets add dialog
       await evalClick("header button:has(svg.lucide-plus)");
       await capture(`assets_add_dialog_${vp.name}.png`, 800);
-      await send("Runtime.evaluate", { expression: `document.querySelector("button[type='button']")?.click()` });
+      await send("Runtime.evaluate", {
+        expression: `document.querySelector("button[type='button']")?.click()`,
+      });
 
       // 4. Assets unassigned
-      await send("Page.navigate", { url: "http://localhost:5173/assets/unassigned" });
+      await send("Page.navigate", {
+        url: "http://localhost:5173/assets/unassigned",
+      });
       await capture(`assets_unassigned_${vp.name}.png`, 1500);
 
       // 5. Asset detail
@@ -179,7 +190,9 @@ async function run() {
       await capture(`asset_detail_activity_${vp.name}.png`, 800);
 
       // 6. Maintenance list
-      await send("Page.navigate", { url: "http://localhost:5173/asset-maintenance" });
+      await send("Page.navigate", {
+        url: "http://localhost:5173/asset-maintenance",
+      });
       await capture(`maintenance_list_${vp.name}.png`, 1500);
 
       // 7. Software list
@@ -189,7 +202,9 @@ async function run() {
       // 7b. Software add dialog
       await evalClick("header button:has(svg.lucide-plus)");
       await capture(`software_add_dialog_${vp.name}.png`, 800);
-      await send("Runtime.evaluate", { expression: `document.querySelector("button[type='button']")?.click()` });
+      await send("Runtime.evaluate", {
+        expression: `document.querySelector("button[type='button']")?.click()`,
+      });
 
       // 8. Software detail
       await send("Page.navigate", { url: "http://localhost:5173/software/1" });
@@ -208,13 +223,19 @@ async function run() {
       await capture(`dashboard_${vp.name}.png`, 1500);
 
       // 10. Notifications
-      await send("Page.navigate", { url: "http://localhost:5173/notifications" });
+      await send("Page.navigate", {
+        url: "http://localhost:5173/notifications",
+      });
       await capture(`notifications_${vp.name}.png`, 1500);
 
       // 11. Portal assets & software
-      await send("Page.navigate", { url: "http://localhost:5173/portal/assets" });
+      await send("Page.navigate", {
+        url: "http://localhost:5173/portal/assets",
+      });
       await capture(`portal_assets_${vp.name}.png`, 1500);
-      await send("Page.navigate", { url: "http://localhost:5173/portal/software" });
+      await send("Page.navigate", {
+        url: "http://localhost:5173/portal/software",
+      });
       await capture(`portal_software_${vp.name}.png`, 1500);
     }
 

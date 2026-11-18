@@ -42,9 +42,17 @@ function AssetsList({ unassignedOnly }: { unassignedOnly: boolean }) {
   const { tableState, setTableState } = useTableState();
   const currentUser = useAuthStore((state) => state.user);
   const role = getUserRole(currentUser);
-  const permissions = usePermissionStore((state) => state.modulePermissions["asset"]);
-  const canWrite = role === "admin" || role === "hardware" || permissions?.write_access === true;
-  const canDelete = role === "admin" || role === "hardware" || permissions?.delete_access === true;
+  const permissions = usePermissionStore(
+    (state) => state.modulePermissions["asset"],
+  );
+  const canWrite =
+    role === "admin" ||
+    role === "hardware" ||
+    permissions?.write_access === true;
+  const canDelete =
+    role === "admin" ||
+    role === "hardware" ||
+    permissions?.delete_access === true;
 
   // Selected item states for dialogs
   const [editingId, setEditingId] = useState<string | number | null>(null);
@@ -116,7 +124,8 @@ function AssetsList({ unassignedOnly }: { unassignedOnly: boolean }) {
   const columns = useMemo(
     () =>
       getAssetsColumns({
-        onView: (asset) => navigate(PATHS.ASSET_DETAIL.replace(":id", String(asset.id))),
+        onView: (asset) =>
+          navigate(PATHS.ASSET_DETAIL.replace(":id", String(asset.id))),
         onEdit: handleEdit,
         onAssign: handleAssign,
         onReturn: handleReturn,
@@ -127,7 +136,18 @@ function AssetsList({ unassignedOnly }: { unassignedOnly: boolean }) {
         canWrite,
         canDelete,
       }),
-    [handleEdit, handleAssign, handleReturn, handleTransfer, handleMaintenance, handleQr, handleDelete, canWrite, canDelete, navigate],
+    [
+      handleEdit,
+      handleAssign,
+      handleReturn,
+      handleTransfer,
+      handleMaintenance,
+      handleQr,
+      handleDelete,
+      canWrite,
+      canDelete,
+      navigate,
+    ],
   );
 
   const rows = useMemo(() => query.data?.rows ?? [], [query.data?.rows]);
@@ -172,7 +192,9 @@ function AssetsList({ unassignedOnly }: { unassignedOnly: boolean }) {
       {selectedIds.length > 0 && canWrite && (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-muted/40 p-3 text-sm">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-foreground">{selectedIds.length}</span>
+            <span className="font-medium text-foreground">
+              {selectedIds.length}
+            </span>
             <span className="text-muted-foreground">assets selected</span>
           </div>
           <div className="flex items-center gap-2">
@@ -227,7 +249,9 @@ function AssetsList({ unassignedOnly }: { unassignedOnly: boolean }) {
             }
           }
         }}
-        emptyTitle={unassignedOnly ? "No unassigned assets" : "No hardware assets found"}
+        emptyTitle={
+          unassignedOnly ? "No unassigned assets" : "No hardware assets found"
+        }
       />
 
       {/* Drawers & Dialogs */}
@@ -262,7 +286,9 @@ function AssetsList({ unassignedOnly }: { unassignedOnly: boolean }) {
       <AddEditMaintenance
         open={maintenanceOpen}
         onOpenChange={setMaintenanceOpen}
-        initialAssetId={selectedAsset?.id ? Number(selectedAsset.id) : undefined}
+        initialAssetId={
+          selectedAsset?.id ? Number(selectedAsset.id) : undefined
+        }
       />
 
       <AssetQrModal
@@ -285,10 +311,7 @@ function AssetsList({ unassignedOnly }: { unassignedOnly: boolean }) {
         onComplete={() => setSelectedIds([])}
       />
 
-      <AssetImportDialog
-        open={importOpen}
-        onOpenChange={setImportOpen}
-      />
+      <AssetImportDialog open={importOpen} onOpenChange={setImportOpen} />
 
       <ConfirmDialog
         open={Boolean(deleteTarget)}

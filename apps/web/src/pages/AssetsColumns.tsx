@@ -1,4 +1,14 @@
 import { Link } from "react-router-dom";
+import {
+  ArrowRightLeft,
+  Eye,
+  Pencil,
+  QrCode,
+  RotateCcw,
+  Trash2,
+  UserPlus,
+  Wrench,
+} from "lucide-react";
 import type { TableColumn } from "@/components/common/CommonTable";
 import type { AssetRecord } from "@/api/assets";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +31,9 @@ export interface AssetColumnActions {
   canDelete?: boolean;
 }
 
-export function getAssetsColumns(actions: AssetColumnActions): TableColumn<AssetRecord>[] {
+export function getAssetsColumns(
+  actions: AssetColumnActions,
+): TableColumn<AssetRecord>[] {
   return [
     {
       id: "asset_tag",
@@ -54,7 +66,10 @@ export function getAssetsColumns(actions: AssetColumnActions): TableColumn<Asset
       label: "Category",
       sortable: false,
       render: (row) => (
-        <ReferenceLabel endpoint="asset_category/options" id={row.category_id} />
+        <ReferenceLabel
+          endpoint="asset_category/options"
+          id={row.category_id}
+        />
       ),
     },
     {
@@ -72,7 +87,9 @@ export function getAssetsColumns(actions: AssetColumnActions): TableColumn<Asset
       render: (row) => {
         const emp = row.current_assignment?.employee;
         if (!emp) {
-          return <span className="text-xs text-muted-foreground">Unassigned</span>;
+          return (
+            <span className="text-xs text-muted-foreground">Unassigned</span>
+          );
         }
         return (
           <span className="text-sm font-medium">
@@ -109,7 +126,9 @@ export function getAssetsColumns(actions: AssetColumnActions): TableColumn<Asset
       sortable: true,
       render: (row) => (
         <span className="text-xs text-muted-foreground">
-          {row.warranty_end ? new Date(row.warranty_end).toLocaleDateString() : "—"}
+          {row.warranty_end
+            ? new Date(row.warranty_end).toLocaleDateString()
+            : "—"}
         </span>
       ),
     },
@@ -122,19 +141,25 @@ export function getAssetsColumns(actions: AssetColumnActions): TableColumn<Asset
         const isAvailable = row.asset_status === 1;
         const menuActions = [
           {
+            key: "view",
             label: "View details",
+            icon: Eye,
             onSelect: () => actions.onView(row),
           },
           ...(actions.canWrite !== false
             ? [
                 {
+                  key: "edit",
                   label: "Edit",
+                  icon: Pencil,
                   onSelect: () => actions.onEdit(row),
                 },
                 ...(isAvailable
                   ? [
                       {
+                        key: "assign",
                         label: "Assign asset",
+                        icon: UserPlus,
                         onSelect: () => actions.onAssign(row),
                       },
                     ]
@@ -142,38 +167,57 @@ export function getAssetsColumns(actions: AssetColumnActions): TableColumn<Asset
                 ...(isAssigned
                   ? [
                       {
+                        key: "return",
                         label: "Return asset",
+                        icon: RotateCcw,
                         onSelect: () => actions.onReturn(row),
                       },
                       {
+                        key: "transfer",
                         label: "Transfer asset",
+                        icon: ArrowRightLeft,
                         onSelect: () => actions.onTransfer(row),
                       },
                     ]
                   : []),
                 {
+                  key: "maintenance",
                   label: "Send to maintenance",
+                  icon: Wrench,
                   onSelect: () => actions.onMaintenance(row),
                 },
               ]
             : []),
           {
+            key: "qr",
             label: "QR code / label",
+            icon: QrCode,
             onSelect: () => actions.onQr(row),
           },
           ...(actions.canDelete !== false
             ? [
                 {
+                  key: "delete",
                   label: "Delete",
+                  icon: Trash2,
                   destructive: true,
+                  separatorBefore: true,
                   disabled: isAssigned,
+                  disabledReason: isAssigned
+                    ? "Assigned assets cannot be deleted"
+                    : undefined,
                   onSelect: () => actions.onDelete(row),
                 },
               ]
             : []),
         ];
 
-        return <RowActionsMenu label={`Actions for ${row.asset_tag}`} actions={menuActions} />;
+        return (
+          <RowActionsMenu
+            label={`Actions for ${row.asset_tag}`}
+            actions={menuActions}
+          />
+        );
       },
     },
   ];

@@ -13,10 +13,44 @@ const controller = new SoftwareLicensesController();
 const read = checkAccess(MODULES.SOFTWARE_LICENSE, ACCESS_TYPES.READ);
 const write = checkAccess(MODULES.SOFTWARE_LICENSE, ACCESS_TYPES.WRITE);
 
-router.post('/list', decryptPayload, userAuth, read, validate(listValidation), routeHandler((request) => controller.list(request)));
-router.post('/add', decryptPayload, userAuth, write, validate([body('software_id').isInt({ min: 1 }).toInt(), body('seats_total').optional().isInt({ min: 1 }).toInt()]), routeHandler((request) => controller.add(request), true));
-router.put('/update', decryptPayload, userAuth, write, validate([body('id').isInt({ min: 1 }).toInt(), body('seats_total').optional().isInt({ min: 1 }).toInt()]), routeHandler((request) => controller.update(request)));
-router.post('/options', decryptPayload, userAuth, read, validate(optionsValidation), routeHandler((request) => controller.options(request)));
+router.post(
+  '/list',
+  decryptPayload,
+  userAuth,
+  read,
+  validate(listValidation),
+  routeHandler((request) => controller.list(request)),
+);
+router.post(
+  '/add',
+  decryptPayload,
+  userAuth,
+  write,
+  validate([
+    body('software_id').isInt({ min: 1 }).toInt(),
+    body('seats_total').optional().isInt({ min: 1 }).toInt(),
+  ]),
+  routeHandler((request) => controller.add(request), true),
+);
+router.put(
+  '/update',
+  decryptPayload,
+  userAuth,
+  write,
+  validate([
+    body('id').isInt({ min: 1 }).toInt(),
+    body('seats_total').optional().isInt({ min: 1 }).toInt(),
+  ]),
+  routeHandler((request) => controller.update(request)),
+);
+router.post(
+  '/options',
+  decryptPayload,
+  userAuth,
+  read,
+  validate(optionsValidation),
+  routeHandler((request) => controller.options(request)),
+);
 
 export const softwareLicensesRouter = Router();
 softwareLicensesRouter.use('/software/license', router);

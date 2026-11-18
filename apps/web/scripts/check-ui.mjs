@@ -6,6 +6,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const src = path.join(root, "src");
 const legacyNativeAllowlist = new Set([
   "components/common/CommonTable.tsx",
+  "components/common/RowActionsMenu.tsx",
   "components/common/TableFilters/TableFilterPanel.tsx",
   "components/common/TableSelectFilter.tsx",
   "components/hook-form/fields.tsx",
@@ -49,6 +50,27 @@ for (const file of files) {
     failures.push(`${relative}: window.location navigation found`);
   if (/(?:className|style)\s*=\s*\{?[^\n]*#[0-9a-fA-F]{3,8}\b/.test(source))
     failures.push(`${relative}: literal hex color found`);
+  if (/<details\b|<summary\b/.test(source))
+    failures.push(
+      `${relative}: raw <details>/<summary> dropdown found; use DropdownMenu or RowActionsMenu`,
+    );
+  if (
+    relative !== "components/common/RowActionsMenu.tsx" &&
+    !relative.startsWith("components/ui/") &&
+    /\b(MoreHorizontal|MoreVertical)\b/.test(source)
+  )
+    failures.push(
+      `${relative}: raw action trigger icon found; use shared RowActionsMenu`,
+    );
+  if (
+    /Column[s]?\.tsx$/.test(relative) &&
+    (/absolute\s+(?:right|left)-0.*z-/.test(source) ||
+      /role=["']menu["']/.test(source)) &&
+    !source.includes("RowActionsMenu")
+  )
+    failures.push(
+      `${relative}: custom row menu markup in table columns; use shared RowActionsMenu`,
+    );
   const hasNativeControls = /<(?:input|select|textarea|button)(?:\s|>)/.test(
     source,
   );

@@ -92,10 +92,7 @@ export function Maintenance() {
       />
 
       {/* Drawers & Dialogs */}
-      <AddEditMaintenance
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
-      />
+      <AddEditMaintenance open={drawerOpen} onOpenChange={setDrawerOpen} />
 
       <CompleteMaintenanceDialog
         open={Boolean(completeRecord)}

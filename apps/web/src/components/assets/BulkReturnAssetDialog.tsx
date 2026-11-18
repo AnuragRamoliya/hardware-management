@@ -6,7 +6,10 @@ import { Card } from "@/components/ui/card";
 import FormProvider from "@/components/hook-form/form-provider";
 import { FormActions } from "@/components/common/FormLayout";
 import { RHFSelect, RHFTextArea } from "@/components/hook-form/fields";
-import { bulkReturnAssetSchema, type BulkReturnAssetValues } from "./AssetAction.schema";
+import {
+  bulkReturnAssetSchema,
+  type BulkReturnAssetValues,
+} from "./AssetAction.schema";
 import { useBulkReturnAssets } from "@/hooks/queries/assets";
 import { ASSET_CONDITIONS } from "@/utils/constants";
 import type { AssetRecord } from "@/api/assets";
@@ -42,7 +45,11 @@ export function BulkReturnAssetDialog({
     },
   });
 
-  const { reset, handleSubmit, formState: { isSubmitting } } = methods;
+  const {
+    reset,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
 
   useEffect(() => {
     if (open) {
@@ -70,15 +77,20 @@ export function BulkReturnAssetDialog({
       <DialogContent className="max-w-lg">
         <DialogTitle>Bulk return assets ({assets.length})</DialogTitle>
         <p className="text-xs text-muted-foreground -mt-2">
-          Process check-in and inventory updates for all {assets.length} selected assets.
+          Process check-in and inventory updates for all {assets.length}{" "}
+          selected assets.
         </p>
 
         <Card className="p-3 bg-muted/40 border-dashed text-xs max-h-36 overflow-y-auto space-y-1">
-          <p className="font-semibold text-muted-foreground">Selected Assets:</p>
+          <p className="font-semibold text-muted-foreground">
+            Selected Assets:
+          </p>
           {assets.map((a) => (
             <div key={a.id} className="flex justify-between">
               <span className="font-medium">{a.asset_tag}</span>
-              <span className="text-muted-foreground">{[a.brand, a.model].filter(Boolean).join(" ")}</span>
+              <span className="text-muted-foreground">
+                {[a.brand, a.model].filter(Boolean).join(" ")}
+              </span>
             </div>
           ))}
         </Card>

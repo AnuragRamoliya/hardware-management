@@ -4,13 +4,23 @@ import type {
   ReactNode,
   TextareaHTMLAttributes,
 } from "react";
-import { Eye, EyeOff, AlertCircle, Search } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  AlertCircle,
+  Search,
+  Copy,
+  Check,
+  KeyRound,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAsyncOptions } from "@/hooks/use-async-options";
 import type { OptionItem } from "@/types/select";
+import { PasswordStrengthMeter } from "@/components/common/PasswordStrengthMeter";
+import { generateSecureRandomPassword } from "@/utils/password";
 import {
   Select,
   SelectContent,
@@ -92,24 +102,65 @@ export function RHFTextField({
   );
 }
 
-export function RHFPasswordField(
-  props: FieldProps &
-    InputHTMLAttributes<HTMLInputElement> & { strengthMeter?: boolean },
-) {
+export type RHFPasswordFieldProps = FieldProps &
+  Omit<InputHTMLAttributes<HTMLInputElement>, "name"> & {
+    strengthMeter?: boolean;
+    showStrengthMeter?: boolean;
+    showGenerator?: boolean;
+    showCopy?: boolean;
+    policy?: {
+      minLength?: number;
+      requireComplexity?: boolean;
+    };
+    onGenerate?: (password: string) => void;
+  };
+
+export function RHFPasswordField(props: RHFPasswordFieldProps) {
   const [visible, setVisible] = useState(false);
-  const { register, formState, watch } = useFormContext();
+  const [copied, setCopied] = useState(false);
+  const { register, formState, watch, setValue } = useFormContext();
   const error = formState.errors[props.name];
-  const { name, label, required, helperText, strengthMeter, ...inputProps } =
-    props;
+  const {
+    name,
+    label,
+    required,
+    helperText,
+    strengthMeter,
+    showStrengthMeter,
+    showGenerator,
+    showCopy,
+    policy,
+    onGenerate,
+    className,
+    ...inputProps
+  } = props;
+
   const password = String(watch(name) ?? "");
-  const strength =
-    password.length >= 12
-      ? 3
-      : password.length >= 8
-        ? 2
-        : password.length >= 4
-          ? 1
-          : 0;
+  const enableStrength = strengthMeter || showStrengthMeter;
+
+  const handleCopy = async () => {
+    if (!password) return;
+    try {
+      await navigator.clipboard.writeText(password);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleGenerate = () => {
+    const minLength = policy?.minLength || 16;
+    const requireComplexity = policy?.requireComplexity ?? true;
+    const generated = generateSecureRandomPassword(
+      minLength,
+      requireComplexity,
+    );
+    setValue(name, generated, { shouldDirty: true, shouldValidate: true });
+    setVisible(true);
+    if (onGenerate) onGenerate(generated);
+  };
+
   return (
     <FieldShell
       name={name}
@@ -121,7 +172,7 @@ export function RHFPasswordField(
         <Input
           id={name}
           type={visible ? "text" : "password"}
-          className="pr-10"
+          className={`pr-28 font-mono text-sm ${className || ""}`}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${name}-error` : undefined}
           {...inputProps}
@@ -129,35 +180,54 @@ export function RHFPasswordField(
             required: required ? `${label} is required` : false,
           })}
         />
-        <button
-          type="button"
-          aria-label={visible ? "Hide password" : "Show password"}
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground"
-          onClick={() => setVisible((value) => !value)}
-        >
-          {visible ? (
-            <EyeOff className="h-4 w-4" />
-          ) : (
-            <Eye className="h-4 w-4" />
+        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          {showCopy && password.length > 0 && (
+            <button
+              type="button"
+              aria-label={copied ? "Copied" : "Copy password"}
+              title="Copy password"
+              className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              onClick={handleCopy}
+            >
+              {copied ? (
+                <Check className="h-4 w-4 text-success" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
+            </button>
           )}
-        </button>
-      </div>
-      {strengthMeter && (
-        <div
-          aria-label={`Password strength: ${["empty", "weak", "good", "strong"][strength]}`}
-        >
-          <div className="mt-2 flex gap-1">
-            {[1, 2, 3].map((level) => (
-              <span
-                key={level}
-                className={`h-1 flex-1 rounded-full ${strength >= level ? (strength === 1 ? "bg-warning" : "bg-success") : "bg-muted"}`}
-              />
-            ))}
-          </div>
-          <p className="mt-1 text-[11px] text-muted-foreground">
-            Use 12 or more characters for a strong password.
-          </p>
+          {showGenerator && (
+            <button
+              type="button"
+              aria-label="Generate strong password"
+              title="Generate strong password"
+              className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              onClick={handleGenerate}
+            >
+              <KeyRound className="h-4 w-4 text-primary" />
+            </button>
+          )}
+          <button
+            type="button"
+            aria-label={visible ? "Hide password" : "Show password"}
+            title={visible ? "Hide password" : "Show password"}
+            className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            onClick={() => setVisible((value) => !value)}
+          >
+            {visible ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </button>
         </div>
+      </div>
+      {enableStrength && (
+        <PasswordStrengthMeter
+          password={password}
+          minLength={policy?.minLength || 12}
+          requireComplexity={policy?.requireComplexity ?? true}
+        />
       )}
     </FieldShell>
   );

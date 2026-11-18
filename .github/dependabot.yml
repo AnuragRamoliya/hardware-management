@@ -21,4 +21,3 @@ updates:
         patterns:
           - "*"
     open-pull-requests-limit: 5
-

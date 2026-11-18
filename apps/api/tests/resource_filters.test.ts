@@ -48,7 +48,9 @@ describe('resource list filters', () => {
 
   it('rejects malformed filter types and range keys', async () => {
     const { model, resource } = createResource();
-    await expect(resource.list({ filters: { department_id: 'not-a-number' } })).rejects.toMatchObject({
+    await expect(
+      resource.list({ filters: { department_id: 'not-a-number' } }),
+    ).rejects.toMatchObject({
       statusCode: 422,
     });
     await expect(resource.list({ filters: { name: { from: 'A' } } })).rejects.toMatchObject({

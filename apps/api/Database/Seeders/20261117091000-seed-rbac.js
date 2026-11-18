@@ -54,8 +54,28 @@ module.exports = {
       for (const moduleName of modules) {
         let flags = [0, 0, 0];
         if (role.type === 'super_admin') flags = [1, 1, 1];
-        if (role.type === 'hardware_manager' && ['asset', 'asset_assignment', 'asset_maintenance', 'software', 'software_license'].includes(moduleName)) flags = [1, 1, 1];
-        if (role.type === 'hr' && ['asset', 'asset_assignment', 'asset_maintenance', 'software', 'software_license'].includes(moduleName)) flags = [1, 0, 0];
+        if (
+          role.type === 'hardware_manager' &&
+          [
+            'asset',
+            'asset_assignment',
+            'asset_maintenance',
+            'software',
+            'software_license',
+          ].includes(moduleName)
+        )
+          flags = [1, 1, 1];
+        if (
+          role.type === 'hr' &&
+          [
+            'asset',
+            'asset_assignment',
+            'asset_maintenance',
+            'software',
+            'software_license',
+          ].includes(moduleName)
+        )
+          flags = [1, 0, 0];
         if (
           role.type === 'hardware_manager' &&
           !['role', 'permission', 'user'].includes(moduleName)

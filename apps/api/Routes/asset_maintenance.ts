@@ -13,10 +13,41 @@ const controller = new AssetMaintenanceController();
 const read = checkAccess(MODULES.ASSET_MAINTENANCE, ACCESS_TYPES.READ);
 const write = checkAccess(MODULES.ASSET_MAINTENANCE, ACCESS_TYPES.WRITE);
 
-router.post('/list', decryptPayload, userAuth, read, validate(listValidation), routeHandler((request) => controller.list(request)));
-router.post('/add', decryptPayload, userAuth, write, validate([body('asset_id').isInt({ min: 1 }).toInt(), body('issue').isString().trim().notEmpty()]), routeHandler((request) => controller.add(request), true));
-router.post('/update', decryptPayload, userAuth, write, validate([body('id').isInt({ min: 1 }).toInt()]), routeHandler((request) => controller.update(request)));
-router.post('/complete', decryptPayload, userAuth, write, validate([body('id').isInt({ min: 1 }).toInt(), body('resolution').optional().isString()]), routeHandler((request) => controller.complete(request)));
+router.post(
+  '/list',
+  decryptPayload,
+  userAuth,
+  read,
+  validate(listValidation),
+  routeHandler((request) => controller.list(request)),
+);
+router.post(
+  '/add',
+  decryptPayload,
+  userAuth,
+  write,
+  validate([
+    body('asset_id').isInt({ min: 1 }).toInt(),
+    body('issue').isString().trim().notEmpty(),
+  ]),
+  routeHandler((request) => controller.add(request), true),
+);
+router.post(
+  '/update',
+  decryptPayload,
+  userAuth,
+  write,
+  validate([body('id').isInt({ min: 1 }).toInt()]),
+  routeHandler((request) => controller.update(request)),
+);
+router.post(
+  '/complete',
+  decryptPayload,
+  userAuth,
+  write,
+  validate([body('id').isInt({ min: 1 }).toInt(), body('resolution').optional().isString()]),
+  routeHandler((request) => controller.complete(request)),
+);
 
 export const assetMaintenanceRouter = Router();
 assetMaintenanceRouter.use('/asset/maintenance', router);

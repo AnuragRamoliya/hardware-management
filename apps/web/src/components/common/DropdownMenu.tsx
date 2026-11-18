@@ -1,4 +1,9 @@
 import type { ReactNode } from "react";
+import {
+  DropdownMenu as DropdownMenuRoot,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 export function DropdownMenu({
@@ -6,27 +11,31 @@ export function DropdownMenu({
   trigger,
   children,
   className,
+  align = "end",
+  side = "bottom",
 }: {
   label: string;
   trigger: ReactNode;
   children: ReactNode;
   className?: string;
+  align?: "start" | "end" | "center";
+  side?: "top" | "bottom" | "left" | "right";
 }) {
   return (
-    <details className={cn("group relative", className)}>
-      <summary
-        aria-label={label}
-        className="flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-md px-3 hover:bg-muted"
-      >
+    <DropdownMenuRoot>
+      <DropdownMenuTrigger asChild aria-label={label}>
         {trigger}
-      </summary>
-      <div
-        role="menu"
-        aria-label={label}
-        className="absolute right-0 top-full z-30 mt-1 min-w-44 rounded-lg border bg-card p-1 shadow-xl [&>button]:flex [&>button]:min-h-10 [&>button]:w-full [&>button]:items-center [&>button]:rounded-md [&>button]:px-3 [&>button]:text-left [&>button]:text-sm [&>button]:hover:bg-muted"
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align={align}
+        side={side}
+        sideOffset={4}
+        collisionPadding={8}
+        avoidCollisions={true}
+        className={cn("min-w-[180px]", className)}
       >
         {children}
-      </div>
-    </details>
+      </DropdownMenuContent>
+    </DropdownMenuRoot>
   );
 }

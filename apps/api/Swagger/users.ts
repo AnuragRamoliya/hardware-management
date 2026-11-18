@@ -153,20 +153,31 @@ export const userPaths = {
       responses: { '200': envelope, '401': envelope, '403': envelope, '404': envelope },
     },
   },
-  '/user/options': operation('Search, page, or hydrate user options', 'post', true, {
-    type: 'object',
-    properties: {
-      search: { type: 'string', maxLength: 100 },
-      page: { type: 'integer', minimum: 1, default: 1 },
-      limit: { type: 'integer', minimum: 1, maximum: 50, default: 30 },
-      ids: {
-        type: 'array',
-        maxItems: 200,
-        items: { oneOf: [{ type: 'integer', minimum: 1 }, { type: 'string', pattern: '^[1-9][0-9]*$' }] },
+  '/user/options': operation(
+    'Search, page, or hydrate user options',
+    'post',
+    true,
+    {
+      type: 'object',
+      properties: {
+        search: { type: 'string', maxLength: 100 },
+        page: { type: 'integer', minimum: 1, default: 1 },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 30 },
+        ids: {
+          type: 'array',
+          maxItems: 200,
+          items: {
+            oneOf: [
+              { type: 'integer', minimum: 1 },
+              { type: 'string', pattern: '^[1-9][0-9]*$' },
+            ],
+          },
+        },
+        filters: { type: 'object', description: 'Allowed filter: role_id.' },
       },
-      filters: { type: 'object', description: 'Allowed filter: role_id.' },
     },
-  }, optionsSuccess),
+    optionsSuccess,
+  ),
   '/user/activity': operation('Get user activity history', 'post', true, {
     type: 'object',
     required: ['id'],

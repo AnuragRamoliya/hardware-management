@@ -19,6 +19,14 @@ import {
   TableFilterPanel,
 } from "@/components/common/TableFilters/TableFilterPanel";
 import type { FilterField } from "@/components/common/TableFilters/types";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export interface TableColumn<T> {
   id: string;
@@ -130,43 +138,45 @@ export function CommonTable<T extends { id: string | number }>({
               Bulk action ({selected.length})
             </Button>
           )}
-          <details className="relative">
-            <summary
-              aria-label="Table display options"
-              className="flex h-10 cursor-pointer list-none items-center gap-2 rounded-md border px-3 text-sm hover:bg-muted"
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              <span className="hidden sm:inline">View</span>
-            </summary>
-            <div className="absolute right-0 top-12 z-20 w-52 rounded-lg border bg-card p-3 shadow-xl">
-              <button
-                className="mb-2 flex w-full items-center gap-2 text-left text-sm"
-                onClick={() => setCompact((value) => !value)}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                aria-label="Table display options"
               >
-                <input type="checkbox" checked={compact} readOnly />
+                <SlidersHorizontal className="h-4 w-4" />
+                <span className="hidden sm:inline">View</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>View settings</DropdownMenuLabel>
+              <DropdownMenuCheckboxItem
+                checked={compact}
+                onCheckedChange={setCompact}
+              >
                 Compact rows
-              </button>
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Columns</DropdownMenuLabel>
               {columns.map((column) => (
-                <label
+                <DropdownMenuCheckboxItem
                   key={column.id}
-                  className="flex cursor-pointer items-center gap-2 py-1 text-sm"
+                  checked={visible.includes(column.id)}
+                  onCheckedChange={(checked) =>
+                    setVisible((previous) =>
+                      checked
+                        ? [...previous, column.id]
+                        : previous.filter((id) => id !== column.id),
+                    )
+                  }
                 >
-                  <input
-                    type="checkbox"
-                    checked={visible.includes(column.id)}
-                    onChange={() =>
-                      setVisible((previous) =>
-                        previous.includes(column.id)
-                          ? previous.filter((id) => id !== column.id)
-                          : [...previous, column.id],
-                      )
-                    }
-                  />
                   {column.label}
-                </label>
+                </DropdownMenuCheckboxItem>
               ))}
-            </div>
-          </details>
+            </DropdownMenuContent>
+          </DropdownMenu>
           {filterFields.length > 0 && (
             <TableFilterButton
               value={query.filters ?? {}}

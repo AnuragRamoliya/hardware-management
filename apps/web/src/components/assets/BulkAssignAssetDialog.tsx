@@ -5,8 +5,15 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import FormProvider from "@/components/hook-form/form-provider";
 import { FormActions } from "@/components/common/FormLayout";
-import { RHFAsyncSelect, RHFDatePicker, RHFTextArea } from "@/components/hook-form/fields";
-import { bulkAssignAssetSchema, type BulkAssignAssetValues } from "./AssetAction.schema";
+import {
+  RHFAsyncSelect,
+  RHFDatePicker,
+  RHFTextArea,
+} from "@/components/hook-form/fields";
+import {
+  bulkAssignAssetSchema,
+  type BulkAssignAssetValues,
+} from "./AssetAction.schema";
 import { useBulkAssignAssets } from "@/hooks/queries/assets";
 import type { AssetRecord } from "@/api/assets";
 
@@ -34,7 +41,11 @@ export function BulkAssignAssetDialog({
     },
   });
 
-  const { reset, handleSubmit, formState: { isSubmitting } } = methods;
+  const {
+    reset,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
 
   useEffect(() => {
     if (open) {
@@ -62,15 +73,20 @@ export function BulkAssignAssetDialog({
       <DialogContent className="max-w-lg">
         <DialogTitle>Bulk assign assets ({assets.length})</DialogTitle>
         <p className="text-xs text-muted-foreground -mt-2">
-          Assign all {assets.length} selected equipment items to an employee in a single transaction.
+          Assign all {assets.length} selected equipment items to an employee in
+          a single transaction.
         </p>
 
         <Card className="p-3 bg-muted/40 border-dashed text-xs max-h-36 overflow-y-auto space-y-1">
-          <p className="font-semibold text-muted-foreground">Selected Assets:</p>
+          <p className="font-semibold text-muted-foreground">
+            Selected Assets:
+          </p>
           {assets.map((a) => (
             <div key={a.id} className="flex justify-between">
               <span className="font-medium">{a.asset_tag}</span>
-              <span className="text-muted-foreground">{[a.brand, a.model].filter(Boolean).join(" ")}</span>
+              <span className="text-muted-foreground">
+                {[a.brand, a.model].filter(Boolean).join(" ")}
+              </span>
             </div>
           ))}
         </Card>

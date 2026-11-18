@@ -9,7 +9,9 @@ export const assignSoftwareSchema = yup.object({
   license_id: yup
     .number()
     .nullable()
-    .transform((val, orig) => (orig === "" || orig == null ? null : Number(val))),
+    .transform((val, orig) =>
+      orig === "" || orig == null ? null : Number(val),
+    ),
 });
 
 export type AssignSoftwareValues = yup.InferType<typeof assignSoftwareSchema>;

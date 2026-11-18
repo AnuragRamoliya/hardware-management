@@ -9,12 +9,17 @@ export const assetKeys = {
   all: ["assets"] as const,
   lists: () => [...assetKeys.all, "list"] as const,
   list: (query: ListQuery) => [...assetKeys.lists(), query] as const,
-  unassigned: (query: ListQuery) => [...assetKeys.all, "unassigned", query] as const,
+  unassigned: (query: ListQuery) =>
+    [...assetKeys.all, "unassigned", query] as const,
   details: () => [...assetKeys.all, "detail"] as const,
-  detail: (id: string | number) => [...assetKeys.details(), String(id)] as const,
-  history: (id: string | number) => [...assetKeys.detail(id), "history"] as const,
-  maintenance: (id: string | number) => [...assetKeys.detail(id), "maintenance"] as const,
-  activity: (id: string | number) => [...assetKeys.detail(id), "activity"] as const,
+  detail: (id: string | number) =>
+    [...assetKeys.details(), String(id)] as const,
+  history: (id: string | number) =>
+    [...assetKeys.detail(id), "history"] as const,
+  maintenance: (id: string | number) =>
+    [...assetKeys.detail(id), "maintenance"] as const,
+  activity: (id: string | number) =>
+    [...assetKeys.detail(id), "activity"] as const,
   qr: (id: string | number) => [...assetKeys.detail(id), "qr"] as const,
 };
 
@@ -75,10 +80,21 @@ export function useAssetMaintenance(id: string | number, enabled = true) {
     queryKey: assetKeys.maintenance(id),
     enabled: Boolean(id) && enabled,
     queryFn: async () => {
-      const response = await callApi<{ rows: Record<string, unknown>[]; count: number }, { currentPage: number; itemsPerPage: number; filters: { asset_id: number } }>({
+      const response = await callApi<
+        { rows: Record<string, unknown>[]; count: number },
+        {
+          currentPage: number;
+          itemsPerPage: number;
+          filters: { asset_id: number };
+        }
+      >({
         url: endPoints.asset.maintenance.list,
         method: api_methods.POST,
-        body: { currentPage: 1, itemsPerPage: 50, filters: { asset_id: Number(id) } },
+        body: {
+          currentPage: 1,
+          itemsPerPage: 50,
+          filters: { asset_id: Number(id) },
+        },
       });
       if (!response.ok) throw new Error(response.message);
       return response.data?.rows ?? [];
@@ -91,7 +107,10 @@ export function useAssetActivity(id: string | number, enabled = true) {
     queryKey: assetKeys.activity(id),
     enabled: Boolean(id) && enabled,
     queryFn: async () => {
-      const response = await callApi<{ rows: Record<string, unknown>[]; count: number }, { id: number }>({
+      const response = await callApi<
+        { rows: Record<string, unknown>[]; count: number },
+        { id: number }
+      >({
         url: "asset/activity",
         method: api_methods.POST,
         body: { id: Number(id) },
@@ -111,7 +130,8 @@ export function useAssetQrCode(id: string | number, enabled = true) {
         url: endPoints.asset.qr(id),
         method: api_methods.GET,
       });
-      if (!response.ok || !response.data) throw new Error(response.message || "Unable to generate QR");
+      if (!response.ok || !response.data)
+        throw new Error(response.message || "Unable to generate QR");
       return response.data;
     },
   });
@@ -138,7 +158,9 @@ export function useCreateAsset() {
 export function useUpdateAsset() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: Partial<AssetRecord> & { id: string | number }) => {
+    mutationFn: async (
+      payload: Partial<AssetRecord> & { id: string | number },
+    ) => {
       const response = await assetsApi.update(payload);
       if (!response.ok) throw new Error(response.message);
       return response.data;
@@ -146,7 +168,9 @@ export function useUpdateAsset() {
     onSuccess: (_data, variables) => {
       toast.success("Asset updated successfully");
       void queryClient.invalidateQueries({ queryKey: assetKeys.all });
-      void queryClient.invalidateQueries({ queryKey: assetKeys.detail(variables.id) });
+      void queryClient.invalidateQueries({
+        queryKey: assetKeys.detail(variables.id),
+      });
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -175,7 +199,12 @@ export function useDeleteAsset() {
 export function useAssignAsset() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { asset_id: number; employee_id: number; due_return_date?: string; note?: string }) => {
+    mutationFn: async (payload: {
+      asset_id: number;
+      employee_id: number;
+      due_return_date?: string;
+      note?: string;
+    }) => {
       const response = await assetsApi.assign(payload);
       if (!response.ok) throw new Error(response.message);
       return response.data;
@@ -183,8 +212,12 @@ export function useAssignAsset() {
     onSuccess: (_data, variables) => {
       toast.success("Asset assigned successfully");
       void queryClient.invalidateQueries({ queryKey: assetKeys.all });
-      void queryClient.invalidateQueries({ queryKey: assetKeys.detail(variables.asset_id) });
-      void queryClient.invalidateQueries({ queryKey: ["employee-assets", String(variables.employee_id)] });
+      void queryClient.invalidateQueries({
+        queryKey: assetKeys.detail(variables.asset_id),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["employee-assets", String(variables.employee_id)],
+      });
       void queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
     onError: (error: Error) => {
@@ -196,7 +229,12 @@ export function useAssignAsset() {
 export function useReturnAsset() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { asset_id: number; return_condition?: string; notes?: string; to_status?: string }) => {
+    mutationFn: async (payload: {
+      asset_id: number;
+      return_condition?: string;
+      notes?: string;
+      to_status?: string;
+    }) => {
       const response = await assetsApi.returnAsset(payload);
       if (!response.ok) throw new Error(response.message);
       return response.data;
@@ -204,7 +242,9 @@ export function useReturnAsset() {
     onSuccess: (_data, variables) => {
       toast.success("Asset returned successfully");
       void queryClient.invalidateQueries({ queryKey: assetKeys.all });
-      void queryClient.invalidateQueries({ queryKey: assetKeys.detail(variables.asset_id) });
+      void queryClient.invalidateQueries({
+        queryKey: assetKeys.detail(variables.asset_id),
+      });
       void queryClient.invalidateQueries({ queryKey: ["employee-assets"] });
       void queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
@@ -217,7 +257,11 @@ export function useReturnAsset() {
 export function useTransferAsset() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { asset_id: number; to_employee_id: number; note?: string }) => {
+    mutationFn: async (payload: {
+      asset_id: number;
+      to_employee_id: number;
+      note?: string;
+    }) => {
       const response = await assetsApi.transfer(payload);
       if (!response.ok) throw new Error(response.message);
       return response.data;
@@ -225,7 +269,9 @@ export function useTransferAsset() {
     onSuccess: (_data, variables) => {
       toast.success("Asset transferred successfully");
       void queryClient.invalidateQueries({ queryKey: assetKeys.all });
-      void queryClient.invalidateQueries({ queryKey: assetKeys.detail(variables.asset_id) });
+      void queryClient.invalidateQueries({
+        queryKey: assetKeys.detail(variables.asset_id),
+      });
       void queryClient.invalidateQueries({ queryKey: ["employee-assets"] });
       void queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
@@ -242,7 +288,12 @@ export function useBulkAssignAssets() {
       items,
       allOrNothing = true,
     }: {
-      items: Array<{ asset_id: number; employee_id: number; due_return_date?: string; note?: string }>;
+      items: Array<{
+        asset_id: number;
+        employee_id: number;
+        due_return_date?: string;
+        note?: string;
+      }>;
       allOrNothing?: boolean;
     }) => {
       const response = await assetsApi.bulkAssign(items, allOrNothing);
@@ -268,7 +319,12 @@ export function useBulkReturnAssets() {
       items,
       allOrNothing = true,
     }: {
-      items: Array<{ asset_id: number; return_condition?: string; notes?: string; to_status?: string }>;
+      items: Array<{
+        asset_id: number;
+        return_condition?: string;
+        notes?: string;
+        to_status?: string;
+      }>;
       allOrNothing?: boolean;
     }) => {
       const response = await assetsApi.bulkReturn(items, allOrNothing);

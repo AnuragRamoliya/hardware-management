@@ -1,6 +1,5 @@
 ## Summary
 
-
 ## Module checklist
 
 - [ ] API payloads, URLs, business behavior, and permissions are unchanged unless documented.
@@ -15,6 +14,4 @@
 
 ## Screenshots / visual baselines
 
-
 ## Notes and known deviations
-

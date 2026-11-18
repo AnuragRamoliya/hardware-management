@@ -5,8 +5,15 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import FormProvider from "@/components/hook-form/form-provider";
 import { FormActions } from "@/components/common/FormLayout";
-import { RHFAsyncSelect, RHFDatePicker, RHFTextArea } from "@/components/hook-form/fields";
-import { assignAssetSchema, type AssignAssetValues } from "./AssetAction.schema";
+import {
+  RHFAsyncSelect,
+  RHFDatePicker,
+  RHFTextArea,
+} from "@/components/hook-form/fields";
+import {
+  assignAssetSchema,
+  type AssignAssetValues,
+} from "./AssetAction.schema";
 import { useAssignAsset } from "@/hooks/queries/assets";
 import type { AssetRecord } from "@/api/assets";
 
@@ -16,7 +23,11 @@ interface AssignAssetDialogProps {
   asset?: AssetRecord | null;
 }
 
-export function AssignAssetDialog({ open, onOpenChange, asset }: AssignAssetDialogProps) {
+export function AssignAssetDialog({
+  open,
+  onOpenChange,
+  asset,
+}: AssignAssetDialogProps) {
   const assignMutation = useAssignAsset();
 
   const methods = useForm<AssignAssetValues>({
@@ -28,7 +39,11 @@ export function AssignAssetDialog({ open, onOpenChange, asset }: AssignAssetDial
     },
   });
 
-  const { reset, handleSubmit, formState: { isSubmitting } } = methods;
+  const {
+    reset,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
 
   useEffect(() => {
     if (open) {
@@ -53,15 +68,20 @@ export function AssignAssetDialog({ open, onOpenChange, asset }: AssignAssetDial
       <DialogContent className="max-w-lg">
         <DialogTitle>Assign hardware asset</DialogTitle>
         <p className="text-xs text-muted-foreground -mt-2">
-          Check out equipment to an employee and record the expected return date.
+          Check out equipment to an employee and record the expected return
+          date.
         </p>
 
         <Card className="p-3 bg-muted/40 border-dashed text-xs space-y-1">
           <div className="flex justify-between font-medium">
             <span>{asset.asset_tag}</span>
-            <span className="text-muted-foreground">{[asset.brand, asset.model].filter(Boolean).join(" ")}</span>
+            <span className="text-muted-foreground">
+              {[asset.brand, asset.model].filter(Boolean).join(" ")}
+            </span>
           </div>
-          {asset.serial_no && <div className="text-muted-foreground">SN: {asset.serial_no}</div>}
+          {asset.serial_no && (
+            <div className="text-muted-foreground">SN: {asset.serial_no}</div>
+          )}
         </Card>
 
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>

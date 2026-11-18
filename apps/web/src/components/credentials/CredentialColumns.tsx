@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Eye, History, Pencil, RefreshCw, Trash2 } from "lucide-react";
 import type { TableColumn } from "@/components/common/CommonTable";
 import {
   RowActionsMenu,
@@ -82,19 +83,9 @@ export function getCredentialColumns(
       sortable: true,
       render: (row) =>
         row.provided_by === PROVIDED_BY.COMPANY ? (
-          <Badge
-            variant="outline"
-            className="text-blue-600 border-blue-300 dark:text-blue-400"
-          >
-            Company
-          </Badge>
+          <Badge variant="outline">Company</Badge>
         ) : (
-          <Badge
-            variant="outline"
-            className="text-purple-600 border-purple-300 dark:text-purple-400"
-          >
-            Employee
-          </Badge>
+          <Badge variant="default">Employee</Badge>
         ),
     },
     {
@@ -106,20 +97,13 @@ export function getCredentialColumns(
           case CREDENTIAL_APPROVAL_STATUS.APPROVED:
             return <Badge variant="success">Approved</Badge>;
           case CREDENTIAL_APPROVAL_STATUS.PENDING:
-            return <Badge variant="warning">Pending Review</Badge>;
+            return <Badge variant="warning">Pending review</Badge>;
           case CREDENTIAL_APPROVAL_STATUS.REJECTED:
             return <Badge variant="destructive">Rejected</Badge>;
           case CREDENTIAL_APPROVAL_STATUS.NEEDS_CHANGE:
-            return (
-              <Badge
-                variant="outline"
-                className="text-amber-600 border-amber-300"
-              >
-                Needs Changes
-              </Badge>
-            );
+            return <Badge variant="outline">Needs changes</Badge>;
           default:
-            return <Badge variant="muted">Unknown</Badge>;
+            return <Badge variant="outline">Unknown</Badge>;
         }
       },
     },
@@ -163,31 +147,42 @@ export function getCredentialColumns(
 
         if (actions.canReveal !== false) {
           menuActions.push({
+            key: "reveal",
             label: "Reveal password",
+            icon: Eye,
             onSelect: () => actions.onReveal(row),
           });
         }
 
         if (actions.canWrite !== false) {
           menuActions.push({
+            key: "edit",
             label: "Edit details",
+            icon: Pencil,
             onSelect: () => actions.onEdit(row),
           });
           menuActions.push({
+            key: "rotate",
             label: "Rotate password",
+            icon: RefreshCw,
             onSelect: () => actions.onChangePassword(row),
           });
         }
 
         menuActions.push({
+          key: "history",
           label: "View audit trail",
+          icon: History,
           onSelect: () => actions.onHistory(row),
         });
 
         if (actions.canDelete !== false) {
           menuActions.push({
+            key: "delete",
             label: "Revoke / Delete",
+            icon: Trash2,
             destructive: true,
+            separatorBefore: true,
             onSelect: () => actions.onDelete(row),
           });
         }

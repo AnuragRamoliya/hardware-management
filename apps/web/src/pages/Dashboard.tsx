@@ -196,67 +196,37 @@ export function Dashboard() {
           Credential Vault & Security
         </h2>
         <div className="grid gap-4 sm:grid-cols-3">
-          <Link to={PATHS.CREDENTIAL_APPROVALS} className="group">
-            <Card className="p-4 transition-colors group-hover:border-primary/50">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    Pending Approvals
-                  </p>
-                  <p className="text-2xl font-bold mt-1">
-                    {approvalsQuery.data?.count ?? 0}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-amber-500/10 p-2.5 text-amber-500">
-                  <CheckSquare className="h-5 w-5" />
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1 group-hover:text-primary">
-                Review employee accounts →
-              </p>
-            </Card>
+          <Link
+            to={PATHS.CREDENTIAL_APPROVALS}
+            className="group block transition-opacity hover:opacity-90"
+          >
+            <StatCard
+              label="Pending Approvals"
+              value={approvalsQuery.data?.count ?? 0}
+              icon={<CheckSquare className="h-4 w-4" />}
+            />
           </Link>
 
-          <Link to={PATHS.CREDENTIAL_REQUESTS} className="group">
-            <Card className="p-4 transition-colors group-hover:border-primary/50">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    Open Collection Requests
-                  </p>
-                  <p className="text-2xl font-bold mt-1">
-                    {requestsQuery.data?.count ?? 0}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-blue-500/10 p-2.5 text-blue-500">
-                  <FileText className="h-5 w-5" />
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1 group-hover:text-primary">
-                Manage collection requests →
-              </p>
-            </Card>
+          <Link
+            to={PATHS.CREDENTIAL_REQUESTS}
+            className="group block transition-opacity hover:opacity-90"
+          >
+            <StatCard
+              label="Open Collection Requests"
+              value={requestsQuery.data?.count ?? 0}
+              icon={<FileText className="h-4 w-4" />}
+            />
           </Link>
 
-          <Link to={PATHS.CREDENTIAL_ACCESS_LOGS} className="group">
-            <Card className="p-4 transition-colors group-hover:border-primary/50">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    Vault Access Events
-                  </p>
-                  <p className="text-2xl font-bold mt-1">
-                    {accessLogsQuery.data?.count ?? 0}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-green-500/10 p-2.5 text-green-500">
-                  <ShieldCheck className="h-5 w-5" />
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1 group-hover:text-primary">
-                Inspect audit trail →
-              </p>
-            </Card>
+          <Link
+            to={PATHS.CREDENTIAL_ACCESS_LOGS}
+            className="group block transition-opacity hover:opacity-90"
+          >
+            <StatCard
+              label="Vault Access Events"
+              value={accessLogsQuery.data?.count ?? 0}
+              icon={<ShieldCheck className="h-4 w-4" />}
+            />
           </Link>
         </div>
       </section>

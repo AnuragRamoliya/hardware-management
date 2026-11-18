@@ -91,7 +91,14 @@ export class ResourceController {
 }
 
 const definitions: Record<
-  'role' | 'module' | 'permission' | 'department' | 'designation' | 'location' | 'vendor' | 'asset_category',
+  | 'role'
+  | 'module'
+  | 'permission'
+  | 'department'
+  | 'designation'
+  | 'location'
+  | 'vendor'
+  | 'asset_category',
   { model: EntityModel; definition: ResourceDefinition }
 > = {
   role: {
@@ -131,8 +138,12 @@ const definitions: Record<
       ],
       searchFields: [],
       filterableFields: {
-        role_id: 'number', module_id: 'number', read_access: 'boolean',
-        write_access: 'boolean', delete_access: 'boolean', status: 'number',
+        role_id: 'number',
+        module_id: 'number',
+        read_access: 'boolean',
+        write_access: 'boolean',
+        delete_access: 'boolean',
+        status: 'number',
       },
     },
   },
@@ -178,7 +189,10 @@ const definitions: Record<
       searchFields: ['name', 'contact_name', 'email', 'phone'],
       optionFields: ['id', 'name'],
       filterableFields: {
-        name: 'text', contact_name: 'text', email: 'text', status: 'number',
+        name: 'text',
+        contact_name: 'text',
+        email: 'text',
+        status: 'number',
       },
     },
   },
@@ -312,8 +326,7 @@ export class RoleController extends ResourceController {
             ...(item.options_access === undefined
               ? {}
               : {
-                  options_access:
-                    item.options_access === true || item.options_access === 1 ? 1 : 0,
+                  options_access: item.options_access === true || item.options_access === 1 ? 1 : 0,
                 }),
             status: STATUS.ACTIVE,
             updated_by: actor(req).id,
@@ -419,7 +432,10 @@ export class AuditController {
         const values = Array.isArray(value) ? value : [value];
         const normalized = values.map((item) => {
           if (kind === 'text' && typeof item === 'string') return item;
-          if (kind === 'number' && (typeof item === 'number' || (typeof item === 'string' && /^\d+$/.test(item)))) {
+          if (
+            kind === 'number' &&
+            (typeof item === 'number' || (typeof item === 'string' && /^\d+$/.test(item)))
+          ) {
             const number = Number(item);
             if (Number.isSafeInteger(number) && number > 0) return number;
           }

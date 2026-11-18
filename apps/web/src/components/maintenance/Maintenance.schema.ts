@@ -5,7 +5,11 @@ export const maintenanceFormSchema = yup.object({
   asset_id: yup
     .mixed<number | string>()
     .required(FORM_VALIDATION.REQUIRED)
-    .test("non-empty", FORM_VALIDATION.REQUIRED, (val) => val != null && val !== ""),
+    .test(
+      "non-empty",
+      FORM_VALIDATION.REQUIRED,
+      (val) => val != null && val !== "",
+    ),
   issue: yup.string().trim().required(FORM_VALIDATION.REQUIRED),
   vendor_id: yup
     .mixed<number | string>()
@@ -14,7 +18,9 @@ export const maintenanceFormSchema = yup.object({
   cost: yup
     .number()
     .nullable()
-    .transform((val, orig) => (orig === "" || orig === null || isNaN(val) ? null : val)),
+    .transform((val, orig) =>
+      orig === "" || orig === null || isNaN(val) ? null : val,
+    ),
   sent_at: yup.string().required(FORM_VALIDATION.REQUIRED),
 });
 
@@ -26,7 +32,11 @@ export const completeMaintenanceSchema = yup.object({
   cost: yup
     .number()
     .nullable()
-    .transform((val, orig) => (orig === "" || orig === null || isNaN(val) ? null : val)),
+    .transform((val, orig) =>
+      orig === "" || orig === null || isNaN(val) ? null : val,
+    ),
 });
 
-export type CompleteMaintenanceValues = yup.InferType<typeof completeMaintenanceSchema>;
+export type CompleteMaintenanceValues = yup.InferType<
+  typeof completeMaintenanceSchema
+>;

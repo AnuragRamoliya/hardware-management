@@ -1,27 +1,29 @@
-import { useForm, Controller } from "react-hook-form";
+import { useEffect, useMemo } from "react";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { ActionDialogLayout } from "@/components/common/ActionDialogLayout";
+import FormProvider from "@/components/hook-form/form-provider";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { NativeSelect } from "@/components/ui/native-select";
-import { Textarea } from "@/components/ui/textarea";
-import { Send } from "lucide-react";
-import { collectionRequestSchema } from "./Credential.schema";
+  FormGrid,
+  FormGridItem,
+  FormActions,
+} from "@/components/common/FormLayout";
+import {
+  RHFAsyncSelect,
+  RHFSelect,
+  RHFDatePicker,
+  RHFTextArea,
+} from "@/components/hook-form/fields";
+import {
+  collectionRequestSchema,
+  type CollectionRequestFormValues,
+} from "./Credential.schema";
 import {
   useCreateCredentialRequest,
   useCredentialTypeOptions,
 } from "@/hooks/queries/credentials";
-import { SelectFilter } from "@/components/common/SelectFilter";
 
-interface CreateCollectionRequestDialogProps {
+export interface CreateCollectionRequestDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   defaultEmployeeId?: number;
@@ -33,148 +35,116 @@ export function CreateCollectionRequestDialog({
   defaultEmployeeId,
 }: CreateCollectionRequestDialogProps) {
   const createMutation = useCreateCredentialRequest();
-  const { data: typeOptions = [] } = useCredentialTypeOptions();
+  const { data: rawTypeOptions = [] } = useCredentialTypeOptions();
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    formState: { errors },
-  } = useForm({
+  const typeOptions = useMemo(
+    () =>
+      rawTypeOptions
+        .filter((t) => t.allow_employee_submit !== false)
+        .map((t) => ({
+          value: String(t.id),
+          label: `${t.name} (${t.category})`,
+        })),
+    [rawTypeOptions],
+  );
+
+  const defaultDueDate = useMemo(
+    () => new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0],
+    [],
+  );
+
+  const methods = useForm<CollectionRequestFormValues>({
     resolver: yupResolver(collectionRequestSchema),
     defaultValues: {
-      employee_id: defaultEmployeeId || undefined,
-      credential_type_id: undefined,
-      due_date: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0],
+      employee_id: defaultEmployeeId ? String(defaultEmployeeId) : "",
+      credential_type_id: "",
+      due_date: defaultDueDate,
       message: "",
     },
   });
 
-  const onSubmit = async (values: Record<string, unknown>) => {
-    try {
-      await createMutation.mutateAsync(values);
-      onOpenChange(false);
-      reset();
-    } catch {
-      // toast in mutation
+  const {
+    reset,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
+
+  useEffect(() => {
+    if (open) {
+      reset({
+        employee_id: defaultEmployeeId ? String(defaultEmployeeId) : "",
+        credential_type_id: "",
+        due_date: new Date(Date.now() + 7 * 86400000)
+          .toISOString()
+          .split("T")[0],
+        message: "",
+      });
     }
+  }, [open, defaultEmployeeId, reset]);
+
+  const onSubmit = async (values: CollectionRequestFormValues) => {
+    await createMutation.mutateAsync({
+      employee_id: Number(values.employee_id),
+      credential_type_id: Number(values.credential_type_id),
+      due_date: values.due_date,
+      message: values.message?.trim() || null,
+    });
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <div className="flex items-center gap-2">
-            <Send className="h-5 w-5 text-primary" />
-            <DialogTitle>Request Employee Credential</DialogTitle>
-          </div>
-          <DialogDescription>
-            Dispatch a formal request to an employee to submit their credentials
-            (e.g. laptop BitLocker, GitHub, VPN).
-          </DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
+    <ActionDialogLayout
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Request Employee Credential"
+      description="Dispatch a formal request to an employee to submit their credentials (e.g. laptop BitLocker, GitHub, VPN)."
+    >
+      <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+        <FormGrid>
           {!defaultEmployeeId && (
-            <div className="space-y-1.5">
-              <Label htmlFor="req_employee_id">
-                Target Employee <span className="text-destructive">*</span>
-              </Label>
-              <Controller
+            <FormGridItem span={2}>
+              <RHFAsyncSelect
                 name="employee_id"
-                control={control}
-                render={({ field }) => (
-                  <SelectFilter
-                    endpoint="employee/options"
-                    value={field.value ? String(field.value) : undefined}
-                    onChange={(val?: string) =>
-                      field.onChange(val ? Number(val) : undefined)
-                    }
-                    placeholder="Select employee..."
-                  />
-                )}
+                label="Target Employee"
+                endpoint="employee/options"
+                required
               />
-              {errors.employee_id && (
-                <p className="text-xs text-destructive">
-                  {errors.employee_id.message}
-                </p>
-              )}
-            </div>
+            </FormGridItem>
           )}
 
-          <div className="space-y-1.5">
-            <Label htmlFor="req_type_id">
-              Requested Credential Type{" "}
-              <span className="text-destructive">*</span>
-            </Label>
-            <Controller
+          <FormGridItem span={2}>
+            <RHFSelect
               name="credential_type_id"
-              control={control}
-              render={({ field }) => (
-                <NativeSelect
-                  id="req_type_id"
-                  value={field.value || ""}
-                  onChange={(e) =>
-                    field.onChange(
-                      e.target.value ? Number(e.target.value) : undefined,
-                    )
-                  }
-                >
-                  <option value="">Select type...</option>
-                  {typeOptions
-                    .filter((t) => t.allow_employee_submit)
-                    .map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.name} ({t.category})
-                      </option>
-                    ))}
-                </NativeSelect>
-              )}
+              label="Requested Account Type"
+              options={typeOptions}
+              required
             />
-            {errors.credential_type_id && (
-              <p className="text-xs text-destructive">
-                {errors.credential_type_id.message}
-              </p>
-            )}
-          </div>
+          </FormGridItem>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="due_date">
-              Submission Due Date <span className="text-destructive">*</span>
-            </Label>
-            <Input id="due_date" type="date" {...register("due_date")} />
-            {errors.due_date && (
-              <p className="text-xs text-destructive">
-                {errors.due_date.message}
-              </p>
-            )}
-          </div>
+          <FormGridItem span={2}>
+            <RHFDatePicker
+              name="due_date"
+              label="Submission Due Date"
+              required
+            />
+          </FormGridItem>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="message">Instructions to Employee</Label>
-            <Textarea
-              id="message"
-              {...register("message")}
-              placeholder="e.g. Please provide your BitLocker recovery key or workstation credentials for the IT security audit..."
+          <FormGridItem span={2}>
+            <RHFTextArea
+              name="message"
+              label="Instructions / Purpose"
+              placeholder="e.g. Please provide your BitLocker recovery key for corporate laptop inventory compliance."
               rows={3}
             />
-          </div>
+          </FormGridItem>
+        </FormGrid>
 
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Dispatching..." : "Send Request"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+        <FormActions
+          submitting={isSubmitting || createMutation.isPending}
+          onCancel={() => onOpenChange(false)}
+          submitLabel="Send Request"
+        />
+      </FormProvider>
+    </ActionDialogLayout>
   );
 }

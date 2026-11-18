@@ -148,7 +148,9 @@ export function TableSelectFilter({
           onScroll={(event) => {
             const viewport = event.target as HTMLElement;
             const nearEnd =
-              viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight <=
+              viewport.scrollHeight -
+                viewport.scrollTop -
+                viewport.clientHeight <=
               48;
             if (
               nearEnd &&

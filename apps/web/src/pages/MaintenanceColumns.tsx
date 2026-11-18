@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { CheckCircle2, Eye } from "lucide-react";
 import type { TableColumn } from "@/components/common/CommonTable";
 import type { MaintenanceRecord } from "@/hooks/queries/maintenance";
 import { Badge } from "@/components/ui/badge";
@@ -25,10 +26,7 @@ export function getMaintenanceColumns(
           className="font-medium text-primary hover:underline"
           to={PATHS.ASSET_DETAIL.replace(":id", String(row.asset_id))}
         >
-          <ReferenceLabel
-            endpoint="asset/options"
-            id={row.asset_id}
-          />
+          <ReferenceLabel endpoint="asset/options" id={row.asset_id} />
         </Link>
       ),
     },
@@ -77,7 +75,9 @@ export function getMaintenanceColumns(
       sortable: true,
       render: (row) => (
         <span className="text-xs text-muted-foreground">
-          {row.returned_at ? new Date(row.returned_at).toLocaleDateString() : "—"}
+          {row.returned_at
+            ? new Date(row.returned_at).toLocaleDateString()
+            : "—"}
         </span>
       ),
     },
@@ -99,13 +99,17 @@ export function getMaintenanceColumns(
         const isInProgress = row.maintenance_status === 1;
         const menuActions = [
           {
+            key: "view",
             label: "View asset details",
+            icon: Eye,
             onSelect: () => actions.onViewAsset(row.asset_id),
           },
           ...(actions.canWrite && isInProgress
             ? [
                 {
+                  key: "complete",
                   label: "Mark completed",
+                  icon: CheckCircle2,
                   onSelect: () => actions.onComplete(row),
                 },
               ]

@@ -13,10 +13,20 @@ export function FormSection({
   className?: string;
 }) {
   return (
-    <section className={`space-y-4 ${className}`} aria-labelledby={`section-${title.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-")}`}>
+    <section
+      className={`space-y-4 ${className}`}
+      aria-labelledby={`section-${title.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-")}`}
+    >
       <header className="space-y-1 border-b pb-3">
-        <h2 id={`section-${title.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-")}`} className="text-sm font-semibold">{title}</h2>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        <h2
+          id={`section-${title.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-")}`}
+          className="text-sm font-semibold"
+        >
+          {title}
+        </h2>
+        {description && (
+          <p className="text-xs text-muted-foreground">{description}</p>
+        )}
       </header>
       {children}
     </section>
@@ -28,7 +38,14 @@ export function FormGrid({
   className = "",
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 ${className}`} {...props}>{children}</div>;
+  return (
+    <div
+      className={`grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 ${className}`}
+      {...props}
+    >
+      {children}
+    </div>
+  );
 }
 
 export function FormGridItem({
@@ -40,7 +57,12 @@ export function FormGridItem({
   children: ReactNode;
   className?: string;
 }) {
-  const width = span === 3 ? "md:col-span-2 xl:col-span-3" : span === 2 ? "md:col-span-2 xl:col-span-2" : "";
+  const width =
+    span === 3
+      ? "md:col-span-2 xl:col-span-3"
+      : span === 2
+        ? "md:col-span-2 xl:col-span-2"
+        : "";
   return <div className={`${width} ${className}`}>{children}</div>;
 }
 
@@ -59,8 +81,17 @@ export function FormActions({
 }) {
   return (
     <footer className="sticky bottom-0 z-10 -mx-6 mt-6 flex justify-end gap-2 border-t bg-card/95 px-6 py-4 backdrop-blur">
-      <Button type="button" variant="outline" onClick={onCancel} disabled={submitting}>{cancelLabel}</Button>
-      <Button type="submit" loading={submitting} disabled={disabled}>{submitLabel}</Button>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onCancel}
+        disabled={submitting}
+      >
+        {cancelLabel}
+      </Button>
+      <Button type="submit" loading={submitting} disabled={disabled}>
+        {submitLabel}
+      </Button>
     </footer>
   );
 }
