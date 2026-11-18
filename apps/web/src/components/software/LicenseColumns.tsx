@@ -1,3 +1,4 @@
+import { Trash2 } from "lucide-react";
 import type { TableColumn } from "@/components/common/CommonTable";
 import type { LicenseRecord } from "@/api/software";
 import { Badge } from "@/components/ui/badge";
@@ -61,7 +62,9 @@ export function getLicenseColumns(
       sortable: true,
       render: (row) => {
         if (!row.expiry_date) {
-          return <span className="text-xs text-muted-foreground">Perpetual</span>;
+          return (
+            <span className="text-xs text-muted-foreground">Perpetual</span>
+          );
         }
         const isExpired = new Date(row.expiry_date) < new Date();
         return (
@@ -87,7 +90,9 @@ export function getLicenseColumns(
           ...(actions.canDelete !== false && actions.onDelete
             ? [
                 {
+                  key: "delete",
                   label: "Delete license tier",
+                  icon: Trash2,
                   destructive: true,
                   onSelect: () => actions.onDelete?.(row),
                 },

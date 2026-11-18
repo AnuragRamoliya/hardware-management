@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import type { TableColumn } from "@/components/common/CommonTable";
 import {
   RowActionsMenu,
@@ -108,20 +109,27 @@ export function getEmployeeColumns(
       render: (row) => {
         const menuActions: RowAction[] = [
           {
+            key: "view",
             label: "View profile",
+            icon: Eye,
             onSelect: () => actions.onView(row),
           },
         ];
         if (actions.canWrite !== false) {
           menuActions.push({
+            key: "edit",
             label: "Edit",
+            icon: Pencil,
             onSelect: () => actions.onEdit(row),
           });
         }
         if (actions.canDelete !== false) {
           menuActions.push({
+            key: "delete",
             label: "Delete",
+            icon: Trash2,
             destructive: true,
+            separatorBefore: true,
             onSelect: () => actions.onDelete(row),
           });
         }

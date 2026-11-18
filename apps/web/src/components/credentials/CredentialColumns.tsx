@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Eye, History, Pencil, RefreshCw, Trash2 } from "lucide-react";
 import type { TableColumn } from "@/components/common/CommonTable";
 import {
   RowActionsMenu,
@@ -163,31 +164,42 @@ export function getCredentialColumns(
 
         if (actions.canReveal !== false) {
           menuActions.push({
+            key: "reveal",
             label: "Reveal password",
+            icon: Eye,
             onSelect: () => actions.onReveal(row),
           });
         }
 
         if (actions.canWrite !== false) {
           menuActions.push({
+            key: "edit",
             label: "Edit details",
+            icon: Pencil,
             onSelect: () => actions.onEdit(row),
           });
           menuActions.push({
+            key: "rotate",
             label: "Rotate password",
+            icon: RefreshCw,
             onSelect: () => actions.onChangePassword(row),
           });
         }
 
         menuActions.push({
+          key: "history",
           label: "View audit trail",
+          icon: History,
           onSelect: () => actions.onHistory(row),
         });
 
         if (actions.canDelete !== false) {
           menuActions.push({
+            key: "delete",
             label: "Revoke / Delete",
+            icon: Trash2,
             destructive: true,
+            separatorBefore: true,
             onSelect: () => actions.onDelete(row),
           });
         }

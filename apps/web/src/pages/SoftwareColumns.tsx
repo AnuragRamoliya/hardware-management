@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Eye, Pencil, Trash2, UserPlus } from "lucide-react";
 import type { TableColumn } from "@/components/common/CommonTable";
 import type { SoftwareRecord } from "@/api/software";
 import { Badge } from "@/components/ui/badge";
@@ -111,17 +112,23 @@ export function getSoftwareColumns(
       render: (row) => {
         const menuActions = [
           {
+            key: "view",
             label: "View details",
+            icon: Eye,
             onSelect: () => actions.onView(row),
           },
           ...(actions.canWrite !== false
             ? [
                 {
+                  key: "edit",
                   label: "Edit",
+                  icon: Pencil,
                   onSelect: () => actions.onEdit(row),
                 },
                 {
+                  key: "assign",
                   label: "Assign license",
+                  icon: UserPlus,
                   onSelect: () => actions.onAssign(row),
                 },
               ]
@@ -129,8 +136,11 @@ export function getSoftwareColumns(
           ...(actions.canDelete !== false
             ? [
                 {
+                  key: "delete",
                   label: "Delete",
+                  icon: Trash2,
                   destructive: true,
+                  separatorBefore: true,
                   onSelect: () => actions.onDelete(row),
                 },
               ]

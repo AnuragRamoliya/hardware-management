@@ -1,5 +1,16 @@
 import { useState } from "react";
-import { Bell, Check, ChevronDown, Copy } from "lucide-react";
+import {
+  Bell,
+  Check,
+  ChevronDown,
+  Copy,
+  Eye,
+  History,
+  Pencil,
+  RefreshCw,
+  Trash2,
+} from "lucide-react";
+import { RowActionsMenu } from "@/components/common/RowActionsMenu";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -444,6 +455,223 @@ export function DesignSystem() {
                   },
                 ]}
               />
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <div>
+              <h2 className="text-sm font-semibold">
+                Row Actions Menu (Standardized)
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Portaled Radix DropdownMenu on desktop, bottom sheet drawer on
+                mobile (&lt; 768px). Includes collision detection, keyboard
+                navigation, single-open enforcement, icons, disabled tooltips,
+                and separated destructive actions.
+              </p>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="rounded-lg border p-4 space-y-2 bg-muted/20">
+                <div className="text-xs font-semibold text-muted-foreground">
+                  Standard &amp; Destructive
+                </div>
+                <div className="flex items-center justify-between p-2 rounded bg-card border">
+                  <span className="text-sm font-medium">Standard Row</span>
+                  <RowActionsMenu
+                    actions={[
+                      {
+                        key: "view",
+                        label: "View details",
+                        icon: Eye,
+                        onSelect: () => {},
+                      },
+                      {
+                        key: "edit",
+                        label: "Edit details",
+                        icon: Pencil,
+                        onSelect: () => {},
+                      },
+                      {
+                        key: "delete",
+                        label: "Delete record",
+                        icon: Trash2,
+                        destructive: true,
+                        onSelect: () => setConfirm(true),
+                      },
+                    ]}
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-lg border p-4 space-y-2 bg-muted/20">
+                <div className="text-xs font-semibold text-muted-foreground">
+                  With Disabled Reason
+                </div>
+                <div className="flex items-center justify-between p-2 rounded bg-card border">
+                  <span className="text-sm font-medium">Restricted Row</span>
+                  <RowActionsMenu
+                    actions={[
+                      {
+                        key: "view",
+                        label: "View details",
+                        icon: Eye,
+                        onSelect: () => {},
+                      },
+                      {
+                        key: "rotate",
+                        label: "Rotate password",
+                        icon: RefreshCw,
+                        disabled: true,
+                        disabledReason: "Requires Super Admin permission",
+                        onSelect: () => {},
+                      },
+                      {
+                        key: "delete",
+                        label: "Delete record",
+                        icon: Trash2,
+                        destructive: true,
+                        onSelect: () => setConfirm(true),
+                      },
+                    ]}
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-lg border p-4 space-y-2 bg-muted/20">
+                <div className="text-xs font-semibold text-muted-foreground">
+                  Full Credential Action Suite
+                </div>
+                <div className="flex items-center justify-between p-2 rounded bg-card border">
+                  <span className="text-sm font-medium">Vault Item</span>
+                  <RowActionsMenu
+                    actions={[
+                      {
+                        key: "reveal",
+                        label: "Reveal password",
+                        icon: Eye,
+                        onSelect: () => {},
+                      },
+                      {
+                        key: "edit",
+                        label: "Edit details",
+                        icon: Pencil,
+                        onSelect: () => {},
+                      },
+                      {
+                        key: "rotate",
+                        label: "Rotate password",
+                        icon: RefreshCw,
+                        onSelect: () => {},
+                      },
+                      {
+                        key: "audit",
+                        label: "View audit trail",
+                        icon: History,
+                        onSelect: () => {},
+                      },
+                      {
+                        key: "delete",
+                        label: "Delete / Revoke",
+                        icon: Trash2,
+                        destructive: true,
+                        onSelect: () => setConfirm(true),
+                      },
+                    ]}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-lg border p-4 bg-muted/10 space-y-2">
+              <div className="text-xs font-semibold text-muted-foreground">
+                Table Overflow Boundary &amp; Upward Flip Test (Scroll
+                container)
+              </div>
+              <p className="text-xs text-muted-foreground">
+                The menu below renders inside an overflow-hidden table wrapper.
+                When opened, it portals outside to the body and automatically
+                flips upward if near the boundary, preventing clipping or
+                unwanted scrollbars.
+              </p>
+              <div className="relative border rounded-md overflow-hidden bg-card">
+                <div className="divide-y text-xs">
+                  <div className="flex items-center justify-between p-2.5">
+                    <span>Upper Row (opens downward normally)</span>
+                    <RowActionsMenu
+                      actions={[
+                        {
+                          key: "view",
+                          label: "View details",
+                          icon: Eye,
+                          onSelect: () => {},
+                        },
+                        {
+                          key: "edit",
+                          label: "Edit details",
+                          icon: Pencil,
+                          onSelect: () => {},
+                        },
+                      ]}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between p-2.5">
+                    <span>Middle Row</span>
+                    <RowActionsMenu
+                      actions={[
+                        {
+                          key: "view",
+                          label: "View details",
+                          icon: Eye,
+                          onSelect: () => {},
+                        },
+                        {
+                          key: "edit",
+                          label: "Edit details",
+                          icon: Pencil,
+                          onSelect: () => {},
+                        },
+                      ]}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between p-2.5 bg-muted/30">
+                    <span className="font-semibold text-primary">
+                      Bottom-most Row (triggers upward collision flip)
+                    </span>
+                    <RowActionsMenu
+                      actions={[
+                        {
+                          key: "view",
+                          label: "View details",
+                          icon: Eye,
+                          onSelect: () => {},
+                        },
+                        {
+                          key: "edit",
+                          label: "Edit details",
+                          icon: Pencil,
+                          onSelect: () => {},
+                        },
+                        {
+                          key: "history",
+                          label: "Audit log",
+                          icon: History,
+                          onSelect: () => {},
+                        },
+                        {
+                          key: "delete",
+                          label: "Delete",
+                          icon: Trash2,
+                          destructive: true,
+                          onSelect: () => setConfirm(true),
+                        },
+                      ]}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

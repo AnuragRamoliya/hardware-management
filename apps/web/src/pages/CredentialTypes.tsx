@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { ListPageScaffold } from "@/components/common/ListPageScaffold";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -192,12 +192,17 @@ export function CredentialTypes() {
             label="Type actions"
             actions={[
               {
+                key: "edit",
                 label: "Edit",
+                icon: Pencil,
                 onSelect: () => handleOpenEdit(row),
               },
               {
+                key: "delete",
                 label: "Delete",
+                icon: Trash2,
                 destructive: true,
+                separatorBefore: true,
                 onSelect: () => setDeletingType(row),
               },
             ]}
