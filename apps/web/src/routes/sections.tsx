@@ -66,7 +66,7 @@ const Employees = lazy(() =>
   import("@/pages/Entities").then((module) => ({ default: module.Employees })),
 );
 const Users = lazy(() =>
-  import("@/pages/Entities").then((module) => ({ default: module.Users })),
+  import("@/pages/Users").then((module) => ({ default: module.Users })),
 );
 const Departments = lazy(() =>
   import("@/pages/Departments").then((module) => ({
