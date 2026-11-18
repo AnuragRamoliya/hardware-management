@@ -14,16 +14,11 @@ const legacyNativeAllowlist = new Set([
   "components/ui/button.tsx",
   "components/ui/input.tsx",
   "components/ui/select/SelectChip.tsx",
-  "pages/AssetDetail.tsx",
-  "pages/Assets.tsx",
   "pages/AuditLogs.tsx",
   "pages/DesignSystem.tsx",
-  "pages/EmployeeDetail.tsx",
   "pages/Profile.tsx",
   "pages/ResourcePage.tsx",
   "pages/Roles.tsx",
-  "pages/Software.tsx",
-  "pages/SoftwareDetail.tsx",
 ]);
 const files = [];
 async function walk(directory) {
