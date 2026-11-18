@@ -1,32 +1,107 @@
-import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
-import { CommonTable, type TableColumn } from "@/components/common/CommonTable";
+import { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
+import { CommonTable } from "@/components/common/CommonTable";
 import { PageHeader } from "@/components/common/PageHeader";
-import { Badge } from "@/components/ui/badge";
-import { callApi } from "@/api/callApi";
-import { endPoints } from "@/api/endpoint";
+import { Button } from "@/components/ui/button";
 import { useTableState } from "@/hooks/use-tableState";
 import { maintenanceFilters } from "@/pages/MaintenanceFilters";
-
-type MaintenanceRecord = { id: number; asset_id: number; issue: string; vendor_id?: number | null; cost?: number | string | null; sent_at: string; returned_at?: string | null; resolution?: string | null; maintenance_status: number };
-const columns: TableColumn<MaintenanceRecord>[] = [
-  { id: "asset", label: "Asset", render: (row) => <Link className="text-primary hover:underline" to={`/assets/${row.asset_id}`}>Asset #{row.asset_id}</Link> },
-  { id: "issue", label: "Issue", render: (row) => row.issue },
-  { id: "status", label: "Status", render: (row) => <Badge variant={row.maintenance_status === 1 ? "warning" : "success"}>{row.maintenance_status === 1 ? "In maintenance" : "Completed"}</Badge> },
-  { id: "sent_at", label: "Sent", render: (row) => new Date(row.sent_at).toLocaleDateString() },
-  { id: "returned_at", label: "Returned", render: (row) => row.returned_at ? new Date(row.returned_at).toLocaleDateString() : "—" },
-  { id: "cost", label: "Cost", render: (row) => row.cost ?? "—" },
-];
+import {
+  useMaintenanceList,
+  type MaintenanceRecord,
+} from "@/hooks/queries/maintenance";
+import { getMaintenanceColumns } from "@/pages/MaintenanceColumns";
+import { AddEditMaintenance } from "@/components/maintenance/AddEditMaintenance";
+import { CompleteMaintenanceDialog } from "@/components/maintenance/CompleteMaintenanceDialog";
+import { PATHS } from "@/routes/paths";
+import useAuthStore from "@/zustand/user-store";
+import usePermissionStore from "@/zustand/permission-store";
+import { getUserRole } from "@/lib/roles";
 
 export function Maintenance() {
+  const navigate = useNavigate();
   const { tableState, setTableState } = useTableState();
-  const query = useQuery({
-    queryKey: ["asset-maintenance", tableState],
-    queryFn: async () => {
-      const response = await callApi<{ rows: MaintenanceRecord[]; count: number }, typeof tableState>({ url: endPoints.asset.maintenance.list, method: "POST", body: tableState });
-      if (!response.ok) throw new Error(response.message || "Unable to load maintenance records");
-      return response.data ?? { rows: [], count: 0 };
+
+  // Modals state
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [completeRecord, setCompleteRecord] =
+    useState<MaintenanceRecord | null>(null);
+
+  // User & permissions
+  const currentUser = useAuthStore((state) => state.user);
+  const role = getUserRole(currentUser);
+  const permissions = usePermissionStore(
+    (state) => state.modulePermissions["asset"],
+  );
+  const canWrite =
+    role === "admin" ||
+    role === "hardware" ||
+    permissions?.write_access === true;
+
+  const query = useMaintenanceList(tableState);
+
+  const handleComplete = useCallback((record: MaintenanceRecord) => {
+    setCompleteRecord(record);
+  }, []);
+
+  const handleViewAsset = useCallback(
+    (assetId: number) => {
+      navigate(PATHS.ASSET_DETAIL.replace(":id", String(assetId)));
     },
-  });
-  return <><PageHeader title="Asset maintenance" description="Track repairs and service history across your inventory." /><CommonTable columns={columns} rows={query.data?.rows ?? []} count={query.data?.count ?? 0} query={tableState} onQueryChange={setTableState} loading={query.isLoading} error={query.error?.message} onRetry={() => void query.refetch()} filterFields={maintenanceFilters} emptyTitle="No maintenance records" /></>;
+    [navigate],
+  );
+
+  const columns = useMemo(
+    () =>
+      getMaintenanceColumns({
+        onComplete: handleComplete,
+        onViewAsset: handleViewAsset,
+        canWrite,
+      }),
+    [handleComplete, handleViewAsset, canWrite],
+  );
+
+  const rows = useMemo(() => query.data?.rows ?? [], [query.data?.rows]);
+
+  return (
+    <>
+      <PageHeader
+        title="Asset Maintenance"
+        description="Track repair tickets, servicing vendors, and resolution logs across all hardware assets."
+        action={
+          canWrite ? (
+            <Button onClick={() => setDrawerOpen(true)}>
+              <Plus className="mr-1.5 h-4 w-4" />
+              Log maintenance
+            </Button>
+          ) : undefined
+        }
+      />
+
+      <CommonTable
+        columns={columns}
+        rows={rows}
+        count={query.data?.count ?? 0}
+        query={tableState}
+        onQueryChange={setTableState}
+        loading={query.isLoading}
+        error={query.error?.message}
+        onRetry={() => void query.refetch()}
+        filterFields={maintenanceFilters}
+        emptyTitle="No maintenance records found"
+      />
+
+      {/* Drawers & Dialogs */}
+      <AddEditMaintenance
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+      />
+
+      <CompleteMaintenanceDialog
+        open={Boolean(completeRecord)}
+        onOpenChange={(open) => !open && setCompleteRecord(null)}
+        record={completeRecord}
+      />
+    </>
+  );
 }
