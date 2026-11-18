@@ -8,7 +8,9 @@
 ## 1. Project Overview & Business Goals
 
 ### 1.1 Purpose
+
 The ITAM system is an in-house enterprise web application designed to manage office assets and personnel:
+
 - **Employee lifecycle**: onboarding with login creation, departmental hierarchies, equipment assignment, and offboarding.
 - **Hardware inventory**: asset tracking from procurement to retirement, serialized tags (`AST-XXXXXX`), QR code generation, accessory hierarchies, specifications, warranty alerts, and maintenance lifecycles.
 - **Software & licenses**: license tracking, seat limits, automated expiry alerts, and employee seat allocations.
@@ -17,12 +19,12 @@ The ITAM system is an in-house enterprise web application designed to manage off
 
 ### 1.2 Roles and Permissions Summary
 
-| Role Name | Web Normalized Key | Database `type` | Capabilities & Access Matrix |
-|---|---|---|---|
-| **Super Admin** | `admin` | `super_admin` | Unrestricted full read/write/delete access across all modules, system settings, RBAC permissions matrix, and audit logs. |
-| **Hardware Manager** | `hardware` | `hardware_manager` | Full management (read/write/delete) of assets, asset assignments, maintenance, software, and software licenses. Read/write on employees, vendors, locations, departments, designations, and asset categories. Read/write on own user profile. Cannot manage roles or system permissions. |
-| **HR** | `hr` | `hr` | Full management (read/write) of employees, departments, designations, and locations. Read-only access to assets, asset assignments, maintenance, software, licenses, and audit logs. |
-| **Employee** | `employee` | `employee` | Access to the employee self-service portal (`/portal`, `/portal/assets`, `/portal/software`), profile self-management, and read-only directory access. No access to hardware administration or master entities. |
+| Role Name            | Web Normalized Key | Database `type`    | Capabilities & Access Matrix                                                                                                                                                                                                                                                             |
+| -------------------- | ------------------ | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Super Admin**      | `admin`            | `super_admin`      | Unrestricted full read/write/delete access across all modules, system settings, RBAC permissions matrix, and audit logs.                                                                                                                                                                 |
+| **Hardware Manager** | `hardware`         | `hardware_manager` | Full management (read/write/delete) of assets, asset assignments, maintenance, software, and software licenses. Read/write on employees, vendors, locations, departments, designations, and asset categories. Read/write on own user profile. Cannot manage roles or system permissions. |
+| **HR**               | `hr`               | `hr`               | Full management (read/write) of employees, departments, designations, and locations. Read-only access to assets, asset assignments, maintenance, software, licenses, and audit logs.                                                                                                     |
+| **Employee**         | `employee`         | `employee`         | Access to the employee self-service portal (`/portal`, `/portal/assets`, `/portal/software`), profile self-management, and read-only directory access. No access to hardware administration or master entities.                                                                          |
 
 ---
 
@@ -31,6 +33,7 @@ The ITAM system is an in-house enterprise web application designed to manage off
 ### 2.1 Technology Stack & Versions
 
 #### Backend API (`hardware-mnagement-api`)
+
 - **Runtime**: Node.js `v22.23.4` (ESM / CommonJS hybrid via `tsx` and TypeScript `5.9.3`)
 - **Framework**: Express `5.2.1`
 - **ORM / Database**: Sequelize `6.37.8`, MySQL2 `3.24.4` (MySQL 8.0+)
@@ -41,6 +44,7 @@ The ITAM system is an in-house enterprise web application designed to manage off
 - **Testing & Quality**: Vitest `4.0.8`, Supertest `7.1.4`, ESLint `9.39.1`, Prettier `3.6.2`, Husky `9.1.7`
 
 #### Frontend Web (`hardware-management-web`)
+
 - **Framework & Tooling**: React `18.3.1`, Vite `6.4.1`, TypeScript `5.8.3`
 - **Styling & UI**: Tailwind CSS `3.4.17`, Radix UI primitives (`dialog`, `select`, `dropdown-menu`, `switch`, `alert-dialog`, `slot`), Lucide React `0.462.0`
 - **State Management**: TanStack React Query `5.83.0` (server state), Zustand `5.0.11` (client session/auth)
@@ -51,6 +55,7 @@ The ITAM system is an in-house enterprise web application designed to manage off
 ### 2.2 Execution Commands
 
 #### API Commands (`cd hardware-mnagement-api`)
+
 ```bash
 # Start development server with live reload (port 8000)
 npm run dev
@@ -88,6 +93,7 @@ npm run gen:module -- <snake_case_resource>
 ```
 
 #### Web Commands (`cd hardware-management-web`)
+
 ```bash
 # Start Vite development server (port 5173)
 npm run dev
@@ -113,6 +119,7 @@ npm run gen:module -- <resource-name> --fields "name:text,status:enum"
 > Never commit actual credentials or secrets to version control. The keys below represent the configuration contracts.
 
 #### API (`hardware-mnagement-api/.env`)
+
 ```ini
 PORT
 NODE_ENV
@@ -147,11 +154,13 @@ TZ
 ```
 
 #### Web (`hardware-management-web/.env`)
+
 ```ini
 VITE_HOST_API
 ```
 
 ### 2.4 Default Admin & Seed Setup
+
 1. Running `npm run migrate` sets up the schema up to `20261117120000-create-assets-software.js`.
 2. Running `npm run seed` executes:
    - `20261117091000-seed-rbac.js`: Creates 21 modules, 4 default roles (`super_admin`, `hardware_manager`, `hr`, `employee`), and populates the 53 initial permission entries.
@@ -165,6 +174,7 @@ VITE_HOST_API
 ### 3.1 Folder Structures
 
 #### API Project Tree (`hardware-mnagement-api/`)
+
 ```text
 hardware-mnagement-api/
 ├── Config/                  # App configuration, Zod env parser, Winston logger, AppError, response envelope
@@ -193,6 +203,7 @@ hardware-mnagement-api/
 ```
 
 #### Web Project Tree (`hardware-management-web/`)
+
 ```text
 hardware-management-web/
 ├── docs/                    # UI standards, select audit, conformance audits, module checklist
@@ -224,6 +235,7 @@ hardware-management-web/
 ```
 
 ### 3.2 Request Flow Architecture
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -261,26 +273,31 @@ sequenceDiagram
 ### 3.3 Core Infrastructure Subsystems
 
 #### Authentication & Session Lifecycle
+
 1. **Login** (`POST /user/login`): Validates email/password against bcrypt hash; generates access token (JWT) and refresh token; records SHA-256 hashed refresh token in `user_tokens`.
 2. **Access Verification**: `userAuth` middleware validates the Bearer JWT token and resolves user permissions from the database.
 3. **Silent Refresh**: Web `callApi.ts` intercepts HTTP 401 responses, queues concurrent requests via `refreshInFlight`, calls `POST /user/refresh/token`, updates the session in Zustand `useAuthStore`, and retries the original request seamlessly.
 4. **Logout** (`DELETE /user/logout`): Revokes token entry from `user_tokens`.
 
 #### Cryptography & Encryption Behavior
+
 - **Network Payload Encryption**: Legacy invsys encryption retained in API via crypto-js. The web client passes `"plain-text": "true"` to bypass payload decryption during standard REST consumption.
-- **Vault Encryption (AES-256-GCM)**: Authenticated encryption implemented in `Utils/encryption.ts` using `VAULT_ENCRYPTION_KEY`. Formats cipher text as `iv.authTag.ciphertext` in base64url. Used for software license keys; architected for Phase 3 credentials vault.
+- **Vault Encryption (AES-256-GCM)**: Authenticated encryption implemented in `Utils/encryption.ts` with multi-key versioning via `VAULT_ENCRYPTION_KEYS` and `VAULT_KEY_VERSION`. Utilizes row-bound AAD (`credential:${id}:employee:${employee_id}`) to bind ciphertext to its specific database row and entity. Decrypted secrets are strictly isolated to single-turn responses, never cached in DB default scopes or frontend state. Formats ciphertext as `iv.authTag.ciphertext` in base64url. Used for software license keys and the Phase 3 Secure Credential Vault.
 - **Passwords**: Hashed with bcrypt (10 rounds).
 - **Tokens**: Refresh and password reset tokens are hashed with SHA-256 prior to database persistence.
 
 #### Role-Based Access Control (RBAC)
+
 - Checked via `checkAccess(module, accessType)` middleware requiring `read_access`, `write_access`, or `delete_access` from the `permissions` table for the user's role.
 - Options queries are authorized via `checkOptionsAccess(module)`, which permits loading reference select options via `options_access: 1` even if the user lacks full table read permissions.
 
 #### Activity Logging
+
 - Every mutating write operation across all models and services invokes `createActivityLog` within the active Sequelize transaction.
 - Captures `module`, `moduleId`, `action` (`created`, `updated`, `deleted`, `completed`, etc.), `old_value`, `new_value`, `description`, and `created_by` / `created_by_name`.
 
 #### Global Error Handling
+
 - Handled centrally by `Middleware/error_handler.ts`.
 - Formats known `AppError` instances, Zod errors, Sequelize constraint violations, and unhandled exceptions into the standard `{ message, data: null }` error shape.
 
@@ -288,18 +305,18 @@ sequenceDiagram
 
 ## 4. Conventions and Standards
 
-| Area | Standard Specification | Documentation Source |
-|---|---|---|
-| **API Response Shape** | Standard envelope: `{ message: string, data: T \| null }`. | `Config/response_handler.ts` |
-| **List API Contract** | `POST /<resource>/list` body: `{ currentPage, itemsPerPage, filters, sortBy, general_search }` -> `{ rows: T[], count: number }`. | `Utils/validations.ts`, `docs/API_STANDARDS.md` |
-| **Options API Contract** | `POST /<resource>/options` body: `{ search, page, limit, ids[], filters{}}` -> `{ rows: [{ value, label, subLabel, meta }], count, hasMore, page }`. | `Utils/options_builder.ts`, `docs/FORM_FIELD_GUIDELINES.md` |
-| **URL Paths** | Conventional REST-like pattern: `/x/add`, `/x/list`, `/x/get/:id`, `/x/update`, `/x/delete/:id`, `/x/options`, `/x/activity`. | `docs/API_STANDARDS.md` |
-| **Soft Delete** | `status`: `1` (Active), `0` (Inactive), `2` (Deleted). Queries filter `status: 1`. | `Config/constant.ts` |
-| **Common Table** | `CommonTable` owns search debouncing, column visibility, density, sort, multi-selection, CSV export, loading skeleton, and mobile card toggle. | `src/components/common/CommonTable.tsx` |
-| **Filter Panel** | `TableFilterPanel` expands above table, config-driven by `<Resource>Filters.ts`, synced to URL search parameters via `useTableFilters`. | `components/common/TableFilters/TableFilterPanel.tsx` |
-| **Forms & Drawers** | Forms open in responsive `Drawer` (full-screen sheet on mobile), wrapped in `FormProvider`, organized into `FormSection` / `FormGrid` / `FormActions`, guarded by dirty-close checks. | `components/common/FormLayout.tsx`, `docs/UI_STANDARDS.md` |
-| **Form Validation** | Co-located Yup schemas beside components (`<Resource>.schema.ts`); error messages sourced from `FORM_VALIDATION`. | `src/utils/form-validation.ts` |
-| **React Query Hooks** | Target convention: custom hooks in `src/hooks/queries/<resource>.ts` (`useXList`, `useX`, `useCreateX`). Mutations handle invalidation and toasts. *(Note: currently implemented inline in pages)*. | `docs/UI_STANDARDS.md` |
+| Area                     | Standard Specification                                                                                                                                                                              | Documentation Source                                        |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| **API Response Shape**   | Standard envelope: `{ message: string, data: T \| null }`.                                                                                                                                          | `Config/response_handler.ts`                                |
+| **List API Contract**    | `POST /<resource>/list` body: `{ currentPage, itemsPerPage, filters, sortBy, general_search }` -> `{ rows: T[], count: number }`.                                                                   | `Utils/validations.ts`, `docs/API_STANDARDS.md`             |
+| **Options API Contract** | `POST /<resource>/options` body: `{ search, page, limit, ids[], filters{}}` -> `{ rows: [{ value, label, subLabel, meta }], count, hasMore, page }`.                                                | `Utils/options_builder.ts`, `docs/FORM_FIELD_GUIDELINES.md` |
+| **URL Paths**            | Conventional REST-like pattern: `/x/add`, `/x/list`, `/x/get/:id`, `/x/update`, `/x/delete/:id`, `/x/options`, `/x/activity`.                                                                       | `docs/API_STANDARDS.md`                                     |
+| **Soft Delete**          | `status`: `1` (Active), `0` (Inactive), `2` (Deleted). Queries filter `status: 1`.                                                                                                                  | `Config/constant.ts`                                        |
+| **Common Table**         | `CommonTable` owns search debouncing, column visibility, density, sort, multi-selection, CSV export, loading skeleton, and mobile card toggle.                                                      | `src/components/common/CommonTable.tsx`                     |
+| **Filter Panel**         | `TableFilterPanel` expands above table, config-driven by `<Resource>Filters.ts`, synced to URL search parameters via `useTableFilters`.                                                             | `components/common/TableFilters/TableFilterPanel.tsx`       |
+| **Forms & Drawers**      | Forms open in responsive `Drawer` (full-screen sheet on mobile), wrapped in `FormProvider`, organized into `FormSection` / `FormGrid` / `FormActions`, guarded by dirty-close checks.               | `components/common/FormLayout.tsx`, `docs/UI_STANDARDS.md`  |
+| **Form Validation**      | Co-located Yup schemas beside components (`<Resource>.schema.ts`); error messages sourced from `FORM_VALIDATION`.                                                                                   | `src/utils/form-validation.ts`                              |
+| **React Query Hooks**    | Target convention: custom hooks in `src/hooks/queries/<resource>.ts` (`useXList`, `useX`, `useCreateX`). Mutations handle invalidation and toasts. _(Note: currently implemented inline in pages)_. | `docs/UI_STANDARDS.md`                                      |
 
 ---
 
@@ -318,7 +335,7 @@ erDiagram
     DESIGNATIONS ||--o{ EMPLOYEES : classifies
     LOCATIONS ||--o{ EMPLOYEES : stations
     EMPLOYEES ||--o{ EMPLOYEES : manages
-    
+
     ASSET_CATEGORIES ||--o{ ASSETS : categorizes
     VENDORS ||--o{ ASSETS : supplies
     LOCATIONS ||--o{ ASSETS : houses
@@ -326,7 +343,7 @@ erDiagram
     ASSETS ||--o{ ASSET_ASSIGNMENTS : assigned_in
     EMPLOYEES ||--o{ ASSET_ASSIGNMENTS : receives
     ASSETS ||--o{ ASSET_MAINTENANCE : repaired_in
-    
+
     VENDORS ||--o{ SOFTWARE : vendors
     SOFTWARE ||--o{ SOFTWARE_LICENSES : contains
     SOFTWARE ||--o{ SOFTWARE_ASSIGNMENTS : allocated_in
@@ -335,6 +352,7 @@ erDiagram
 ```
 
 ### 5.2 Key Database Constraints & Engine Invariants
+
 1. **Concurrency Protection for Asset Assignments**:
    - `asset_assignments.open_asset_id` is a persistent virtual generated column: `CASE WHEN returned_at IS NULL THEN asset_id ELSE NULL END`.
    - Unique index `asset_assignments_open_asset_unique` enforces that an asset can never have more than one open assignment at any given time.
@@ -358,32 +376,33 @@ erDiagram
 
 ## 6. Complete Module Catalogue
 
-| Module Name | Purpose & Scope | API Endpoints | Web Pages & Components | RBAC Key | Activity Key | Tests Present |
-|---|---|---|---|---|---|---|
-| **Users** | System login accounts & administrative user management | `/user/add`, `/user/update`, `/user/get/:id`, `/user/list`, `/user/options`, `/user/delete/:id`, `/user/profile`, `/user/profile/update` | `src/pages/Entities.tsx` (`Users`), `src/pages/Profile.tsx` | `user` | `user` | Route tests in `api.test.ts` |
-| **Roles & Permissions** | Access control levels and module permission matrix | `/role/add`, `/role/update`, `/role/get/:id`, `/role/list`, `/role/options`, `/role/delete/:id`, `/role/:id/permissions`, `/module/permission` | `src/pages/Roles.tsx`, `src/pages/Entities.tsx` (`Roles`) | `role` | `role` | `api.test.ts`, `roles.test.ts` |
-| **Employees** | Staff directory, employment records, linked user logins | `/employee/add`, `/employee/update`, `/employee/get/:id`, `/employee/list`, `/employee/options`, `/employee/delete/:id`, `/employee/bulk/import` | `src/pages/Entities.tsx` (`Employees`), `src/pages/EmployeeDetail.tsx` | `employee` | `employee` | Options & DB tests |
-| **Departments** | Organizational departments | `/department/add`, `/department/update`, `/department/get/:id`, `/department/list`, `/department/options`, `/department/delete/:id` | `src/pages/Entities.tsx` (`Departments`) | `department` | `department` | CRUD tests in `api.test.ts` |
-| **Designations** | Job roles and job titles | `/designation/add`, `/designation/update`, `/designation/get/:id`, `/designation/list`, `/designation/options`, `/designation/delete/:id` | `src/pages/Entities.tsx` (`Designations`) | `designation` | `designation` | CRUD via resource test |
-| **Locations** | Office buildings, branches, sites | `/location/add`, `/location/update`, `/location/get/:id`, `/location/list`, `/location/options`, `/location/delete/:id` | `src/pages/Entities.tsx` (`Locations`) | `location` | `location` | CRUD via resource test |
-| **Vendors** | Hardware and software suppliers | `/vendor/add`, `/vendor/update`, `/vendor/get/:id`, `/vendor/list`, `/vendor/options`, `/vendor/delete/:id` | `src/pages/Entities.tsx` (`Vendors`) | `vendor` | `vendor` | CRUD via resource test |
-| **Asset Categories** | Equipment types (Laptops, Monitors, Phones) | `/asset_category/add`, `/asset_category/update`, `/asset_category/get/:id`, `/asset_category/list`, `/asset_category/options`, `/asset_category/delete/:id` | `src/pages/Entities.tsx` (`AssetCategories`) | `asset_category` | `asset_category` | CRUD via resource test |
-| **Assets** | Hardware inventory, tags, specs, warranty, QR codes | `/asset/add`, `/asset/update`, `/asset/get/:id`, `/asset/list`, `/asset/options`, `/asset/delete/:id`, `/asset/qr/:id`, `/asset/import`, `/asset/export` | `src/pages/Assets.tsx`, `src/pages/AssetDetail.tsx` | `asset` | `asset` | `phase2_database.test.ts` |
-| **Asset Assignments** | Hardware check-out, return, and transfer | `/asset/assign`, `/asset/return`, `/asset/transfer`, `/asset/bulk/assign`, `/asset/bulk/return`, `/asset/history` | Handled via dialogs in `Assets.tsx`, `AssetDetail.tsx`, `EmployeeDetail.tsx` | `asset_assignment` | `asset_assignment` | `phase2_database.test.ts` |
-| **Asset Maintenance** | Repair tracking, vendor servicing, costs | `/asset/maintenance/add`, `/asset/maintenance/update`, `/asset/maintenance/complete`, `/asset/maintenance/list` | `src/pages/Maintenance.tsx`, tabs in `AssetDetail.tsx` | `asset_maintenance` | `asset_maintenance` | Tested in service pass |
-| **Software** | Software titles, renewal dates, categories | `/software/add`, `/software/update`, `/software/get/:id`, `/software/list`, `/software/options`, `/software/delete/:id`, `/software/usage/:id` | `src/pages/Software.tsx`, `src/pages/SoftwareDetail.tsx` | `software` | `software` | `phase2_database.test.ts` |
-| **Software Licenses** | License keys (encrypted), seat caps, expiry dates | `/software/license/add`, `/software/license/update`, `/software/license/list`, `/software/license/options` | Tabs & dialogs in `SoftwareDetail.tsx` | `software_license` | `software_license` | `phase2_database.test.ts` |
-| **Software Assignments** | Seat assignment and revocation | `/software/assign`, `/software/revoke` | Dialogs in `Software.tsx`, `SoftwareDetail.tsx`, `EmployeeDetail.tsx` | `software` | `software` | `phase2_database.test.ts` |
-| **Notifications** | Automated threshold alerts and user notifications | `/notifications`, `/notifications/read/:id`, `/notifications/read-all`, `/notifications/unread-count` | `src/pages/Notifications.tsx`, Header in `AppShell.tsx` | `user` | N/A | Service tests |
-| **Dashboard** | Inventory metrics, alerts summary, cost aggregation | `/dashboard/summary` | `src/pages/Dashboard.tsx` | Open to authenticated | N/A | Manual smoke test |
-| **Employee Portal** | Self-service view of assigned assets and software | `/portal/assets`, `/portal/software` | `src/pages/Portal.tsx`, `src/pages/PortalAssets.tsx`, `src/pages/PortalSoftware.tsx` | `employee` | N/A | Route guard tests |
-| **Audit Logs** | System-wide immutable compliance audit log | `/audit/list`, `/audit/export` | `src/pages/AuditLogs.tsx` | `audit_log` | N/A | Export and filter tests |
+| Module Name              | Purpose & Scope                                         | API Endpoints                                                                                                                                               | Web Pages & Components                                                               | RBAC Key              | Activity Key        | Tests Present                  |
+| ------------------------ | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | --------------------- | ------------------- | ------------------------------ |
+| **Users**                | System login accounts & administrative user management  | `/user/add`, `/user/update`, `/user/get/:id`, `/user/list`, `/user/options`, `/user/delete/:id`, `/user/profile`, `/user/profile/update`                    | `src/pages/Entities.tsx` (`Users`), `src/pages/Profile.tsx`                          | `user`                | `user`              | Route tests in `api.test.ts`   |
+| **Roles & Permissions**  | Access control levels and module permission matrix      | `/role/add`, `/role/update`, `/role/get/:id`, `/role/list`, `/role/options`, `/role/delete/:id`, `/role/:id/permissions`, `/module/permission`              | `src/pages/Roles.tsx`, `src/pages/Entities.tsx` (`Roles`)                            | `role`                | `role`              | `api.test.ts`, `roles.test.ts` |
+| **Employees**            | Staff directory, employment records, linked user logins | `/employee/add`, `/employee/update`, `/employee/get/:id`, `/employee/list`, `/employee/options`, `/employee/delete/:id`, `/employee/bulk/import`            | `src/pages/Entities.tsx` (`Employees`), `src/pages/EmployeeDetail.tsx`               | `employee`            | `employee`          | Options & DB tests             |
+| **Departments**          | Organizational departments                              | `/department/add`, `/department/update`, `/department/get/:id`, `/department/list`, `/department/options`, `/department/delete/:id`                         | `src/pages/Entities.tsx` (`Departments`)                                             | `department`          | `department`        | CRUD tests in `api.test.ts`    |
+| **Designations**         | Job roles and job titles                                | `/designation/add`, `/designation/update`, `/designation/get/:id`, `/designation/list`, `/designation/options`, `/designation/delete/:id`                   | `src/pages/Entities.tsx` (`Designations`)                                            | `designation`         | `designation`       | CRUD via resource test         |
+| **Locations**            | Office buildings, branches, sites                       | `/location/add`, `/location/update`, `/location/get/:id`, `/location/list`, `/location/options`, `/location/delete/:id`                                     | `src/pages/Entities.tsx` (`Locations`)                                               | `location`            | `location`          | CRUD via resource test         |
+| **Vendors**              | Hardware and software suppliers                         | `/vendor/add`, `/vendor/update`, `/vendor/get/:id`, `/vendor/list`, `/vendor/options`, `/vendor/delete/:id`                                                 | `src/pages/Entities.tsx` (`Vendors`)                                                 | `vendor`              | `vendor`            | CRUD via resource test         |
+| **Asset Categories**     | Equipment types (Laptops, Monitors, Phones)             | `/asset_category/add`, `/asset_category/update`, `/asset_category/get/:id`, `/asset_category/list`, `/asset_category/options`, `/asset_category/delete/:id` | `src/pages/Entities.tsx` (`AssetCategories`)                                         | `asset_category`      | `asset_category`    | CRUD via resource test         |
+| **Assets**               | Hardware inventory, tags, specs, warranty, QR codes     | `/asset/add`, `/asset/update`, `/asset/get/:id`, `/asset/list`, `/asset/options`, `/asset/delete/:id`, `/asset/qr/:id`, `/asset/import`, `/asset/export`    | `src/pages/Assets.tsx`, `src/pages/AssetDetail.tsx`                                  | `asset`               | `asset`             | `phase2_database.test.ts`      |
+| **Asset Assignments**    | Hardware check-out, return, and transfer                | `/asset/assign`, `/asset/return`, `/asset/transfer`, `/asset/bulk/assign`, `/asset/bulk/return`, `/asset/history`                                           | Handled via dialogs in `Assets.tsx`, `AssetDetail.tsx`, `EmployeeDetail.tsx`         | `asset_assignment`    | `asset_assignment`  | `phase2_database.test.ts`      |
+| **Asset Maintenance**    | Repair tracking, vendor servicing, costs                | `/asset/maintenance/add`, `/asset/maintenance/update`, `/asset/maintenance/complete`, `/asset/maintenance/list`                                             | `src/pages/Maintenance.tsx`, tabs in `AssetDetail.tsx`                               | `asset_maintenance`   | `asset_maintenance` | Tested in service pass         |
+| **Software**             | Software titles, renewal dates, categories              | `/software/add`, `/software/update`, `/software/get/:id`, `/software/list`, `/software/options`, `/software/delete/:id`, `/software/usage/:id`              | `src/pages/Software.tsx`, `src/pages/SoftwareDetail.tsx`                             | `software`            | `software`          | `phase2_database.test.ts`      |
+| **Software Licenses**    | License keys (encrypted), seat caps, expiry dates       | `/software/license/add`, `/software/license/update`, `/software/license/list`, `/software/license/options`                                                  | Tabs & dialogs in `SoftwareDetail.tsx`                                               | `software_license`    | `software_license`  | `phase2_database.test.ts`      |
+| **Software Assignments** | Seat assignment and revocation                          | `/software/assign`, `/software/revoke`                                                                                                                      | Dialogs in `Software.tsx`, `SoftwareDetail.tsx`, `EmployeeDetail.tsx`                | `software`            | `software`          | `phase2_database.test.ts`      |
+| **Notifications**        | Automated threshold alerts and user notifications       | `/notifications`, `/notifications/read/:id`, `/notifications/read-all`, `/notifications/unread-count`                                                       | `src/pages/Notifications.tsx`, Header in `AppShell.tsx`                              | `user`                | N/A                 | Service tests                  |
+| **Dashboard**            | Inventory metrics, alerts summary, cost aggregation     | `/dashboard/summary`                                                                                                                                        | `src/pages/Dashboard.tsx`                                                            | Open to authenticated | N/A                 | Manual smoke test              |
+| **Employee Portal**      | Self-service view of assigned assets and software       | `/portal/assets`, `/portal/software`                                                                                                                        | `src/pages/Portal.tsx`, `src/pages/PortalAssets.tsx`, `src/pages/PortalSoftware.tsx` | `employee`            | N/A                 | Route guard tests              |
+| **Audit Logs**           | System-wide immutable compliance audit log              | `/audit/list`, `/audit/export`                                                                                                                              | `src/pages/AuditLogs.tsx`                                                            | `audit_log`           | N/A                 | Export and filter tests        |
 
 ---
 
 ## 7. Shared Components & Utilities Inventory
 
 ### Frontend Component Catalog
+
 - **UI Primitives (`src/components/ui/`)**: `Button`, `Input`, `Textarea`, `Card`, `Badge`, `Skeleton`, `Dialog`, `Select`.
 - **Form System (`src/components/hook-form/`)**:
   - `FormProvider`: RHF context container.
@@ -404,6 +423,7 @@ erDiagram
   - `StatusBadge`: Badges with tones (`success`, `warning`, `danger`, `muted`, `info`).
 
 ### Custom Hooks (`src/hooks/`)
+
 - `useTableState`: Manages table pagination, sorting, search, and page size.
 - `useTableFilters`: Syncs filter criteria with URL query parameters.
 - `useAsyncOptions`: Infinite paging, debounced search, and ID hydration against `/options` endpoints.
@@ -438,7 +458,7 @@ erDiagram
 
 ## 9. Security & Risk Assessment
 
-- **Credentials Vault Readiness**: The core cryptographic functions (`encryptVaultSecret` and `decryptVaultSecret` with AES-256-GCM) are tested and secure. However, the database schema, access policies, re-authentication challenges, and audit log tables for Phase 3 credentials vault have not been designed or created.
+- **Credentials Vault Readiness**: Fully implemented and hardened in Phase 3. AES-256-GCM encryption with row-bound AAD, multi-key rotation CLI (`npm run vault:re-encrypt`), mandatory re-authentication challenge (`POST /user/reauth`) with 5-minute tickets, 10/hour reveal rate limits, zero-knowledge memory handling, cryptographic hash-chained audit trails (`credential_access_logs`), automated background expiry notifications, employee privacy consent gate, and approval state machine are in place. Full threat model documented in `docs/CREDENTIAL_VAULT_SECURITY.md` and verification steps in `docs/PHASE3_SMOKE_TEST.md`.
 - **Payload Encryption Bypass**: The API supports payload encryption, but accepts `"plain-text": "true"` from the web client. Ensure network transport is strictly guarded by HTTPS/TLS in production.
 - **Rate Limiting**: Rate limiting is configured for login (5 req/15min) and recovery (5 req/60min), plus a general IP limit of 600 req/min. Mutating data endpoints currently lack fine-grained rate limits.
 - **CORS Configuration**: Restricts access based on the comma-separated `CORS_ORIGINS` environment variable. Defaults should be locked down in production deployments.
@@ -448,6 +468,7 @@ erDiagram
 ## 10. How to Add a New Module
 
 ### 10.1 Backend API Steps
+
 1. Run `npm run gen:module -- <resource_name>`.
 2. Define the schema in `Database/Schema/<resource_name>.ts` and export it in `Database/Schema/index.ts`.
 3. Create a timestamped migration in `Database/Migrations/` defining tables, foreign keys, and indexes.
@@ -461,6 +482,7 @@ erDiagram
 11. Add unit and integration tests in `tests/<resource_name>.test.ts`.
 
 ### 10.2 Frontend Web Steps
+
 1. Run `npm run gen:module -- <resource-name> --fields "field1:text,field2:enum"`.
 2. Define API endpoints in `src/api/<resource-name>/index.ts` and `src/api/endpoint.ts`.
 3. Add enum constants and tone mappings to `src/utils/constants.ts`.
@@ -480,4 +502,3 @@ erDiagram
 3. **Payload Encryption Strategy**: Should crypto-js payload encryption be formally deprecated and replaced exclusively with standard TLS/HTTPS, or will payload encryption be mandated for production client requests?
 4. **Phase 2 Swagger Backfill**: Should Phase 2 routes (`/asset/*`, `/software/*`, etc.) be documented in Swagger before starting Phase 3 features?
 5. **UI Native Control Migration Strategy**: Should we complete the refactoring of the 15 legacy files on the allowlist (converting `Assets.tsx`, `Software.tsx`, etc. to `FormProvider` + `Drawer`) before implementing Phase 3?
-
