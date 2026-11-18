@@ -202,8 +202,14 @@ export function CredentialAccessLogs() {
           </div>
         }
         columns={columns}
-        rows={(data?.rows as CredentialAccessLogDto[]) ?? []}
-        count={data?.count ?? 0}
+        rows={
+          (data?.rows as CredentialAccessLogDto[]) ??
+          (data as unknown as { items?: CredentialAccessLogDto[] })?.items ??
+          []
+        }
+        count={
+          data?.count ?? (data as unknown as { total?: number })?.total ?? 0
+        }
         query={tableState}
         onQueryChange={setTableState}
         loading={isLoading}

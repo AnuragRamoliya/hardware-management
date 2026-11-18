@@ -33,7 +33,11 @@ export function useAsyncOptions({
       debouncedSearch,
       pageSize,
     ],
-    initialPageParam: null as { rank: number; label: string; id: number | string } | null,
+    initialPageParam: null as {
+      rank: number;
+      label: string;
+      id: number | string;
+    } | null,
     queryFn: async ({ pageParam, signal }) => {
       const result = await callApi<{
         rows: OptionItem[];
@@ -67,16 +71,61 @@ export function useAsyncOptions({
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
   });
-  const data = useMemo(
-    () =>
-      query.data
-        ? {
-            ...query.data.pages[query.data.pages.length - 1],
-            rows: query.data.pages.flatMap((page) => page.rows),
-          }
-        : undefined,
-    [query.data],
-  );
+  const data = useMemo(() => {
+    if (!query.data) return undefined;
+    const lastPage = query.data.pages[query.data.pages.length - 1];
+    const rows: OptionItem[] = [];
+    for (const page of query.data.pages) {
+      if (!page) continue;
+      const items: unknown[] = Array.isArray(page)
+        ? page
+        : Array.isArray((page as { rows?: unknown[] }).rows)
+          ? (page as { rows: unknown[] }).rows
+          : [];
+      for (const item of items) {
+        if (!item || typeof item !== "object") continue;
+        const record = item as Record<string, unknown>;
+        const rawValue = record.value ?? record.id;
+        if (rawValue === undefined || rawValue === null) continue;
+        const value =
+          typeof rawValue === "number" || typeof rawValue === "string"
+            ? rawValue
+            : String(rawValue);
+        rows.push({
+          value,
+          label:
+            typeof record.label === "string"
+              ? record.label
+              : typeof record.name === "string"
+                ? record.name
+                : String(value),
+          subLabel:
+            typeof record.subLabel === "string"
+              ? record.subLabel
+              : typeof record.category === "string"
+                ? record.category
+                : undefined,
+        });
+      }
+    }
+    const lastPageObj =
+      lastPage && typeof lastPage === "object" && !Array.isArray(lastPage)
+        ? (lastPage as Record<string, unknown>)
+        : {};
+    return {
+      count: rows.length,
+      hasMore: false,
+      page: 1,
+      ...lastPageObj,
+      rows,
+    } as {
+      rows: OptionItem[];
+      count: number;
+      hasMore: boolean;
+      page: number;
+      nextCursor?: { rank: number; label: string; id: number | string };
+    };
+  }, [query.data]);
 
   const [selectedOptions, setSelectedOptions] = useState<
     Map<string, OptionItem>
@@ -95,32 +144,32 @@ export function useAsyncOptions({
       uniqueIds.forEach((id) => hydrationInFlightRef.current.add(id));
 
       try {
-      const result = await callApi<{
-        rows: OptionItem[];
-        count: number;
-        hasMore: boolean;
-        page: number;
-      }>({
-        url: endpoint,
-        method: "POST",
-        body: {
-          ids: uniqueIds,
-          page: 1,
-          limit: 200,
-        },
-        retried: false,
-      });
-
-      if (result.ok && result.data) {
-        const hydratedRows = result.data.rows;
-        setSelectedOptions((previous) => {
-          const options = new Map(previous);
-          hydratedRows.forEach((option) =>
-            options.set(String(option.value), option),
-          );
-          return options;
+        const result = await callApi<{
+          rows: OptionItem[];
+          count: number;
+          hasMore: boolean;
+          page: number;
+        }>({
+          url: endpoint,
+          method: "POST",
+          body: {
+            ids: uniqueIds,
+            page: 1,
+            limit: 200,
+          },
+          retried: false,
         });
-      }
+
+        if (result.ok && result.data) {
+          const hydratedRows = result.data.rows;
+          setSelectedOptions((previous) => {
+            const options = new Map(previous);
+            hydratedRows.forEach((option) =>
+              options.set(String(option.value), option),
+            );
+            return options;
+          });
+        }
       } finally {
         uniqueIds.forEach((id) => hydrationInFlightRef.current.delete(id));
       }

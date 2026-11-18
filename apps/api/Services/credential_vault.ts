@@ -71,9 +71,12 @@ export class CredentialVaultService {
       order: [['id', 'DESC']],
     });
 
+    const mappedRows = rows.map(record);
     return {
+      rows: mappedRows,
+      count,
       total: count,
-      items: rows.map(record),
+      items: mappedRows,
       currentPage: Number(input.currentPage ?? 1),
       itemsPerPage: limit,
     };
@@ -211,7 +214,21 @@ export class CredentialVaultService {
       ],
       order: [['name', 'ASC']],
     });
-    return rows.map(record);
+    const items = rows.map((r) => {
+      const rec = record(r);
+      return {
+        ...rec,
+        value: rec.id,
+        label: rec.name,
+        subLabel: rec.category,
+      };
+    });
+    return {
+      rows: items,
+      count: items.length,
+      hasMore: false,
+      page: 1,
+    };
   }
 
   // ==========================================
@@ -291,9 +308,12 @@ export class CredentialVaultService {
       ],
     });
 
+    const mappedRows = rows.map(record);
     return {
+      rows: mappedRows,
+      count,
       total: count,
-      items: rows.map(record),
+      items: mappedRows,
       currentPage: Number(input.currentPage ?? 1),
       itemsPerPage: limit,
     };
@@ -663,9 +683,12 @@ export class CredentialVaultService {
       ],
     });
 
+    const mappedRows = rows.map(record);
     return {
+      rows: mappedRows,
+      count,
       total: count,
-      items: rows.map(record),
+      items: mappedRows,
       currentPage: Number(input.currentPage ?? 1),
       itemsPerPage: limit,
     };
@@ -935,9 +958,12 @@ export class CredentialVaultService {
       ],
     });
 
+    const mappedRows = rows.map(record);
     return {
+      rows: mappedRows,
+      count,
       total: count,
-      items: rows.map(record),
+      items: mappedRows,
       currentPage: Number(input.currentPage ?? 1),
       itemsPerPage: limit,
     };
@@ -1168,9 +1194,12 @@ export class CredentialVaultService {
       ],
     });
 
+    const mappedRows = rows.map(record);
     return {
+      rows: mappedRows,
+      count,
       total: count,
-      items: rows.map(record),
+      items: mappedRows,
       currentPage: Number(input.currentPage ?? 1),
       itemsPerPage: limit,
     };
@@ -1291,9 +1320,12 @@ export class CredentialVaultService {
       ],
     });
 
+    const mappedRows = rows.map(record);
     return {
+      rows: mappedRows,
+      count,
       total: count,
-      items: rows.map(record),
+      items: mappedRows,
       currentPage: Number(input.currentPage ?? 1),
       itemsPerPage: limit,
     };

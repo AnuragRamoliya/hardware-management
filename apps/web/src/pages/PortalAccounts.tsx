@@ -348,8 +348,14 @@ export function PortalAccounts() {
             </Button>
           }
           columns={columns}
-          rows={(data?.rows as CredentialDto[]) ?? []}
-          count={data?.count ?? 0}
+          rows={
+            (data?.rows as CredentialDto[]) ??
+            (data as unknown as { items?: CredentialDto[] })?.items ??
+            []
+          }
+          count={
+            data?.count ?? (data as unknown as { total?: number })?.total ?? 0
+          }
           query={tableState}
           onQueryChange={setTableState}
           loading={isLoading}

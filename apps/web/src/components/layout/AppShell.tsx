@@ -10,10 +10,8 @@ import { useTheme } from "next-themes";
 import { Command } from "cmdk";
 import {
   Bell,
-  CheckSquare,
   ChevronDown,
   Command as CommandIcon,
-  FileText,
   KeyRound,
   LayoutDashboard,
   Laptop,
@@ -44,6 +42,13 @@ import { getUserRole } from "@/lib/roles";
 import { callApi } from "@/api/callApi";
 import { endPoints } from "@/api/endpoint";
 
+interface NavigationSubItem {
+  label: string;
+  path: string;
+  roles?: UserRoleName[];
+  permission?: string;
+}
+
 interface NavigationItem {
   label: string;
   path: string;
@@ -51,6 +56,7 @@ interface NavigationItem {
   roles: UserRoleName[];
   group?: string;
   permission?: string;
+  children?: NavigationSubItem[];
 }
 
 const navigation: NavigationItem[] = [
@@ -142,38 +148,38 @@ const navigation: NavigationItem[] = [
     roles: ["admin", "hardware"],
     permission: "credential",
     group: "Credentials",
-  },
-  {
-    label: "Approvals queue",
-    path: PATHS.CREDENTIAL_APPROVALS,
-    icon: CheckSquare,
-    roles: ["admin", "hardware"],
-    permission: "credential",
-    group: "Credentials",
-  },
-  {
-    label: "Credential types",
-    path: PATHS.CREDENTIAL_TYPES,
-    icon: Settings2,
-    roles: ["admin"],
-    permission: "credential_type",
-    group: "Credentials",
-  },
-  {
-    label: "Collection requests",
-    path: PATHS.CREDENTIAL_REQUESTS,
-    icon: FileText,
-    roles: ["admin", "hardware"],
-    permission: "credential",
-    group: "Credentials",
-  },
-  {
-    label: "Vault access audit",
-    path: PATHS.CREDENTIAL_ACCESS_LOGS,
-    icon: ShieldCheck,
-    roles: ["admin"],
-    permission: "credential_access_log",
-    group: "Credentials",
+    children: [
+      {
+        label: "Credentials",
+        path: PATHS.CREDENTIALS,
+        roles: ["admin", "hardware"],
+        permission: "credential",
+      },
+      {
+        label: "Approvals queue",
+        path: PATHS.CREDENTIAL_APPROVALS,
+        roles: ["admin", "hardware"],
+        permission: "credential",
+      },
+      {
+        label: "Credential types",
+        path: PATHS.CREDENTIAL_TYPES,
+        roles: ["admin"],
+        permission: "credential_type",
+      },
+      {
+        label: "Collection requests",
+        path: PATHS.CREDENTIAL_REQUESTS,
+        roles: ["admin", "hardware"],
+        permission: "credential",
+      },
+      {
+        label: "Vault access audit",
+        path: PATHS.CREDENTIAL_ACCESS_LOGS,
+        roles: ["admin"],
+        permission: "credential_access_log",
+      },
+    ],
   },
   {
     label: "Departments",
@@ -294,18 +300,66 @@ export function AppShell() {
     notificationQuery.data?.filter((item) => !item.read_at).length ?? 0;
   const visibleNavigation = useMemo(
     () =>
-      navigation.filter(
-        (item) =>
-          item.roles.includes(role) &&
-          (!item.permission ||
-            role === "admin" ||
-            permissions[item.permission]?.read_access),
-      ),
+      navigation
+        .map((item) => {
+          if (!item.roles.includes(role)) return null;
+          if (
+            item.permission &&
+            role !== "admin" &&
+            !permissions[item.permission]?.read_access
+          ) {
+            return null;
+          }
+          if (item.children) {
+            const filteredChildren = item.children.filter((child) => {
+              if (child.roles && !child.roles.includes(role)) return false;
+              if (
+                child.permission &&
+                role !== "admin" &&
+                !permissions[child.permission]?.read_access
+              ) {
+                return false;
+              }
+              return true;
+            });
+            if (filteredChildren.length === 0) return null;
+            return { ...item, children: filteredChildren };
+          }
+          return item;
+        })
+        .filter((item): item is NavigationItem => item !== null),
     [permissions, role],
   );
-  const currentLabel =
-    navigation.find((item) => item.path === location.pathname)?.label ??
-    "Employee";
+
+  const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    visibleNavigation.forEach((item) => {
+      if (item.children) {
+        const isChildActive = item.children.some(
+          (c) =>
+            location.pathname === c.path ||
+            (c.path !== "/" && location.pathname.startsWith(c.path)),
+        );
+        if (isChildActive) {
+          setOpenSubmenus((prev) => ({ ...prev, [item.label]: true }));
+        }
+      }
+    });
+  }, [location.pathname, visibleNavigation]);
+
+  const currentLabel = useMemo(() => {
+    for (const item of navigation) {
+      if (item.children) {
+        const matchingChild = item.children.find(
+          (c) => c.path === location.pathname,
+        );
+        if (matchingChild) return matchingChild.label;
+      }
+      if (item.path === location.pathname) return item.label;
+    }
+    return "Employee";
+  }, [location.pathname]);
   const handleLogout = async () => {
     const result = await logoutApi();
     if (!result.ok && result.status !== 401) {
@@ -386,8 +440,16 @@ export function AppShell() {
             {visibleNavigation.map((item, index) => {
               const prevGroup = visibleNavigation[index - 1]?.group;
               const isNewGroup = item.group && prevGroup !== item.group;
+              const hasChildren = Boolean(
+                item.children && item.children.length > 0,
+              );
+              const isParentOpen = openSubmenus[item.label] ?? false;
+              const isChildActive =
+                hasChildren &&
+                item.children!.some((c) => location.pathname === c.path);
+
               return (
-                <div key={item.path}>
+                <div key={item.path || item.label}>
                   {isNewGroup && (
                     <>
                       {isCollapsed ? (
@@ -399,30 +461,114 @@ export function AppShell() {
                       )}
                     </>
                   )}
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    onClick={onNavigate}
-                    title={isCollapsed ? item.label : undefined}
-                    className={({ isActive }) =>
-                      cn(
-                        "group relative flex min-h-10 items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-                        isActive &&
-                          "bg-primary/10 font-semibold text-primary dark:bg-primary/20",
-                        isCollapsed && "justify-center px-0",
-                      )
-                    }
-                  >
-                    <item.icon
-                      className={cn(
-                        "h-[18px] w-[18px] shrink-0 transition-transform duration-150 group-hover:scale-105",
-                        isCollapsed && "mx-auto",
+
+                  {hasChildren ? (
+                    <div>
+                      {isCollapsed ? (
+                        <NavLink
+                          to={item.path}
+                          onClick={onNavigate}
+                          title={item.label}
+                          className={cn(
+                            "group relative flex min-h-10 items-center justify-center rounded-lg px-0 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                            isChildActive &&
+                              "bg-primary/10 font-semibold text-primary dark:bg-primary/20",
+                          )}
+                        >
+                          <item.icon className="mx-auto h-[18px] w-[18px] shrink-0 transition-transform duration-150 group-hover:scale-105" />
+                        </NavLink>
+                      ) : (
+                        <div>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setOpenSubmenus((prev) => ({
+                                ...prev,
+                                [item.label]: !prev[item.label],
+                              }))
+                            }
+                            className={cn(
+                              "group flex w-full min-h-10 items-center justify-between rounded-lg px-3 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                              isChildActive && "font-semibold text-foreground",
+                            )}
+                          >
+                            <div className="flex min-w-0 items-center gap-3">
+                              <item.icon className="h-[18px] w-[18px] shrink-0 transition-transform duration-150 group-hover:scale-105" />
+                              <span className="truncate">{item.label}</span>
+                            </div>
+                            <ChevronDown
+                              className={cn(
+                                "h-4 w-4 shrink-0 transition-transform duration-200",
+                                !isParentOpen && "-rotate-90",
+                              )}
+                            />
+                          </button>
+                          {isParentOpen && (
+                            <div className="ml-5 mt-1 space-y-1 border-l border-border/60 pl-3">
+                              {item.children!.map((child) => {
+                                const active = location.pathname === child.path;
+                                return (
+                                  <NavLink
+                                    key={child.path}
+                                    to={child.path}
+                                    end
+                                    onClick={onNavigate}
+                                    className={cn(
+                                      "flex min-h-8 items-center gap-2 rounded-md px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                                      active &&
+                                        "bg-primary/10 font-semibold text-primary dark:bg-primary/20",
+                                    )}
+                                  >
+                                    <span
+                                      className={cn(
+                                        "h-1.5 w-1.5 rounded-full transition-colors",
+                                        active
+                                          ? "bg-primary"
+                                          : "bg-muted-foreground/40",
+                                      )}
+                                    />
+                                    <span className="truncate">
+                                      {child.label}
+                                    </span>
+                                  </NavLink>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       )}
-                    />
-                    {!isCollapsed && (
-                      <span className="truncate">{item.label}</span>
-                    )}
-                  </NavLink>
+                    </div>
+                  ) : (
+                    <NavLink
+                      key={item.path}
+                      to={item.path}
+                      end={
+                        item.path === PATHS.ROOT ||
+                        item.path === PATHS.PORTAL ||
+                        item.path === PATHS.ASSETS
+                      }
+                      onClick={onNavigate}
+                      title={isCollapsed ? item.label : undefined}
+                      className={({ isActive }) =>
+                        cn(
+                          "group relative flex min-h-10 items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                          isActive &&
+                            "bg-primary/10 font-semibold text-primary dark:bg-primary/20",
+                          isCollapsed && "justify-center px-0",
+                        )
+                      }
+                    >
+                      <item.icon
+                        className={cn(
+                          "h-[18px] w-[18px] shrink-0 transition-transform duration-150 group-hover:scale-105",
+                          isCollapsed && "mx-auto",
+                        )}
+                      />
+                      {!isCollapsed && (
+                        <span className="truncate">{item.label}</span>
+                      )}
+                    </NavLink>
+                  )}
                 </div>
               );
             })}
@@ -612,20 +758,30 @@ export function AppShell() {
               <Command.Empty className="p-5 text-center text-sm text-muted-foreground">
                 No pages found.
               </Command.Empty>
-              {visibleNavigation.map((item) => (
-                <Command.Item
-                  key={item.path}
-                  value={item.label}
-                  onSelect={() => {
-                    navigate(item.path);
-                    setPaletteOpen(false);
-                  }}
-                  className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2.5 text-sm aria-selected:bg-accent aria-selected:text-accent-foreground"
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Command.Item>
-              ))}
+              {visibleNavigation
+                .flatMap((item) =>
+                  item.children
+                    ? item.children.map((child) => ({
+                        label: `${item.label} > ${child.label}`,
+                        path: child.path,
+                        icon: item.icon,
+                      }))
+                    : [{ label: item.label, path: item.path, icon: item.icon }],
+                )
+                .map((entry) => (
+                  <Command.Item
+                    key={entry.path}
+                    value={entry.label}
+                    onSelect={() => {
+                      navigate(entry.path);
+                      setPaletteOpen(false);
+                    }}
+                    className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2.5 text-sm aria-selected:bg-accent aria-selected:text-accent-foreground"
+                  >
+                    <entry.icon className="h-4 w-4" />
+                    {entry.label}
+                  </Command.Item>
+                ))}
             </Command.List>
           </Command>
         </DialogContent>
