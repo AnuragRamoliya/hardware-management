@@ -18,6 +18,8 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { PATHS } from "@/routes/paths";
 import { Link } from "react-router-dom";
 import { ReferenceLabel } from "@/components/common/ReferenceLabel";
+import { TabsList } from "@/components/ui/tabs";
+import { AssetStatusBadge } from "@/components/assets/AssetStatusBadge";
 import { ENUMS } from "@/utils/constants";
 import { callApi } from "@/api/callApi";
 import { api_methods, endPoints } from "@/api/endpoint";
@@ -124,23 +126,11 @@ export function EmployeeDetail() {
           </Link>
         }
       />
-      <div
-        className="mb-5 flex gap-1 overflow-x-auto border-b"
-        role="tablist"
-        aria-label="Employee details"
-      >
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            role="tab"
-            aria-selected={activeTab === tab}
-            className={`min-h-11 shrink-0 border-b-2 px-4 text-sm ${activeTab === tab ? "border-primary font-medium text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+      <TabsList
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(tab) => setActiveTab(tab as Tab)}
+      />
       {activeTab === "Overview" ? (
         <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr]">
           <Card className="p-6">
@@ -222,12 +212,121 @@ export function EmployeeDetail() {
           </Card>
         </div>
       ) : activeTab === "Hardware" ? (
-        <Card className="p-5">
-          {assetRows.isLoading ? <p className="text-sm text-muted-foreground">Loading hardware…</p> : assetRows.data?.length ? <div className="space-y-3">{assetRows.data.map((assignment) => <div key={assignment.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4"><div><p className="font-medium">{assignment.asset?.asset_tag ?? "Asset"}</p><p className="mt-1 text-xs text-muted-foreground">{assignment.asset?.brand} {assignment.asset?.model} · {assignment.returned_at ? "Returned" : "Current"} · Due {assignment.due_return_date ?? "—"}</p></div>{canManageAssets && !assignment.returned_at && <Button variant="outline" size="sm" loading={returnAsset.isPending} onClick={() => returnAsset.mutate(Number(assignment.asset_id))}>Return</Button>}</div>)}</div> : <EmptyState title="No hardware history" description="Asset assignments will appear here." />}
+        <Card className="p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-base font-semibold text-foreground">
+              Hardware Custody & History
+            </h2>
+          </div>
+          {assetRows.isLoading ? (
+            <p className="text-sm text-muted-foreground">Loading hardware records…</p>
+          ) : assetRows.data?.length ? (
+            <div className="divide-y rounded-lg border">
+              {assetRows.data.map((assignment) => (
+                <div
+                  key={assignment.id}
+                  className="flex flex-col justify-between gap-3 p-4 sm:flex-row sm:items-center"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Link
+                        to={PATHS.ASSET_DETAIL.replace(":id", String(assignment.asset?.id ?? assignment.asset_id))}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        {assignment.asset?.asset_tag ?? `Asset #${assignment.asset_id}`}
+                      </Link>
+                      <AssetStatusBadge status={assignment.asset?.asset_status} />
+                      <Badge
+                        variant={assignment.returned_at ? "muted" : "success"}
+                        className="text-xs"
+                      >
+                        {assignment.returned_at ? "Returned" : "Active Custody"}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {[assignment.asset?.brand, assignment.asset?.model].filter(Boolean).join(" ")}
+                      {assignment.due_return_date ? ` · Due: ${new Date(assignment.due_return_date).toLocaleDateString()}` : ""}
+                      {assignment.returned_at ? ` · Returned: ${new Date(assignment.returned_at).toLocaleDateString()}` : ""}
+                    </p>
+                  </div>
+                  {canManageAssets && !assignment.returned_at && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      loading={returnAsset.isPending}
+                      onClick={() => returnAsset.mutate(Number(assignment.asset_id))}
+                    >
+                      Return Asset
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No hardware assigned"
+              description="No physical equipment has been assigned to this employee."
+            />
+          )}
         </Card>
       ) : activeTab === "Software" ? (
-        <Card className="p-5">
-          {softwareRows.isLoading ? <p className="text-sm text-muted-foreground">Loading software…</p> : softwareRows.data?.length ? <div className="space-y-3">{softwareRows.data.map((assignment) => <div key={assignment.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4"><div><p className="font-medium">{assignment.software?.name ?? "Software"}</p><p className="mt-1 text-xs text-muted-foreground">{assignment.software?.category} · {assignment.revoked_at ? "Revoked" : "Current"}</p></div>{canManageAssets && !assignment.revoked_at && <Button variant="outline" size="sm" loading={revokeSoftware.isPending} onClick={() => revokeSoftware.mutate(Number(assignment.id))}>Revoke</Button>}</div>)}</div> : <EmptyState title="No software history" description="Software assignments will appear here." />}
+        <Card className="p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-base font-semibold text-foreground">
+              Software & Subscription Access
+            </h2>
+          </div>
+          {softwareRows.isLoading ? (
+            <p className="text-sm text-muted-foreground">Loading software access…</p>
+          ) : softwareRows.data?.length ? (
+            <div className="divide-y rounded-lg border">
+              {softwareRows.data.map((assignment) => (
+                <div
+                  key={assignment.id}
+                  className="flex flex-col justify-between gap-3 p-4 sm:flex-row sm:items-center"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Link
+                        to={PATHS.SOFTWARE_DETAIL.replace(":id", String(assignment.software?.id ?? assignment.software_id))}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        {assignment.software?.name ?? "Software application"}
+                      </Link>
+                      <Badge variant="muted" className="capitalize text-xs">
+                        {assignment.software?.category ?? "Productivity"}
+                      </Badge>
+                      <Badge
+                        variant={assignment.revoked_at ? "muted" : "success"}
+                        className="text-xs"
+                      >
+                        {assignment.revoked_at ? "Revoked" : "Active Access"}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Assigned: {new Date(assignment.assigned_at).toLocaleDateString()}
+                      {assignment.revoked_at ? ` · Revoked: ${new Date(assignment.revoked_at).toLocaleDateString()}` : ""}
+                    </p>
+                  </div>
+                  {canManageAssets && !assignment.revoked_at && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      loading={revokeSoftware.isPending}
+                      onClick={() => revokeSoftware.mutate(Number(assignment.id))}
+                    >
+                      Revoke Access
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No software allocated"
+              description="No software licenses or application seats are currently assigned to this employee."
+            />
+          )}
         </Card>
       ) : (
         <Card><EmptyState title="Tab unavailable" description="This tab will show its records when they are enabled." /></Card>
