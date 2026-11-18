@@ -5,9 +5,10 @@ import { AppError } from '../Config/app_error';
 import { env } from '../Config/env';
 import { ACTIVITY_ACTIONS, MODULES, STATUS, STATUS_MESSAGES } from '../Config/constant';
 import { sequelize } from '../Config/database';
-import { roles, user_tokens, users, type RowAttributes } from '../Database/Schema';
+import { roles, user_tokens, users, login_history, type RowAttributes } from '../Database/Schema';
 import { compareHashPassword, createActivityLog, createHashPassword } from '../Utils/helpers';
 import { hashToken } from '../Utils/encryption';
+import { CredentialVaultService } from '../Services/credential_vault';
 import { sendOtpEmail } from '../Utils/mailer';
 import type { AuthTokens, UserInfo } from '../Types/api';
 import { ResourceModel, type ResourceDefinition } from './resource';
@@ -19,8 +20,11 @@ const userDefinition: ResourceDefinition = {
   searchFields: ['first_name', 'last_name', 'email'],
   optionFields: ['id', 'first_name', 'last_name', 'email'],
   filterableFields: {
-    role_id: 'number', first_name: 'text', last_name: 'text',
-    email: 'text', status: 'number',
+    role_id: 'number',
+    first_name: 'text',
+    last_name: 'text',
+    email: 'text',
+    status: 'number',
   },
 };
 
@@ -43,18 +47,87 @@ export class UserModel extends ResourceModel {
     super(users, userDefinition);
   }
 
-  async login(email: string, password: string): Promise<AuthTokens> {
+  async login(
+    email: string,
+    password: string,
+    meta?: { ipAddress?: string; userAgent?: string },
+  ): Promise<AuthTokens> {
     const user = await users.findOne({
       where: { email, status: STATUS.ACTIVE },
-      attributes: { include: ['password'] },
+      attributes: { include: ['password', 'failed_login_count', 'locked_until'] },
       include: [{ model: roles, as: 'role', attributes: ['id', 'name'] }],
     });
-    if (!user) throw new AppError(401, STATUS_MESSAGES.PASSWORD_INCORRECT);
-    const userData = row(user);
-    if (!(await compareHashPassword(password, String(userData.password)))) {
+
+    if (!user) {
+      await login_history.create({
+        user_id: null,
+        email_attempted: email,
+        success: 0,
+        ip_address: meta?.ipAddress || null,
+        user_agent: meta?.userAgent || null,
+        failure_reason: 'User not found or inactive',
+      });
       throw new AppError(401, STATUS_MESSAGES.PASSWORD_INCORRECT);
     }
+
+    const userData = row(user);
+
+    // Lockout check
+    if (userData.locked_until && new Date(String(userData.locked_until)) > new Date()) {
+      await login_history.create({
+        user_id: Number(userData.id),
+        email_attempted: email,
+        success: 0,
+        ip_address: meta?.ipAddress || null,
+        user_agent: meta?.userAgent || null,
+        failure_reason: 'Account is locked',
+      });
+      throw new AppError(
+        403,
+        'Account is temporarily locked due to repeated failed login attempts. Try again in 15 minutes or contact an administrator.',
+      );
+    }
+
+    const passwordValid = await compareHashPassword(password, String(userData.password));
+    if (!passwordValid) {
+      const failedAttempts = Number(userData.failed_login_count || 0) + 1;
+      let lockedUntil: Date | null = null;
+      if (failedAttempts >= 5) {
+        lockedUntil = new Date(Date.now() + 15 * 60 * 1000);
+      }
+      await user.update({
+        failed_login_count: failedAttempts,
+        locked_until: lockedUntil,
+      });
+
+      await login_history.create({
+        user_id: Number(userData.id),
+        email_attempted: email,
+        success: 0,
+        ip_address: meta?.ipAddress || null,
+        user_agent: meta?.userAgent || null,
+        failure_reason: 'Password incorrect',
+      });
+
+      throw new AppError(401, STATUS_MESSAGES.PASSWORD_INCORRECT);
+    }
+
+    // Success: reset lockout
+    await user.update({
+      failed_login_count: 0,
+      locked_until: null,
+    });
+
     const id = Number(userData.id);
+    await login_history.create({
+      user_id: id,
+      email_attempted: email,
+      success: 1,
+      ip_address: meta?.ipAddress || null,
+      user_agent: meta?.userAgent || null,
+      failure_reason: null,
+    });
+
     const accessToken = jwt.sign({ email: userData.email }, env.SECRET_KEY, {
       subject: String(id),
       expiresIn: durationMilliseconds(env.ACCESS_TOKEN_EXPIRES) / 1000,
@@ -65,15 +138,99 @@ export class UserModel extends ResourceModel {
       user_id: id,
       token: hashToken(accessToken),
       refresh_token_hash: hashToken(refreshToken),
+      ip_address: meta?.ipAddress || null,
+      user_agent: meta?.userAgent || null,
+      last_active_at: new Date(now),
       expires_at: new Date(now + durationMilliseconds(env.ACCESS_TOKEN_EXPIRES)),
       refresh_expires_at: new Date(now + durationMilliseconds(env.REFRESH_TOKEN_EXPIRES)),
     });
     delete userData.password;
+    delete userData.failed_login_count;
+    delete userData.locked_until;
+
     return {
       token: accessToken,
       refresh_token: refreshToken,
       user_info: userData as AuthTokens['user_info'],
     };
+  }
+
+  async reauth(
+    userId: number,
+    password: string,
+  ): Promise<{ reauth_token: string; expires_at: Date }> {
+    const user = await users.findByPk(userId, { attributes: { include: ['password'] } });
+    if (!user) throw new AppError(404, 'User not found.');
+    const userData = row(user);
+    if (!(await compareHashPassword(password, String(userData.password)))) {
+      throw new AppError(401, 'Invalid password for re-authentication.');
+    }
+    const vaultService = new CredentialVaultService();
+    return vaultService.generateReauthToken(userId);
+  }
+
+  async adminUnlock(targetUserId: number, actor: UserInfo): Promise<{ success: boolean }> {
+    const user = await users.findByPk(targetUserId);
+    if (!user) throw new AppError(404, 'User not found.');
+    await user.update({ failed_login_count: 0, locked_until: null });
+    await createActivityLog({
+      module: MODULES.USER,
+      moduleId: targetUserId,
+      action: 'UNLOCKED',
+      description: `User #${targetUserId} unlocked by ${actor.first_name} ${actor.last_name}`,
+      createdBy: actor.id,
+      createdByName: `${actor.first_name} ${actor.last_name}`,
+    });
+    return { success: true };
+  }
+
+  async listSessions(userId: number, currentRawToken: string) {
+    const currentHashed = hashToken(currentRawToken);
+    const rows = await user_tokens.findAll({
+      where: {
+        user_id: userId,
+        expires_at: { [Op.gt]: new Date() },
+      },
+      order: [['createdAt', 'DESC']],
+    });
+    return rows.map((r) => {
+      const plain = row(r);
+      return {
+        id: plain.id,
+        ip_address: plain.ip_address,
+        user_agent: plain.user_agent,
+        created_at: plain.createdAt,
+        last_active_at: plain.last_active_at || plain.createdAt,
+        is_current: plain.token === currentHashed,
+      };
+    });
+  }
+
+  async revokeSession(sessionId: number, userId: number) {
+    const session = await user_tokens.findOne({ where: { id: sessionId, user_id: userId } });
+    if (!session) throw new AppError(404, 'Session not found.');
+    await session.destroy();
+    return { success: true };
+  }
+
+  async revokeOtherSessions(userId: number, currentRawToken: string) {
+    const currentHashed = hashToken(currentRawToken);
+    await user_tokens.destroy({
+      where: {
+        user_id: userId,
+        token: { [Op.ne]: currentHashed },
+      },
+    });
+    return { success: true };
+  }
+
+  async getLoginHistory(userId: number) {
+    const rows = await login_history.findAll({
+      where: { user_id: userId },
+      order: [['id', 'DESC']],
+      limit: 50,
+    });
+    return rows.map(row);
   }
 
   async refresh(refreshToken: string): Promise<Pick<AuthTokens, 'token' | 'refresh_token'>> {

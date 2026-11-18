@@ -10,6 +10,7 @@ export interface UserInfo {
   first_name: string;
   last_name: string;
   email: string;
+  employee_id?: number;
 }
 
 export interface ListDto {
@@ -18,6 +19,7 @@ export interface ListDto {
   filters?: Record<string, unknown>;
   sortBy?: Array<{ id: string; value: 'asc' | 'desc' | 'ASC' | 'DESC' }>;
   general_search?: string;
+  search?: string;
 }
 
 export interface AuthTokens {

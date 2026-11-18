@@ -99,6 +99,44 @@ router.put(
   validate([body('current_password').isString().notEmpty(), ...passwordValidation]),
   controller.changePassword.bind(controller),
 );
+router.post(
+  '/reauth',
+  decryptPayload,
+  userAuth,
+  validate([body('password').isString().notEmpty()]),
+  controller.reauth.bind(controller),
+);
+router.post(
+  '/unlock/:id',
+  decryptPayload,
+  userAuth,
+  userWrite,
+  validate([param('id').isInt({ min: 1 })]),
+  controller.unlock.bind(controller),
+);
+router.get('/sessions', decryptPayload, userAuth, controller.sessions.bind(controller));
+router.delete(
+  '/session/:id',
+  decryptPayload,
+  userAuth,
+  validate([param('id').isInt({ min: 1 })]),
+  controller.revokeSession.bind(controller),
+);
+router.delete(
+  '/sessions/other',
+  decryptPayload,
+  userAuth,
+  controller.revokeOtherSessions.bind(controller),
+);
+router.get('/login-history', decryptPayload, userAuth, controller.loginHistory.bind(controller));
+router.get(
+  '/login-history/:id',
+  decryptPayload,
+  userAuth,
+  userRead,
+  validate([param('id').isInt({ min: 1 })]),
+  controller.loginHistory.bind(controller),
+);
 router.delete('/logout', decryptPayload, userAuth, userWrite, controller.logout.bind(controller));
 
 router.post(

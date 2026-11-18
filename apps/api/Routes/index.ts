@@ -278,3 +278,6 @@ router.get('/audit/export', decryptPayload, userAuth, auditRead, audit.export.bi
 
 import { phase2Router } from './phase2';
 router.use(phase2Router);
+
+import { phase3Router } from './phase3';
+router.use(phase3Router);

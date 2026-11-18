@@ -197,7 +197,9 @@ export type CredentialApprovalStatus =
 
 export const COLLECTION_REQUEST_STATUS = {
   OPEN: 1,
+  PENDING: 1,
   SUBMITTED: 2,
+  FULFILLED: 2,
   OVERDUE: 3,
   CANCELLED: 4,
 } as const;
@@ -215,13 +217,17 @@ export type CredentialAccessAction =
 
 export const CREDENTIAL_CHANGE_TYPE = {
   CREATED: "created",
+  SUBMITTED: "submitted",
+  UPDATED: "details_updated",
   DETAILS_UPDATED: "details_updated",
   PASSWORD_CHANGED: "password_changed",
+  PASSWORD_UPDATE: "password_changed",
   APPROVED: "approved",
   REJECTED: "rejected",
   NEEDS_CHANGE: "needs_change",
   EXPIRED: "expired",
   REASSIGNED: "reassigned",
+  REVOKED: "revoked",
 } as const;
 export type CredentialChangeType =
   (typeof CREDENTIAL_CHANGE_TYPE)[keyof typeof CREDENTIAL_CHANGE_TYPE];

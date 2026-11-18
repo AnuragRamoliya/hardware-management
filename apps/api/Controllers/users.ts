@@ -28,8 +28,11 @@ export class UserController extends ResourceController {
       searchFields: ['first_name', 'last_name', 'email'],
       optionFields: ['id', 'first_name', 'last_name', 'email'],
       filterableFields: {
-        role_id: 'number', first_name: 'text', last_name: 'text',
-        email: 'text', status: 'number',
+        role_id: 'number',
+        first_name: 'text',
+        last_name: 'text',
+        email: 'text',
+        status: 'number',
       },
     });
   }
@@ -37,10 +40,76 @@ export class UserController extends ResourceController {
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const input = body(req);
+      const ipAddress = (req.headers['x-forwarded-for'] as string) || req.ip || undefined;
+      const userAgent = req.headers['user-agent'] || undefined;
       res.handler.success(
-        await this.userModel.login(String(input.email), String(input.password)),
+        await this.userModel.login(String(input.email), String(input.password), {
+          ipAddress,
+          userAgent,
+        }),
         'Login successfully.',
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async reauth(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const currentActor = actor(req);
+      const input = body(req);
+      const result = await this.userModel.reauth(currentActor.id, String(input.password || ''));
+      res.handler.success(result, 'Re-authenticated successfully.');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async unlock(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const currentActor = actor(req);
+      const targetUserId = Number(req.params.id);
+      res.handler.success(await this.userModel.adminUnlock(targetUserId, currentActor));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async sessions(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const currentActor = actor(req);
+      const rawToken = req.get('token') || '';
+      res.handler.success(await this.userModel.listSessions(currentActor.id, rawToken));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async revokeSession(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const currentActor = actor(req);
+      const sessionId = Number(req.params.id);
+      res.handler.success(await this.userModel.revokeSession(sessionId, currentActor.id));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async revokeOtherSessions(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const currentActor = actor(req);
+      const rawToken = req.get('token') || '';
+      res.handler.success(await this.userModel.revokeOtherSessions(currentActor.id, rawToken));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async loginHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const currentActor = actor(req);
+      const targetId = req.params.id ? Number(req.params.id) : currentActor.id;
+      res.handler.success(await this.userModel.getLoginHistory(targetId));
     } catch (error) {
       next(error);
     }
