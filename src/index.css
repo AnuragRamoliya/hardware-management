@@ -1,0 +1,94 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: 243 75% 59%;
+  --overlay: 222 35% 12%;
+  --login-panel: 222 35% 12%;
+  --login-panel-foreground: 0 0% 100%;
+  --background: 220 20% 98%;
+  --foreground: 222 35% 12%;
+  --card: 0 0% 100%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 35% 12%;
+  --muted: 220 17% 95%;
+  --muted-foreground: 220 9% 44%;
+  --border: 220 15% 90%;
+  --input: 220 15% 88%;
+  --ring: var(--brand);
+  --primary: var(--brand);
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 17% 95%;
+  --secondary-foreground: 222 24% 18%;
+  --accent: 239 100% 97%;
+  --accent-foreground: 239 60% 38%;
+  --success: 152 58% 29%;
+  --success-foreground: 0 0% 100%;
+  --warning: 35 92% 29%;
+  --warning-foreground: 0 0% 100%;
+  --danger: 0 72% 45%;
+  --danger-foreground: 0 0% 100%;
+  --info: 202 82% 32%;
+  --info-foreground: 0 0% 100%;
+}
+.dark {
+  --overlay: 0 0% 0%;
+  --login-panel: 222 35% 12%;
+  --login-panel-foreground: 0 0% 100%;
+  --background: 224 24% 9%;
+  --foreground: 220 20% 94%;
+  --card: 224 20% 12%;
+  --popover: 224 20% 12%;
+  --popover-foreground: 220 20% 94%;
+  --muted: 222 18% 16%;
+  --muted-foreground: 220 11% 66%;
+  --border: 222 15% 21%;
+  --input: 222 15% 25%;
+  --ring: 239 84% 72%;
+  --primary: 239 84% 72%;
+  --primary-foreground: 240 30% 12%;
+  --secondary: 222 18% 17%;
+  --secondary-foreground: 220 20% 94%;
+  --accent: 239 28% 20%;
+  --accent-foreground: 239 90% 82%;
+  --success: 152 54% 46%;
+  --success-foreground: 222 24% 9%;
+  --warning: 35 88% 55%;
+  --warning-foreground: 222 24% 9%;
+  --danger: 0 68% 64%;
+  --danger-foreground: 222 24% 9%;
+  --info: 202 76% 57%;
+  --info-foreground: 222 24% 9%;
+}
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    font-feature-settings: "cv11", "ss01";
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-size: 14px;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
