@@ -1,0 +1,81 @@
+{
+  "name": "itam-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "IT asset and employee management API",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "migrate": "sequelize-cli db:migrate",
+    "seed": "sequelize-cli db:seed:all",
+    "seed:bulk": "sequelize-cli db:seed --seed 20261117110000-seed-bulk-employees.js && sequelize-cli db:seed --seed 20261117130000-seed-bulk-assets.js",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "gen:module": "node scripts/gen-module.mjs",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "crypto-js": "^4.2.0",
+    "csv-parse": "^7.0.3",
+    "dotenv": "^17.4.2",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.1.0",
+    "express-validator": "^7.3.2",
+    "express-winston": "^4.2.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.4.0",
+    "mysql2": "^3.24.4",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^10.6.0",
+    "qrcode": "^1.5.4",
+    "sequelize": "^6.37.8",
+    "sequelize-cli": "^6.6.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.19.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/crypto-js": "^4.2.2",
+    "@types/express": "^5.0.5",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^24.10.0",
+    "@types/node-cron": "^3.0.11",
+    "@types/nodemailer": "^7.0.3",
+    "@types/qrcode": "^1.5.6",
+    "@types/supertest": "^6.0.3",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
+    "prettier": "^3.6.2",
+    "supertest": "^7.1.4",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.4",
+    "vitest": "^4.0.8"
+  },
+  "lint-staged": {
+    "*.{ts,js,cjs,json}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.ts": [
+      "tsc --noEmit -p tsconfig.json"
+    ]
+  }
+}
