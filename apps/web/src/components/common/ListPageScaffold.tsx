@@ -8,7 +8,7 @@ export interface ListPageScaffoldProps<T extends { id: string | number }> {
   title: string;
   description?: string;
   action?: ReactNode;
-  breadcrumbs?: Array<{ label: string; href?: string }>;
+  breadcrumbs?: Array<{ label: string; to?: string; href?: string }>;
   columns: TableColumn<T>[];
   rows: T[];
   count: number;
@@ -47,7 +47,10 @@ export function ListPageScaffold<T extends { id: string | number }>({
         title={title}
         description={description}
         action={action}
-        breadcrumbs={breadcrumbs}
+        breadcrumbs={breadcrumbs?.map((b) => ({
+          label: b.label,
+          to: b.to ?? b.href,
+        }))}
       />
       <CommonTable
         columns={columns}

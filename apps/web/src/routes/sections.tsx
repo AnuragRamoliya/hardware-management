@@ -90,7 +90,7 @@ const AssetCategories = lazy(() =>
   })),
 );
 const AuditLogs = lazy(() =>
-  import("@/pages/Entities").then((module) => ({ default: module.AuditLogs })),
+  import("@/pages/AuditLogs").then((module) => ({ default: module.AuditLogs })),
 );
 const Assets = lazy(() =>
   import("@/pages/Assets").then((module) => ({ default: module.Assets })),
