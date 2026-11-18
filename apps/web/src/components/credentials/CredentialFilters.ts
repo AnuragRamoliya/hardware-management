@@ -1,6 +1,10 @@
 import type { FilterField } from "@/components/common/TableFilters/types";
 import { RECORD_STATUS_FILTER } from "@/components/common/TableSelectFilter";
-import { CREDENTIAL_APPROVAL_STATUS, PROVIDED_BY } from "@hm/shared";
+import {
+  CREDENTIAL_APPROVAL_STATUS,
+  PROVIDED_BY,
+  COLLECTION_REQUEST_STATUS,
+} from "@hm/shared";
 
 export const credentialFilters: FilterField[] = [
   {
@@ -87,4 +91,41 @@ export const accessLogFilters: FilterField[] = [
     ],
   },
   { key: "accessed_at", label: "Access date", type: "daterange" },
+];
+
+export const collectionRequestFilters: FilterField[] = [
+  {
+    key: "employee_id",
+    label: "Target Employee",
+    type: "async-select",
+    endpoint: "employee/options",
+    multiple: true,
+  },
+  {
+    key: "credential_type_id",
+    label: "Credential Type",
+    type: "async-select",
+    endpoint: "credential-type/options",
+    multiple: true,
+  },
+  {
+    key: "request_status",
+    label: "Status",
+    type: "select",
+    options: [
+      {
+        label: "Awaiting Employee",
+        value: String(COLLECTION_REQUEST_STATUS.PENDING),
+      },
+      {
+        label: "Fulfilled",
+        value: String(COLLECTION_REQUEST_STATUS.FULFILLED),
+      },
+      { label: "Overdue", value: String(COLLECTION_REQUEST_STATUS.OVERDUE) },
+      {
+        label: "Cancelled",
+        value: String(COLLECTION_REQUEST_STATUS.CANCELLED),
+      },
+    ],
+  },
 ];
