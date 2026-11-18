@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Download,
   ShieldCheck,
@@ -7,22 +7,14 @@ import {
 } from "lucide-react";
 import { ListPageScaffold } from "@/components/common/ListPageScaffold";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { ActionDialogLayout } from "@/components/common/ActionDialogLayout";
 import { useTableState } from "@/hooks/use-tableState";
 import {
   useCredentialAccessLogsList,
   useVerifyAuditIntegrity,
 } from "@/hooks/queries/credentials";
-import type { TableColumn } from "@/components/common/CommonTable";
 import { accessLogFilters } from "@/components/credentials/CredentialFilters";
+import { getCredentialAccessLogColumns } from "@/components/credentials/CredentialAccessLogColumns";
 import type { CredentialAccessLogDto } from "@/api/credentials";
 import { toast } from "sonner";
 import { endPoints } from "@/api/endpoint";
@@ -63,110 +55,14 @@ export function CredentialAccessLogs() {
     window.open(exportUrl, "_blank");
   };
 
-  const columns = useMemo<TableColumn<CredentialAccessLogDto>[]>(
-    () => [
-      {
-        id: "accessed_at",
-        label: "Timestamp",
-        sortable: true,
-        render: (row) => (
-          <span className="text-xs font-mono text-muted-foreground">
-            {new Date(row.accessed_at).toLocaleString()}
-          </span>
-        ),
-      },
-      {
-        id: "accessor",
-        label: "Accessor (Admin / User)",
-        sortable: true,
-        render: (row) =>
-          row.accessor ? (
-            <div>
-              <span className="font-medium text-foreground">
-                {row.accessor.first_name} {row.accessor.last_name}
-              </span>
-              <div className="text-xs text-muted-foreground">
-                {row.accessor.email}
-              </div>
-            </div>
-          ) : (
-            <span className="text-sm">User #{row.accessed_by}</span>
-          ),
-      },
-      {
-        id: "credential",
-        label: "Accessed Account",
-        sortable: true,
-        render: (row) =>
-          row.credential ? (
-            <div>
-              <span className="font-medium text-foreground">
-                {row.credential.label}
-              </span>
-              <div className="text-xs text-muted-foreground font-mono">
-                {row.credential.username}
-              </div>
-            </div>
-          ) : (
-            <span className="text-sm">Credential #{row.credential_id}</span>
-          ),
-      },
-      {
-        id: "employee",
-        label: "Account Owner",
-        sortable: true,
-        render: (row) =>
-          row.employee ? (
-            <span className="text-sm">
-              {row.employee.first_name} {row.employee.last_name} (
-              {row.employee.employee_code})
-            </span>
-          ) : (
-            <span className="text-muted-foreground">—</span>
-          ),
-      },
-      {
-        id: "action",
-        label: "Action",
-        sortable: true,
-        render: (row) => (
-          <Badge
-            variant="outline"
-            className="uppercase text-[10px] tracking-wider font-semibold"
-          >
-            {row.action}
-          </Badge>
-        ),
-      },
-      {
-        id: "reason",
-        label: "Access Justification",
-        sortable: false,
-        render: (row) => (
-          <span
-            className="text-xs text-foreground/90 max-w-xs line-clamp-2"
-            title={row.reason || ""}
-          >
-            {row.reason || "—"}
-          </span>
-        ),
-      },
-      {
-        id: "hash",
-        label: "Cryptographic Hash",
-        sortable: false,
-        render: (row) => (
-          <div
-            className="text-[11px] font-mono text-muted-foreground"
-            title={row.hash}
-          >
-            {row.hash.slice(0, 10)}...{row.hash.slice(-6)}
-          </div>
-        ),
-      },
-    ],
-    [],
-  );
+  const columns = useMemo(() => getCredentialAccessLogColumns(), []);
+
+  const rows =
+    (data?.rows as CredentialAccessLogDto[]) ??
+    (data as unknown as { items?: CredentialAccessLogDto[] })?.items ??
+    [];
+  const count =
+    data?.count ?? (data as unknown as { total?: number })?.total ?? 0;
 
   return (
     <>
@@ -202,14 +98,8 @@ export function CredentialAccessLogs() {
           </div>
         }
         columns={columns}
-        rows={
-          (data?.rows as CredentialAccessLogDto[]) ??
-          (data as unknown as { items?: CredentialAccessLogDto[] })?.items ??
-          []
-        }
-        count={
-          data?.count ?? (data as unknown as { total?: number })?.total ?? 0
-        }
+        rows={rows}
+        count={count}
         query={tableState}
         onQueryChange={setTableState}
         loading={isLoading}
@@ -219,60 +109,66 @@ export function CredentialAccessLogs() {
         emptyTitle="No access records found"
       />
 
-      <Dialog open={verifyDialogOpen} onOpenChange={setVerifyDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <div className="flex items-center gap-2">
-              {verifyResult?.valid ? (
-                <CheckCircle2 className="h-6 w-6 text-green-600" />
-              ) : (
-                <AlertOctagon className="h-6 w-6 text-destructive" />
-              )}
-              <DialogTitle>
-                {verifyResult?.valid
-                  ? "Audit Integrity Verified"
-                  : "Audit Chain Integrity Warning"}
-              </DialogTitle>
-            </div>
-            <DialogDescription>
-              Cryptographic verification of forward-secure SHA-256 hash
-              chaining.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="py-3 space-y-3">
+      <ActionDialogLayout
+        open={verifyDialogOpen}
+        onOpenChange={setVerifyDialogOpen}
+        title={
+          verifyResult?.valid
+            ? "Audit Integrity Verified"
+            : "Audit Chain Integrity Warning"
+        }
+        description="Cryptographic verification of forward-secure SHA-256 hash chaining."
+      >
+        <div className="py-2 space-y-4">
+          <div className="flex items-center gap-3">
             {verifyResult?.valid ? (
-              <div className="rounded-lg border border-green-200 bg-green-50 dark:bg-green-950/30 p-3 text-xs text-green-800 dark:text-green-300 space-y-2">
-                <p className="font-semibold text-sm">Hash Chain Intact</p>
-                <p>
-                  All {verifyResult.total} sequential access log records were
-                  mathematically validated against their preceding SHA-256
-                  hashes.
-                </p>
-                <p className="text-[11px] text-green-700 dark:text-green-400">
-                  Zero records were modified, omitted, or reordered after
-                  insertion.
-                </p>
-              </div>
+              <CheckCircle2 className="h-8 w-8 text-green-600 shrink-0" />
             ) : (
-              <div className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/30 p-3 text-xs text-red-800 dark:text-red-300 space-y-2">
-                <p className="font-semibold text-sm">
-                  Chain Discontinuity Detected
-                </p>
-                <p>
-                  {verifyResult?.error ||
+              <AlertOctagon className="h-8 w-8 text-destructive shrink-0" />
+            )}
+            <div>
+              <p className="font-semibold text-foreground text-sm">
+                {verifyResult?.valid
+                  ? "Forward-Secure Hash Chain Intact"
+                  : "Cryptographic Chain Discontinuity"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {verifyResult?.valid
+                  ? `All ${verifyResult.total} sequential records mathematically match preceding hashes.`
+                  : verifyResult?.error ||
                     "Hash mismatch found in audit records."}
-                </p>
-              </div>
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground leading-relaxed">
+            {verifyResult?.valid ? (
+              <p>
+                Zero records have been inserted, modified, or omitted since
+                audit logging commenced. Each event is forward-secured with
+                HMAC-SHA256 linkage.
+              </p>
+            ) : (
+              <p className="text-destructive font-medium">
+                Warning: Possible tampering or database direct alteration
+                detected. Please report this immediately to your security lead.
+              </p>
             )}
           </div>
 
-          <DialogFooter>
-            <Button onClick={() => setVerifyDialogOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <div className="pt-2">
+            <Button
+              type="button"
+              className="w-full"
+              onClick={() => setVerifyDialogOpen(false)}
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      </ActionDialogLayout>
     </>
   );
 }
+
 export default CredentialAccessLogs;
