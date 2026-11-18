@@ -5,7 +5,11 @@ export const assignAssetSchema = yup.object({
   employee_id: yup
     .mixed<number | string>()
     .required(FORM_VALIDATION.REQUIRED)
-    .test("non-empty", FORM_VALIDATION.REQUIRED, (val) => val != null && val !== ""),
+    .test(
+      "non-empty",
+      FORM_VALIDATION.REQUIRED,
+      (val) => val != null && val !== "",
+    ),
   due_return_date: yup.string().nullable(),
   note: yup.string().trim().nullable(),
 });
@@ -27,7 +31,11 @@ export const transferAssetSchema = yup.object({
   to_employee_id: yup
     .mixed<number | string>()
     .required(FORM_VALIDATION.REQUIRED)
-    .test("non-empty", FORM_VALIDATION.REQUIRED, (val) => val != null && val !== ""),
+    .test(
+      "non-empty",
+      FORM_VALIDATION.REQUIRED,
+      (val) => val != null && val !== "",
+    ),
   note: yup.string().trim().nullable(),
 });
 
@@ -37,7 +45,11 @@ export const bulkAssignAssetSchema = yup.object({
   employee_id: yup
     .mixed<number | string>()
     .required(FORM_VALIDATION.REQUIRED)
-    .test("non-empty", FORM_VALIDATION.REQUIRED, (val) => val != null && val !== ""),
+    .test(
+      "non-empty",
+      FORM_VALIDATION.REQUIRED,
+      (val) => val != null && val !== "",
+    ),
   due_return_date: yup.string().nullable(),
   note: yup.string().trim().nullable(),
 });

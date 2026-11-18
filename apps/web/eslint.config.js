@@ -19,14 +19,29 @@ export default tseslint.config(
     plugins: { "react-hooks": reactHooks, "react-refresh": reactRefresh },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      "react-refresh/only-export-components": [
+        "warn",
+        { allowConstantExport: true },
+      ],
       "@typescript-eslint/no-explicit-any": "error",
       "no-console": ["error", { allow: ["warn", "error"] }],
-      "no-restricted-properties": ["error",
-        { object: "window", property: "location", message: "Use React Router navigation." },
-        { object: "console", property: "log", message: "Remove debug logging." },
+      "no-restricted-properties": [
+        "error",
+        {
+          object: "window",
+          property: "location",
+          message: "Use React Router navigation.",
+        },
+        {
+          object: "console",
+          property: "log",
+          message: "Remove debug logging.",
+        },
       ],
-      "no-restricted-imports": ["error", { paths: [{ name: "axios", message: "Call APIs through src/api." }] }],
+      "no-restricted-imports": [
+        "error",
+        { paths: [{ name: "axios", message: "Call APIs through src/api." }] },
+      ],
     },
   },
   {
@@ -36,20 +51,41 @@ export default tseslint.config(
   {
     files: ["src/hooks/**/*.{ts,tsx}", "src/utils/**/*.{ts,tsx}"],
     rules: {
-      "no-restricted-imports": ["error", {
-        paths: [{ name: "axios", message: "Call APIs through src/api." }],
-        patterns: [{ group: ["@/pages/*", "@/pages/**/*"], message: "Infrastructure must not import pages." }],
-      }],
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [{ name: "axios", message: "Call APIs through src/api." }],
+          patterns: [
+            {
+              group: ["@/pages/*", "@/pages/**/*"],
+              message: "Infrastructure must not import pages.",
+            },
+          ],
+        },
+      ],
     },
   },
   {
     files: ["src/modules/**/*.{ts,tsx}"],
     rules: {
-      "no-restricted-syntax": ["error",
-        { selector: "JSXOpeningElement[name.name='input']", message: "Use a shared component from components/ui." },
-        { selector: "JSXOpeningElement[name.name='select']", message: "Use a shared component from components/ui." },
-        { selector: "JSXOpeningElement[name.name='textarea']", message: "Use a shared component from components/ui." },
-        { selector: "JSXOpeningElement[name.name='button']", message: "Use Button from components/ui." },
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "JSXOpeningElement[name.name='input']",
+          message: "Use a shared component from components/ui.",
+        },
+        {
+          selector: "JSXOpeningElement[name.name='select']",
+          message: "Use a shared component from components/ui.",
+        },
+        {
+          selector: "JSXOpeningElement[name.name='textarea']",
+          message: "Use a shared component from components/ui.",
+        },
+        {
+          selector: "JSXOpeningElement[name.name='button']",
+          message: "Use Button from components/ui.",
+        },
       ],
     },
   },

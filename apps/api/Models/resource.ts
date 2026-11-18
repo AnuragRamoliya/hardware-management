@@ -100,7 +100,13 @@ export class ResourceModel {
       if (!kind || value === null || value === undefined || value === '') continue;
       const normalize = (candidate: unknown): string | number | boolean | Date => {
         if (kind === 'text' && typeof candidate === 'string') return candidate;
-        if (kind === 'number' && (typeof candidate === 'number' || (typeof candidate === 'string' && candidate.trim() !== '' && Number.isFinite(Number(candidate))))) {
+        if (
+          kind === 'number' &&
+          (typeof candidate === 'number' ||
+            (typeof candidate === 'string' &&
+              candidate.trim() !== '' &&
+              Number.isFinite(Number(candidate))))
+        ) {
           const number = Number(candidate);
           if (Number.isFinite(number)) return number;
         }
@@ -125,7 +131,8 @@ export class ResourceModel {
         if (Object.keys(range).some((key) => key !== 'from' && key !== 'to')) {
           throw new AppError(422, `Invalid range filter for ${field}.`);
         }
-        const lower = range.from === undefined || range.from === '' ? undefined : normalize(range.from);
+        const lower =
+          range.from === undefined || range.from === '' ? undefined : normalize(range.from);
         const upper = range.to === undefined || range.to === '' ? undefined : normalize(range.to);
         if (
           upper instanceof Date &&

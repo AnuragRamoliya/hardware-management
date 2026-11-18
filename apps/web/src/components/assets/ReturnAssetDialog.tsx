@@ -6,7 +6,10 @@ import { Card } from "@/components/ui/card";
 import FormProvider from "@/components/hook-form/form-provider";
 import { FormActions } from "@/components/common/FormLayout";
 import { RHFSelect, RHFTextArea } from "@/components/hook-form/fields";
-import { returnAssetSchema, type ReturnAssetValues } from "./AssetAction.schema";
+import {
+  returnAssetSchema,
+  type ReturnAssetValues,
+} from "./AssetAction.schema";
 import { useReturnAsset } from "@/hooks/queries/assets";
 import { ASSET_CONDITIONS } from "@/utils/constants";
 import type { AssetRecord } from "@/api/assets";
@@ -24,7 +27,11 @@ const destinationStatusOptions = [
   { value: "6", label: "Lost / Damaged beyond repair" },
 ];
 
-export function ReturnAssetDialog({ open, onOpenChange, asset }: ReturnAssetDialogProps) {
+export function ReturnAssetDialog({
+  open,
+  onOpenChange,
+  asset,
+}: ReturnAssetDialogProps) {
   const returnMutation = useReturnAsset();
 
   const methods = useForm<ReturnAssetValues>({
@@ -36,12 +43,17 @@ export function ReturnAssetDialog({ open, onOpenChange, asset }: ReturnAssetDial
     },
   });
 
-  const { reset, handleSubmit, formState: { isSubmitting } } = methods;
+  const {
+    reset,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
 
   useEffect(() => {
     if (open) {
       reset({
-        return_condition: (asset?.condition as "new" | "good" | "fair" | "poor") ?? "good",
+        return_condition:
+          (asset?.condition as "new" | "good" | "fair" | "poor") ?? "good",
         to_status: "1",
         notes: "",
       });
@@ -67,16 +79,21 @@ export function ReturnAssetDialog({ open, onOpenChange, asset }: ReturnAssetDial
       <DialogContent className="max-w-lg">
         <DialogTitle>Return hardware asset</DialogTitle>
         <p className="text-xs text-muted-foreground -mt-2">
-          Accept equipment check-in, inspect physical condition, and update inventory state.
+          Accept equipment check-in, inspect physical condition, and update
+          inventory state.
         </p>
 
         <Card className="p-3 bg-muted/40 border-dashed text-xs space-y-1">
           <div className="flex justify-between font-medium">
-            <span>{asset.asset_tag} — {[asset.brand, asset.model].filter(Boolean).join(" ")}</span>
+            <span>
+              {asset.asset_tag} —{" "}
+              {[asset.brand, asset.model].filter(Boolean).join(" ")}
+            </span>
           </div>
           {currentEmployee && (
             <div className="text-muted-foreground">
-              Currently held by: {currentEmployee.first_name} {currentEmployee.last_name} ({currentEmployee.employee_code})
+              Currently held by: {currentEmployee.first_name}{" "}
+              {currentEmployee.last_name} ({currentEmployee.employee_code})
             </div>
           )}
         </Card>

@@ -31,7 +31,9 @@ export const assetFormSchema = yup.object({
   purchase_cost: yup
     .number()
     .nullable()
-    .transform((val, orig) => (orig === "" || orig === null || isNaN(val) ? null : val)),
+    .transform((val, orig) =>
+      orig === "" || orig === null || isNaN(val) ? null : val,
+    ),
   warranty_start: yup.string().nullable(),
   warranty_end: yup
     .string()
@@ -42,12 +44,15 @@ export const assetFormSchema = yup.object({
       return new Date(value).getTime() >= new Date(warranty_start).getTime();
     }),
   notes: yup.string().trim().nullable(),
-  specs: yup.array().of(
-    yup.object({
-      key: yup.string().required(),
-      value: yup.string().required(),
-    })
-  ).default([]),
+  specs: yup
+    .array()
+    .of(
+      yup.object({
+        key: yup.string().required(),
+        value: yup.string().required(),
+      }),
+    )
+    .default([]),
 });
 
 export type AssetFormValues = yup.InferType<typeof assetFormSchema>;

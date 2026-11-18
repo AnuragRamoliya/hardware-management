@@ -15,7 +15,10 @@ interface AssetImportDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function AssetImportDialog({ open, onOpenChange }: AssetImportDialogProps) {
+export function AssetImportDialog({
+  open,
+  onOpenChange,
+}: AssetImportDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [report, setReport] = useState<AssetImportResult | null>(null);
   const queryClient = useQueryClient();
@@ -23,7 +26,8 @@ export function AssetImportDialog({ open, onOpenChange }: AssetImportDialogProps
   const importMutation = useMutation({
     mutationFn: async (selectedFile: File) => {
       const response = await importAssetsApi(selectedFile);
-      if (!response.ok || !response.data) throw new Error(response.message || "Import failed");
+      if (!response.ok || !response.data)
+        throw new Error(response.message || "Import failed");
       return response.data;
     },
     onSuccess: (data) => {
@@ -61,15 +65,24 @@ export function AssetImportDialog({ open, onOpenChange }: AssetImportDialogProps
       <DialogContent className="max-w-xl">
         <DialogTitle>Import hardware assets</DialogTitle>
         <p className="text-xs text-muted-foreground -mt-2">
-          Bulk-upload inventory from a CSV or XLSX spreadsheet. Download our pre-formatted template to ensure valid column names.
+          Bulk-upload inventory from a CSV or XLSX spreadsheet. Download our
+          pre-formatted template to ensure valid column names.
         </p>
 
         <div className="flex items-center justify-between border rounded-lg p-3 bg-muted/30">
           <div>
             <p className="text-sm font-medium">CSV Import Template</p>
-            <p className="text-xs text-muted-foreground">Standard headers for category, vendor, location, brand, model, and serial number.</p>
+            <p className="text-xs text-muted-foreground">
+              Standard headers for category, vendor, location, brand, model, and
+              serial number.
+            </p>
           </div>
-          <Button variant="outline" size="sm" type="button" onClick={handleDownloadTemplate}>
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
+            onClick={handleDownloadTemplate}
+          >
             <Download className="mr-1.5 h-3.5 w-3.5" />
             Download template
           </Button>
@@ -84,7 +97,9 @@ export function AssetImportDialog({ open, onOpenChange }: AssetImportDialogProps
                   {file ? file.name : "Choose CSV or XLSX file"}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {file ? `${(file.size / 1024).toFixed(1)} KB` : "Max file size: 10MB"}
+                  {file
+                    ? `${(file.size / 1024).toFixed(1)} KB`
+                    : "Max file size: 10MB"}
                 </p>
               </div>
               <label className="cursor-pointer">
@@ -127,7 +142,10 @@ export function AssetImportDialog({ open, onOpenChange }: AssetImportDialogProps
               {report.errors.length > 0 && (
                 <div className="flex items-center gap-2 text-sm font-medium text-warning">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{report.errors.length} rows rejected due to validation errors</span>
+                  <span>
+                    {report.errors.length} rows rejected due to validation
+                    errors
+                  </span>
                 </div>
               )}
             </Card>
@@ -145,7 +163,9 @@ export function AssetImportDialog({ open, onOpenChange }: AssetImportDialogProps
                     {report.errors.map((err, i) => (
                       <tr key={i} className="border-b last:border-none">
                         <td className="py-1.5 px-3 font-mono">{err.row}</td>
-                        <td className="py-1.5 px-3 text-danger">{err.message}</td>
+                        <td className="py-1.5 px-3 text-danger">
+                          {err.message}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

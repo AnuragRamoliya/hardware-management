@@ -7,6 +7,12 @@ import { routeHandler } from '../Utils/route_handler';
 
 const router = Router();
 const controller = new DashboardController();
-router.get('/dashboard/summary', decryptPayload, userAuth, checkAccess(MODULES.ASSET, ACCESS_TYPES.READ), routeHandler(() => controller.summary()));
+router.get(
+  '/dashboard/summary',
+  decryptPayload,
+  userAuth,
+  checkAccess(MODULES.ASSET, ACCESS_TYPES.READ),
+  routeHandler(() => controller.summary()),
+);
 export const dashboardRouter = Router();
 dashboardRouter.use(router);

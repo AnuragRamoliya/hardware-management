@@ -122,11 +122,7 @@ describe('options builder', () => {
     const options = buildOptions(config, reader);
     const hydrated = await options({ ids: [48213, '7', '18446744073709551614'], page: 9 });
 
-    expect(hydrated.rows.map((row) => row.value)).toEqual([
-      48213,
-      7,
-      '18446744073709551614',
-    ]);
+    expect(hydrated.rows.map((row) => row.value)).toEqual([48213, 7, '18446744073709551614']);
     expect(hydrated.rows[0]?.meta).toEqual({ inactive: true });
     expect(hydrated).toMatchObject({ count: 3, hasMore: false, page: 1 });
   });
@@ -199,17 +195,21 @@ describe('options builder', () => {
     expect(calls[1]?.replacements).toContain(search);
   });
 
-  performanceTest('validates the 100k-row search p95 when the development load fixture is present', async () => {
-    const timings: number[] = [];
-    let result: Awaited<ReturnType<typeof getOptions>> | undefined;
-    for (let iteration = 0; iteration < 20; iteration += 1) {
-      const start = performance.now();
-      result = await getOptions('employee', { search: 'LOADTEST-', page: 1, limit: 30 });
-      timings.push(performance.now() - start);
-    }
-    expect(result?.count).toBeGreaterThanOrEqual(100_000);
-    timings.sort((left, right) => left - right);
-    const p95 = timings[Math.ceil(timings.length * 0.95) - 1] ?? Infinity;
-    expect(p95).toBeLessThan(150);
-  }, 30_000);
+  performanceTest(
+    'validates the 100k-row search p95 when the development load fixture is present',
+    async () => {
+      const timings: number[] = [];
+      let result: Awaited<ReturnType<typeof getOptions>> | undefined;
+      for (let iteration = 0; iteration < 20; iteration += 1) {
+        const start = performance.now();
+        result = await getOptions('employee', { search: 'LOADTEST-', page: 1, limit: 30 });
+        timings.push(performance.now() - start);
+      }
+      expect(result?.count).toBeGreaterThanOrEqual(100_000);
+      timings.sort((left, right) => left - right);
+      const p95 = timings[Math.ceil(timings.length * 0.95) - 1] ?? Infinity;
+      expect(p95).toBeLessThan(150);
+    },
+    30_000,
+  );
 });

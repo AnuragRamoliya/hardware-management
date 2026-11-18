@@ -6,7 +6,10 @@ import { Card } from "@/components/ui/card";
 import FormProvider from "@/components/hook-form/form-provider";
 import { FormActions } from "@/components/common/FormLayout";
 import { RHFAsyncSelect, RHFTextArea } from "@/components/hook-form/fields";
-import { transferAssetSchema, type TransferAssetValues } from "./AssetAction.schema";
+import {
+  transferAssetSchema,
+  type TransferAssetValues,
+} from "./AssetAction.schema";
 import { useTransferAsset } from "@/hooks/queries/assets";
 import type { AssetRecord } from "@/api/assets";
 
@@ -16,7 +19,11 @@ interface TransferAssetDialogProps {
   asset?: AssetRecord | null;
 }
 
-export function TransferAssetDialog({ open, onOpenChange, asset }: TransferAssetDialogProps) {
+export function TransferAssetDialog({
+  open,
+  onOpenChange,
+  asset,
+}: TransferAssetDialogProps) {
   const transferMutation = useTransferAsset();
 
   const methods = useForm<TransferAssetValues>({
@@ -27,7 +34,11 @@ export function TransferAssetDialog({ open, onOpenChange, asset }: TransferAsset
     },
   });
 
-  const { reset, handleSubmit, formState: { isSubmitting } } = methods;
+  const {
+    reset,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
 
   useEffect(() => {
     if (open) {
@@ -58,11 +69,18 @@ export function TransferAssetDialog({ open, onOpenChange, asset }: TransferAsset
 
         <Card className="p-3 bg-muted/40 border-dashed text-xs space-y-1">
           <div className="flex justify-between font-medium">
-            <span>{asset.asset_tag} — {[asset.brand, asset.model].filter(Boolean).join(" ")}</span>
+            <span>
+              {asset.asset_tag} —{" "}
+              {[asset.brand, asset.model].filter(Boolean).join(" ")}
+            </span>
           </div>
           {currentEmployee && (
             <div className="text-muted-foreground">
-              Transferring from: <span className="font-medium text-foreground">{currentEmployee.first_name} {currentEmployee.last_name}</span> ({currentEmployee.employee_code})
+              Transferring from:{" "}
+              <span className="font-medium text-foreground">
+                {currentEmployee.first_name} {currentEmployee.last_name}
+              </span>{" "}
+              ({currentEmployee.employee_code})
             </div>
           )}
         </Card>

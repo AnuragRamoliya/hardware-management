@@ -87,7 +87,10 @@ export function SoftwareDetail() {
     tableState.filters,
     activeTab === "Licenses",
   );
-  const usageQuery = useSoftwareUsage(softwareId, activeTab === "Assigned users");
+  const usageQuery = useSoftwareUsage(
+    softwareId,
+    activeTab === "Assigned users",
+  );
   const activityQuery = useSoftwareActivity(
     softwareId,
     activeTab === "Activity",
@@ -188,7 +191,9 @@ export function SoftwareDetail() {
     },
     {
       label: "Available Capacity",
-      value: seatsTotal ? `${software.seats_available ?? 0} seats left` : "Unlimited",
+      value: seatsTotal
+        ? `${software.seats_available ?? 0} seats left`
+        : "Unlimited",
     },
   ];
 
@@ -227,10 +232,7 @@ export function SoftwareDetail() {
                   <KeyRound className="mr-1.5 h-4 w-4" />
                   Add license tier
                 </Button>
-                <Button
-                  size="sm"
-                  onClick={() => setAssignOpen(true)}
-                >
+                <Button size="sm" onClick={() => setAssignOpen(true)}>
                   <UserCheck className="mr-1.5 h-4 w-4" />
                   Assign license
                 </Button>
@@ -258,7 +260,9 @@ export function SoftwareDetail() {
               </div>
               <p className="mt-1 text-sm text-muted-foreground capitalize">
                 License model: {software.license_type.replaceAll("_", " ")}
-                {software.billing_cycle ? ` · ${software.billing_cycle} billing` : ""}
+                {software.billing_cycle
+                  ? ` · ${software.billing_cycle} billing`
+                  : ""}
               </p>
             </div>
           </div>
@@ -266,7 +270,9 @@ export function SoftwareDetail() {
             <span className="text-muted-foreground">Seat utilization:</span>
             <div className="mt-1 flex items-center gap-2 sm:justify-end">
               <Badge variant={seatTone} className="text-xs">
-                {seatsTotal ? `${seatsUsed} / ${seatsTotal}` : `${seatsUsed} assigned`}
+                {seatsTotal
+                  ? `${seatsUsed} / ${seatsTotal}`
+                  : `${seatsUsed} assigned`}
               </Badge>
               {seatsTotal && (
                 <span className="font-semibold text-foreground">
@@ -331,11 +337,13 @@ export function SoftwareDetail() {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Available seats</span>
                   <span className="font-semibold">
-                    {seatsTotal ? software.seats_available ?? 0 : "Unlimited"}
+                    {seatsTotal ? (software.seats_available ?? 0) : "Unlimited"}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm border-t pt-2">
-                  <span className="text-muted-foreground">Total contracted</span>
+                  <span className="text-muted-foreground">
+                    Total contracted
+                  </span>
                   <span className="font-semibold">
                     {seatsTotal ?? "Unlimited (Enterprise)"}
                   </span>
@@ -407,7 +415,9 @@ export function SoftwareDetail() {
             Current License Users
           </h2>
           {usageQuery.isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading assigned users…</p>
+            <p className="text-sm text-muted-foreground">
+              Loading assigned users…
+            </p>
           ) : usageQuery.isError ? (
             <p className="text-sm text-danger">{usageQuery.error?.message}</p>
           ) : usageQuery.data?.length ? (
@@ -481,24 +491,26 @@ export function SoftwareDetail() {
             Activity Timeline
           </h2>
           {activityQuery.isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading activity history…</p>
+            <p className="text-sm text-muted-foreground">
+              Loading activity history…
+            </p>
           ) : activityQuery.isError ? (
-            <p className="text-sm text-danger">{activityQuery.error?.message}</p>
+            <p className="text-sm text-danger">
+              {activityQuery.error?.message}
+            </p>
           ) : activityQuery.data?.length ? (
             <Timeline
-              items={activityQuery.data.map(
-                (entry, idx): TimelineItem => ({
-                  id: (entry.id as string | number) ?? idx,
-                  title: String(entry.action || "Software updated"),
-                  description:
-                    (entry.description as string) ||
-                    (entry.note as string) ||
-                    undefined,
-                  time: entry.createdAt
-                    ? new Date(String(entry.createdAt)).toLocaleString()
-                    : "—",
-                }),
-              )}
+              items={activityQuery.data.map((entry, idx): TimelineItem => ({
+                id: (entry.id as string | number) ?? idx,
+                title: String(entry.action || "Software updated"),
+                description:
+                  (entry.description as string) ||
+                  (entry.note as string) ||
+                  undefined,
+                time: entry.createdAt
+                  ? new Date(String(entry.createdAt)).toLocaleString()
+                  : "—",
+              }))}
             />
           ) : (
             <EmptyState

@@ -90,10 +90,7 @@ const optionReaders = {
 
 export type OptionsResource = keyof typeof optionReaders;
 
-export function getOptions(
-  resource: OptionsResource,
-  input: OptionsDto,
-): Promise<OptionsResult> {
+export function getOptions(resource: OptionsResource, input: OptionsDto): Promise<OptionsResult> {
   return optionReaders[resource](input);
 }
 

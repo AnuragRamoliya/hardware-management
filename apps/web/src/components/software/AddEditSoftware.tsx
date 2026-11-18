@@ -22,10 +22,7 @@ import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SOFTWARE_CATEGORIES, SOFTWARE_LICENSE_TYPES } from "@/utils/constants";
 import { softwareFormSchema, type SoftwareFormValues } from "./Software.schema";
-import {
-  useCreateSoftware,
-  useUpdateSoftware,
-} from "@/hooks/queries/software";
+import { useCreateSoftware, useUpdateSoftware } from "@/hooks/queries/software";
 import type { SoftwareRecord } from "@/api/software";
 
 interface AddEditSoftwareProps {
@@ -75,7 +72,8 @@ export function AddEditSoftware({
         name: software.name ?? "",
         category: software.category ?? "productivity",
         license_type: software.license_type ?? "per_user",
-        vendor_id: software.vendor_id != null ? Number(software.vendor_id) : null,
+        vendor_id:
+          software.vendor_id != null ? Number(software.vendor_id) : null,
         cost: software.cost != null ? Number(software.cost) : null,
         billing_cycle: software.billing_cycle ?? "annual",
         renewal_date: software.renewal_date ?? null,
@@ -126,7 +124,9 @@ export function AddEditSoftware({
       onOpenChange(false);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to save software application",
+        error instanceof Error
+          ? error.message
+          : "Failed to save software application",
       );
     }
   };
@@ -230,7 +230,11 @@ export function AddEditSoftware({
             </FormSection>
 
             <FormActions
-              submitting={isSubmitting || createMutation.isPending || updateMutation.isPending}
+              submitting={
+                isSubmitting ||
+                createMutation.isPending ||
+                updateMutation.isPending
+              }
               submitLabel={isEditing ? "Save changes" : "Create software"}
               onCancel={handleClose}
             />

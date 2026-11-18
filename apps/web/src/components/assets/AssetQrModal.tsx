@@ -50,7 +50,8 @@ export function AssetQrModal({ open, onOpenChange, asset }: AssetQrModalProps) {
       <DialogContent className="max-w-sm text-center">
         <DialogTitle className="text-center">{asset.asset_tag}</DialogTitle>
         <p className="text-xs text-muted-foreground -mt-2">
-          Scan this QR tag to quickly view hardware specs or verify physical inventory.
+          Scan this QR tag to quickly view hardware specs or verify physical
+          inventory.
         </p>
 
         <div className="flex flex-col items-center justify-center p-4">
@@ -71,16 +72,26 @@ export function AssetQrModal({ open, onOpenChange, asset }: AssetQrModalProps) {
           ) : null}
 
           <div className="mt-3 text-xs text-muted-foreground">
-            <p className="font-medium text-foreground">{[asset.brand, asset.model].filter(Boolean).join(" ")}</p>
+            <p className="font-medium text-foreground">
+              {[asset.brand, asset.model].filter(Boolean).join(" ")}
+            </p>
             {asset.serial_no && <p>Serial: {asset.serial_no}</p>}
           </div>
         </div>
 
         <div className="flex justify-end gap-2 border-t pt-3">
-          <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => onOpenChange(false)}
+          >
             Close
           </Button>
-          <Button type="button" onClick={handlePrint} disabled={!qrQuery.data?.qr}>
+          <Button
+            type="button"
+            onClick={handlePrint}
+            disabled={!qrQuery.data?.qr}
+          >
             <Printer className="mr-1.5 h-4 w-4" />
             Print label
           </Button>

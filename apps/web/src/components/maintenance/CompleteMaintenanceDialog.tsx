@@ -5,9 +5,19 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import FormProvider from "@/components/hook-form/form-provider";
 import { FormActions } from "@/components/common/FormLayout";
-import { RHFDatePicker, RHFCurrencyField, RHFTextArea } from "@/components/hook-form/fields";
-import { completeMaintenanceSchema, type CompleteMaintenanceValues } from "./Maintenance.schema";
-import { useCompleteMaintenance, type MaintenanceRecord } from "@/hooks/queries/maintenance";
+import {
+  RHFDatePicker,
+  RHFCurrencyField,
+  RHFTextArea,
+} from "@/components/hook-form/fields";
+import {
+  completeMaintenanceSchema,
+  type CompleteMaintenanceValues,
+} from "./Maintenance.schema";
+import {
+  useCompleteMaintenance,
+  type MaintenanceRecord,
+} from "@/hooks/queries/maintenance";
 
 interface CompleteMaintenanceDialogProps {
   open: boolean;
@@ -31,7 +41,11 @@ export function CompleteMaintenanceDialog({
     },
   });
 
-  const { reset, handleSubmit, formState: { isSubmitting } } = methods;
+  const {
+    reset,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
 
   useEffect(() => {
     if (open && record) {
@@ -60,11 +74,14 @@ export function CompleteMaintenanceDialog({
       <DialogContent className="max-w-lg">
         <DialogTitle>Complete maintenance #{record.id}</DialogTitle>
         <p className="text-xs text-muted-foreground -mt-2">
-          Confirm that the hardware repair is completed and return the asset to available inventory.
+          Confirm that the hardware repair is completed and return the asset to
+          available inventory.
         </p>
 
         <Card className="p-3 bg-muted/40 border-dashed text-xs space-y-1">
-          <div className="font-medium text-foreground">Reported issue: {record.issue}</div>
+          <div className="font-medium text-foreground">
+            Reported issue: {record.issue}
+          </div>
           <div className="text-muted-foreground">
             Sent: {new Date(record.sent_at).toLocaleDateString()}
           </div>
@@ -77,10 +94,7 @@ export function CompleteMaintenanceDialog({
               label="Return / completion date"
               required
             />
-            <RHFCurrencyField
-              name="cost"
-              label="Final invoice / repair cost"
-            />
+            <RHFCurrencyField name="cost" label="Final invoice / repair cost" />
             <RHFTextArea
               name="resolution"
               label="Resolution summary"

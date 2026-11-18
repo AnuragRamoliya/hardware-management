@@ -57,7 +57,9 @@ export function AssignSoftwareDialog({
       handleClose();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to assign software license",
+        error instanceof Error
+          ? error.message
+          : "Failed to assign software license",
       );
     }
   };
