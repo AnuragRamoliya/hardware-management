@@ -69,7 +69,7 @@ const Users = lazy(() =>
   import("@/pages/Entities").then((module) => ({ default: module.Users })),
 );
 const Departments = lazy(() =>
-  import("@/pages/Entities").then((module) => ({
+  import("@/pages/Departments").then((module) => ({
     default: module.Departments,
   })),
 );
@@ -96,25 +96,37 @@ const Assets = lazy(() =>
   import("@/pages/Assets").then((module) => ({ default: module.Assets })),
 );
 const UnassignedAssets = lazy(() =>
-  import("@/pages/Assets").then((module) => ({ default: module.UnassignedAssets })),
+  import("@/pages/Assets").then((module) => ({
+    default: module.UnassignedAssets,
+  })),
 );
 const Maintenance = lazy(() =>
-  import("@/pages/Maintenance").then((module) => ({ default: module.Maintenance })),
+  import("@/pages/Maintenance").then((module) => ({
+    default: module.Maintenance,
+  })),
 );
 const AssetDetail = lazy(() =>
-  import("@/pages/AssetDetail").then((module) => ({ default: module.AssetDetail })),
+  import("@/pages/AssetDetail").then((module) => ({
+    default: module.AssetDetail,
+  })),
 );
 const Software = lazy(() =>
   import("@/pages/Software").then((module) => ({ default: module.Software })),
 );
 const SoftwareDetail = lazy(() =>
-  import("@/pages/SoftwareDetail").then((module) => ({ default: module.SoftwareDetail })),
+  import("@/pages/SoftwareDetail").then((module) => ({
+    default: module.SoftwareDetail,
+  })),
 );
 const PortalAssets = lazy(() =>
-  import("@/pages/PortalAssets").then((module) => ({ default: module.PortalAssets })),
+  import("@/pages/PortalAssets").then((module) => ({
+    default: module.PortalAssets,
+  })),
 );
 const PortalSoftware = lazy(() =>
-  import("@/pages/PortalSoftware").then((module) => ({ default: module.PortalSoftware })),
+  import("@/pages/PortalSoftware").then((module) => ({
+    default: module.PortalSoftware,
+  })),
 );
 const Roles = lazy(() =>
   import("@/pages/Roles").then((module) => ({ default: module.RolesPage })),
@@ -240,23 +252,43 @@ export const routesSection = createBrowserRouter([
               },
               {
                 path: PATHS.ASSET_UNASSIGNED,
-                element: page(<UnassignedAssets />, ["admin", "hardware"], "asset"),
+                element: page(
+                  <UnassignedAssets />,
+                  ["admin", "hardware"],
+                  "asset",
+                ),
               },
               {
                 path: PATHS.ASSET_MAINTENANCE,
-                element: page(<Maintenance />, ["admin", "hardware", "hr"], "asset_maintenance"),
+                element: page(
+                  <Maintenance />,
+                  ["admin", "hardware", "hr"],
+                  "asset_maintenance",
+                ),
               },
               {
                 path: PATHS.ASSET_DETAIL,
-                element: page(<AssetDetail />, ["admin", "hardware", "hr"], "asset"),
+                element: page(
+                  <AssetDetail />,
+                  ["admin", "hardware", "hr"],
+                  "asset",
+                ),
               },
               {
                 path: PATHS.SOFTWARE,
-                element: page(<Software />, ["admin", "hardware", "hr"], "software"),
+                element: page(
+                  <Software />,
+                  ["admin", "hardware", "hr"],
+                  "software",
+                ),
               },
               {
                 path: PATHS.SOFTWARE_DETAIL,
-                element: page(<SoftwareDetail />, ["admin", "hardware", "hr"], "software"),
+                element: page(
+                  <SoftwareDetail />,
+                  ["admin", "hardware", "hr"],
+                  "software",
+                ),
               },
               {
                 path: PATHS.AUDIT_LOGS,
@@ -267,8 +299,14 @@ export const routesSection = createBrowserRouter([
                 element: page(<DesignSystem />, ["admin"]),
               },
               { path: PATHS.PORTAL, element: page(<Portal />, ["employee"]) },
-              { path: PATHS.PORTAL_ASSETS, element: page(<PortalAssets />, ["employee"]) },
-              { path: PATHS.PORTAL_SOFTWARE, element: page(<PortalSoftware />, ["employee"]) },
+              {
+                path: PATHS.PORTAL_ASSETS,
+                element: page(<PortalAssets />, ["employee"]),
+              },
+              {
+                path: PATHS.PORTAL_SOFTWARE,
+                element: page(<PortalSoftware />, ["employee"]),
+              },
               {
                 path: PATHS.PORTAL_PROFILE,
                 element: page(<Profile />, ["employee"]),
