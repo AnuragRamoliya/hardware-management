@@ -1,10 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { buildAAD, encryptSecret, decryptSecret, getActiveKeyVersion } from '../Utils/vault_crypto';
 import { computeRowHash, GENESIS_HASH, verifyHashChain } from '../Utils/hash_chain';
 import { validatePasswordPolicy, generateSecurePassword } from '../Utils/password_policy';
 import { findForbiddenSecretKeys } from '../Utils/redaction';
 import { CredentialVaultService } from '../Services/credential_vault';
-import { CREDENTIAL_APPROVAL_STATUS, PROVIDED_BY } from '@hm/shared';
 import type { UserInfo } from '../Types/api';
 
 describe('Phase 3 Credential Vault Unit & Integration Tests', () => {
