@@ -4,39 +4,53 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
+import { User, Lock, Palette } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RHFPasswordField, RHFTextField } from "@/components/hook-form/fields";
+import {
+  FormGrid,
+  FormGridItem,
+  FormSection,
+} from "@/components/common/FormLayout";
 import FormProvider from "@/components/hook-form/form-provider";
 import { callApi } from "@/api/callApi";
 import { endPoints } from "@/api/endpoint";
 import useAuthStore from "@/zustand/user-store";
-import type { User } from "@/types";
-import { passwordSchema, profileSchema, type PasswordValues, type ProfileValues } from "@/pages/Profile.schema";
+import type { User as UserType } from "@/types";
+import {
+  passwordSchema,
+  profileSchema,
+  type PasswordValues,
+  type ProfileValues,
+} from "@/pages/Profile.schema";
+
+type Tab = "profile" | "security" | "preferences";
 
 export function Profile() {
-  const [activeTab, setActiveTab] = useState<
-    "profile" | "security" | "preferences"
-  >("profile");
+  const [activeTab, setActiveTab] = useState<Tab>("profile");
   const { theme, setTheme } = useTheme();
   const setUser = useAuthStore((state) => state.setUser);
   const logout = useAuthStore((state) => state.logout);
   const localUser = useAuthStore((state) => state.user);
   const client = useQueryClient();
+
   const profileQuery = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
-      const result = await callApi<User>({
+      const result = await callApi<UserType>({
         url: endPoints.user.profile,
         method: "GET",
       });
-      if (!result.ok || !result.data)
+      if (!result.ok || !result.data) {
         throw new Error(result.message || "Unable to load profile");
+      }
       return result.data;
     },
     initialData: localUser ?? undefined,
   });
+
   const profileForm = useForm<ProfileValues>({
     mode: "onTouched",
     resolver: yupResolver(profileSchema),
@@ -48,14 +62,20 @@ export function Profile() {
         }
       : undefined,
   });
+
   const passwordForm = useForm<PasswordValues>({
     mode: "onTouched",
     resolver: yupResolver(passwordSchema),
-    defaultValues: { current_password: "", password: "", confirm_password: "" },
+    defaultValues: {
+      current_password: "",
+      password: "",
+      confirm_password: "",
+    },
   });
+
   const profileMutation = useMutation({
     mutationFn: async (values: ProfileValues) => {
-      const response = await callApi<User, ProfileValues>({
+      const response = await callApi<UserType, ProfileValues>({
         url: endPoints.user.updateProfile,
         method: "PUT",
         body: values,
@@ -68,8 +88,9 @@ export function Profile() {
       toast.success("Profile updated");
       await client.invalidateQueries({ queryKey: ["profile"] });
     },
-    onError: (error) => toast.error(error.message),
+    onError: (error: Error) => toast.error(error.message),
   });
+
   const passwordMutation = useMutation({
     mutationFn: async ({ current_password, password }: PasswordValues) => {
       const response = await callApi<
@@ -96,31 +117,54 @@ export function Profile() {
       toast.success("Password changed. Please sign in again.");
       logout();
     },
-    onError: (error) => toast.error(error.message),
+    onError: (error: Error) => toast.error(error.message),
   });
 
+  const tabs: Array<{
+    id: Tab;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }> = [
+    { id: "profile", label: "Personal Info", icon: User },
+    { id: "security", label: "Security & Password", icon: Lock },
+    { id: "preferences", label: "Preferences", icon: Palette },
+  ];
+
   return (
-    <>
+    <div className="space-y-6">
       <PageHeader
         title="Profile settings"
-        description="Manage your personal information, security, and preferences."
+        description="Manage your personal information, security, and interface preferences."
+        breadcrumbs={[
+          { label: "Dashboard", to: "/" },
+          { label: "Profile settings" },
+        ]}
       />
-      <div className="grid gap-5 lg:grid-cols-[220px_1fr]">
+
+      <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
         <nav
-          aria-label="Profile settings"
-          className="flex gap-1 overflow-x-auto lg:block lg:space-y-1"
+          aria-label="Profile navigation"
+          className="flex gap-2 overflow-x-auto lg:flex-col lg:space-y-1"
         >
-          {(["profile", "security", "preferences"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`min-h-10 shrink-0 rounded-lg px-3 text-left text-sm capitalize lg:w-full ${activeTab === tab ? "bg-accent font-medium text-accent-foreground" : "text-muted-foreground hover:bg-muted"}`}
-            >
-              {tab}
-            </button>
-          ))}
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <Button
+                key={tab.id}
+                type="button"
+                variant={isActive ? "secondary" : "ghost"}
+                className={`justify-start gap-2.5 text-sm ${isActive ? "font-semibold" : "text-muted-foreground"}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                <Icon className="h-4 w-4" />
+                {tab.label}
+              </Button>
+            );
+          })}
         </nav>
-        <Card className="p-5 sm:p-7">
+
+        <Card className="p-6">
           {profileQuery.error && (
             <div
               role="alert"
@@ -130,98 +174,134 @@ export function Profile() {
               refreshed: {profileQuery.error.message}
             </div>
           )}
+
           {activeTab === "profile" && (
-            <>
-              <h2 className="font-semibold">Personal information</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Update the information associated with your account.
-              </p>
-              <FormProvider
-                methods={profileForm}
-                onSubmit={profileForm.handleSubmit((values) =>
-                  profileMutation.mutate(values),
-                )}
-                className="mt-6 max-w-2xl space-y-5"
+            <FormProvider
+              methods={profileForm}
+              onSubmit={profileForm.handleSubmit((values) =>
+                profileMutation.mutate(values),
+              )}
+              className="max-w-2xl space-y-6"
+            >
+              <FormSection
+                title="Personal Information"
+                description="Update your basic account details and contact information."
               >
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <RHFTextField name="first_name" label="First name" required />
-                  <RHFTextField name="last_name" label="Last name" />
-                  <div className="sm:col-span-2">
+                <FormGrid className="grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2">
+                  <FormGridItem span={1}>
+                    <RHFTextField
+                      name="first_name"
+                      label="First name"
+                      required
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFTextField name="last_name" label="Last name" />
+                  </FormGridItem>
+                  <FormGridItem span={2}>
                     <RHFTextField
                       name="email"
                       label="Work email"
                       type="email"
                       required
                     />
-                  </div>
-                </div>
-                <div className="flex justify-end border-t pt-5">
-                  <Button type="submit" loading={profileMutation.isPending}>
-                    Save profile
-                  </Button>
-                </div>
-              </FormProvider>
-            </>
-          )}
-          {activeTab === "security" && (
-            <>
-              <h2 className="font-semibold">Change password</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Choose a unique password with at least twelve characters.
-              </p>
-              <FormProvider
-                methods={passwordForm}
-                onSubmit={passwordForm.handleSubmit((values) =>
-                  passwordMutation.mutate(values),
-                )}
-                className="mt-6 max-w-lg space-y-5"
-              >
-                <RHFPasswordField
-                  name="current_password"
-                  label="Current password"
-                  required
-                />
-                <RHFPasswordField
-                  name="password"
-                  label="New password"
-                  required
-                />
-                <RHFPasswordField
-                  name="confirm_password"
-                  label="Confirm new password"
-                  required
-                />
-                <div className="flex justify-end border-t pt-5">
-                  <Button type="submit" loading={passwordMutation.isPending}>
-                    Update password
-                  </Button>
-                </div>
-              </FormProvider>
-            </>
-          )}
-          {activeTab === "preferences" && (
-            <>
-              <h2 className="font-semibold">Appearance</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Choose a theme for this browser. Your choice is saved
-                automatically.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                {(["light", "dark", "system"] as const).map((item) => (
-                  <button
-                    key={item}
-                    aria-pressed={theme === item}
-                    className={`rounded-lg border px-5 py-4 text-sm capitalize ${theme === item ? "border-primary bg-accent text-accent-foreground" : "hover:bg-muted"}`}
-                    onClick={() => setTheme(item)}
-                  >
-                    {item}
-                  </button>
-                ))}
+                  </FormGridItem>
+                </FormGrid>
+              </FormSection>
+
+              <div className="flex justify-end border-t pt-5">
+                <Button
+                  type="submit"
+                  disabled={!profileForm.formState.isDirty}
+                  loading={profileMutation.isPending}
+                >
+                  Save profile
+                </Button>
               </div>
-            </>
+            </FormProvider>
+          )}
+
+          {activeTab === "security" && (
+            <FormProvider
+              methods={passwordForm}
+              onSubmit={passwordForm.handleSubmit((values) =>
+                passwordMutation.mutate(values),
+              )}
+              className="max-w-xl space-y-6"
+            >
+              <FormSection
+                title="Change Password"
+                description="Choose a strong, unique password with at least twelve characters."
+              >
+                <FormGrid className="grid-cols-1 md:grid-cols-1 xl:grid-cols-1">
+                  <FormGridItem span={1}>
+                    <RHFPasswordField
+                      name="current_password"
+                      label="Current password"
+                      required
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFPasswordField
+                      name="password"
+                      label="New password"
+                      required
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFPasswordField
+                      name="confirm_password"
+                      label="Confirm new password"
+                      required
+                    />
+                  </FormGridItem>
+                </FormGrid>
+              </FormSection>
+
+              <div className="flex justify-end border-t pt-5">
+                <Button
+                  type="submit"
+                  disabled={!passwordForm.formState.isDirty}
+                  loading={passwordMutation.isPending}
+                >
+                  Update password
+                </Button>
+              </div>
+            </FormProvider>
+          )}
+
+          {activeTab === "preferences" && (
+            <div className="space-y-6 max-w-xl">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">
+                  Appearance & Theme
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Choose your interface theme. Your preference is automatically
+                  saved in your browser.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-4 pt-2">
+                {(["light", "dark", "system"] as const).map((item) => {
+                  const isSelected = theme === item;
+                  return (
+                    <Button
+                      key={item}
+                      type="button"
+                      variant={isSelected ? "primary" : "outline"}
+                      className="capitalize min-w-[100px] h-12"
+                      onClick={() => setTheme(item)}
+                    >
+                      {item}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
           )}
         </Card>
       </div>
-    </>
+    </div>
   );
 }
