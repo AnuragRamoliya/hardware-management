@@ -2,6 +2,16 @@ import crypto from 'node:crypto';
 import CryptoJS from 'crypto-js';
 import { env } from '../Config/env';
 
+export {
+  encryptSecret,
+  decryptSecret,
+  buildAAD,
+  getVaultKeys,
+  getActiveKeyVersion,
+  generateVaultKey,
+  type EncryptedSecret,
+} from './vault_crypto';
+
 const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
 export async function encryptPayload<T>(data: T, length = 64): Promise<string> {

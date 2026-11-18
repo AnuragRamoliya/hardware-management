@@ -4,7 +4,14 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
-import { User, Lock, Palette } from "lucide-react";
+import {
+  useUserSessions,
+  useRevokeSession,
+  useRevokeOtherSessions,
+  useLoginHistory,
+} from "@/hooks/queries/credentials";
+import { Badge } from "@/components/ui/badge";
+import { User, Lock, Palette, CheckCircle2, XCircle } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,6 +42,11 @@ export function Profile() {
   const logout = useAuthStore((state) => state.logout);
   const localUser = useAuthStore((state) => state.user);
   const client = useQueryClient();
+
+  const sessionsQuery = useUserSessions();
+  const revokeSessionMutation = useRevokeSession();
+  const revokeOtherSessionsMutation = useRevokeOtherSessions();
+  const loginHistoryQuery = useLoginHistory();
 
   const profileQuery = useQuery({
     queryKey: ["profile"],
@@ -222,52 +234,184 @@ export function Profile() {
           )}
 
           {activeTab === "security" && (
-            <FormProvider
-              methods={passwordForm}
-              onSubmit={passwordForm.handleSubmit((values) =>
-                passwordMutation.mutate(values),
-              )}
-              className="max-w-xl space-y-6"
-            >
-              <FormSection
-                title="Change Password"
-                description="Choose a strong, unique password with at least twelve characters."
+            <div className="space-y-8">
+              <FormProvider
+                methods={passwordForm}
+                onSubmit={passwordForm.handleSubmit((values) =>
+                  passwordMutation.mutate(values),
+                )}
+                className="max-w-xl space-y-6"
               >
-                <FormGrid className="grid-cols-1 md:grid-cols-1 xl:grid-cols-1">
-                  <FormGridItem span={1}>
-                    <RHFPasswordField
-                      name="current_password"
-                      label="Current password"
-                      required
-                    />
-                  </FormGridItem>
-                  <FormGridItem span={1}>
-                    <RHFPasswordField
-                      name="password"
-                      label="New password"
-                      required
-                    />
-                  </FormGridItem>
-                  <FormGridItem span={1}>
-                    <RHFPasswordField
-                      name="confirm_password"
-                      label="Confirm new password"
-                      required
-                    />
-                  </FormGridItem>
-                </FormGrid>
-              </FormSection>
-
-              <div className="flex justify-end border-t pt-5">
-                <Button
-                  type="submit"
-                  disabled={!passwordForm.formState.isDirty}
-                  loading={passwordMutation.isPending}
+                <FormSection
+                  title="Change Password"
+                  description="Choose a strong, unique password with at least twelve characters."
                 >
-                  Update password
-                </Button>
+                  <FormGrid className="grid-cols-1 md:grid-cols-1 xl:grid-cols-1">
+                    <FormGridItem span={1}>
+                      <RHFPasswordField
+                        name="current_password"
+                        label="Current password"
+                        required
+                      />
+                    </FormGridItem>
+                    <FormGridItem span={1}>
+                      <RHFPasswordField
+                        name="password"
+                        label="New password"
+                        required
+                      />
+                    </FormGridItem>
+                    <FormGridItem span={1}>
+                      <RHFPasswordField
+                        name="confirm_password"
+                        label="Confirm new password"
+                        required
+                      />
+                    </FormGridItem>
+                  </FormGrid>
+                </FormSection>
+
+                <div className="flex justify-end border-t pt-5">
+                  <Button
+                    type="submit"
+                    disabled={!passwordForm.formState.isDirty}
+                    loading={passwordMutation.isPending}
+                  >
+                    Update password
+                  </Button>
+                </div>
+              </FormProvider>
+
+              {/* Active Sessions Hardening */}
+              <div className="mt-8 pt-6 border-t max-w-2xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold">Active Sessions</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Devices currently signed into your account.
+                    </p>
+                  </div>
+                  {sessionsQuery.data && sessionsQuery.data.length > 1 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs text-destructive hover:bg-destructive/10"
+                      onClick={() => revokeOtherSessionsMutation.mutate()}
+                      disabled={revokeOtherSessionsMutation.isPending}
+                    >
+                      Revoke Other Sessions
+                    </Button>
+                  )}
+                </div>
+
+                {sessionsQuery.isLoading ? (
+                  <p className="text-xs text-muted-foreground">
+                    Loading active sessions...
+                  </p>
+                ) : sessionsQuery.data?.length ? (
+                  <div className="divide-y rounded-lg border">
+                    {sessionsQuery.data.map((sess) => (
+                      <div
+                        key={sess.id}
+                        className="flex items-center justify-between p-3 text-xs"
+                      >
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-foreground">
+                              {sess.ip_address || "Unknown IP"}
+                            </span>
+                            {sess.is_current ? (
+                              <Badge variant="success" className="text-[10px]">
+                                Current Session
+                              </Badge>
+                            ) : null}
+                          </div>
+                          <p
+                            className="text-muted-foreground max-w-sm truncate"
+                            title={sess.user_agent || ""}
+                          >
+                            {sess.user_agent || "Web Browser"}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">
+                            Last active:{" "}
+                            {sess.last_active_at
+                              ? new Date(sess.last_active_at).toLocaleString()
+                              : "Recently"}
+                          </p>
+                        </div>
+
+                        {!sess.is_current && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-xs text-destructive hover:bg-destructive/10 h-7"
+                            onClick={() =>
+                              revokeSessionMutation.mutate(sess.id)
+                            }
+                            disabled={revokeSessionMutation.isPending}
+                          >
+                            Revoke
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    No active sessions found.
+                  </p>
+                )}
+
+                {/* Login History */}
+                <div className="pt-6 border-t space-y-3">
+                  <h3 className="text-sm font-semibold">
+                    Recent Login History
+                  </h3>
+                  {loginHistoryQuery.isLoading ? (
+                    <p className="text-xs text-muted-foreground">
+                      Loading history...
+                    </p>
+                  ) : loginHistoryQuery.data?.length ? (
+                    <div className="divide-y rounded-lg border max-h-48 overflow-y-auto">
+                      {loginHistoryQuery.data.slice(0, 10).map((log) => (
+                        <div
+                          key={log.id}
+                          className="flex items-center justify-between p-2.5 text-xs"
+                        >
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-1.5">
+                              {log.success ? (
+                                <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
+                              ) : (
+                                <XCircle className="h-3.5 w-3.5 text-destructive" />
+                              )}
+                              <span className="font-medium">
+                                {log.success
+                                  ? "Successful Sign-in"
+                                  : "Failed Attempt"}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-muted-foreground">
+                              IP: {log.ip_address || "—"} ·{" "}
+                              {new Date(log.created_at).toLocaleString()}
+                            </p>
+                          </div>
+                          {log.failure_reason && (
+                            <span className="text-[10px] text-destructive">
+                              {log.failure_reason}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      No login history recorded.
+                    </p>
+                  )}
+                </div>
               </div>
-            </FormProvider>
+            </div>
           )}
 
           {activeTab === "preferences" && (

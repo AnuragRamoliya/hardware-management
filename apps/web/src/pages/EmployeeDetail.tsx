@@ -35,6 +35,19 @@ import { softwareApi } from "@/api/software";
 import useAuthStore from "@/zustand/user-store";
 import { getUserRole } from "@/lib/roles";
 import { useEmployee, useEmployeeActivity } from "@/hooks/queries/employee";
+import {
+  useCredentialsList,
+  useDeleteCredential,
+} from "@/hooks/queries/credentials";
+import type { CredentialDto } from "@/api/credentials";
+import { AddEditCredentialDialog } from "@/components/credentials/AddEditCredentialDialog";
+import { CreateCollectionRequestDialog } from "@/components/credentials/CreateCollectionRequestDialog";
+import { RevealSecretDialog } from "@/components/credentials/RevealSecretDialog";
+import { RotatePasswordDialog } from "@/components/credentials/RotatePasswordDialog";
+import { CredentialHistoryDialog } from "@/components/credentials/CredentialHistoryDialog";
+import { Plus, Send, Eye, RefreshCw, Trash2, History } from "lucide-react";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { CREDENTIAL_APPROVAL_STATUS, PROVIDED_BY } from "@hm/shared";
 
 const tabs = [
   "Overview",
@@ -55,6 +68,23 @@ export function EmployeeDetail() {
   );
 
   const { data: employee, isLoading, isError, error } = useEmployee(id);
+
+  const [addCredOpen, setAddCredOpen] = useState(false);
+  const [requestCredOpen, setRequestCredOpen] = useState(false);
+  const [revealingCred, setRevealingCred] = useState<CredentialDto | null>(
+    null,
+  );
+  const [rotatingCred, setRotatingCred] = useState<CredentialDto | null>(null);
+  const [historyCred, setHistoryCred] = useState<CredentialDto | null>(null);
+  const [deletingCred, setDeletingCred] = useState<CredentialDto | null>(null);
+
+  const credentialsQuery = useCredentialsList({
+    currentPage: 1,
+    itemsPerPage: 50,
+    sortBy: [],
+    filters: { employee_id: Number(id) },
+  });
+  const deleteCredMutation = useDeleteCredential();
 
   const activityQuery = useEmployeeActivity(id, activeTab === "Activity");
 
@@ -420,6 +450,145 @@ export function EmployeeDetail() {
             />
           )}
         </Card>
+      ) : activeTab === "Accounts" ? (
+        <Card className="p-6">
+          <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">
+                Assigned Accounts & Credentials
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Company-provided accounts and employee-submitted credentials.
+              </p>
+            </div>
+            {canManageAssets && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => setRequestCredOpen(true)}
+                >
+                  <Send className="h-3.5 w-3.5 text-primary" /> Request
+                  Credential
+                </Button>
+                <Button
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => setAddCredOpen(true)}
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add Company Account
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {credentialsQuery.isLoading ? (
+            <p className="text-sm text-muted-foreground">
+              Loading credentials...
+            </p>
+          ) : credentialsQuery.data?.rows?.length ? (
+            <div className="divide-y rounded-lg border">
+              {credentialsQuery.data.rows.map((cred: CredentialDto) => (
+                <div
+                  key={cred.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-foreground text-sm">
+                        {cred.label}
+                      </span>
+                      <Badge variant="outline" className="text-xs">
+                        {cred.credential_type?.name}
+                      </Badge>
+                      {cred.provided_by === PROVIDED_BY.COMPANY ? (
+                        <Badge
+                          variant="outline"
+                          className="text-blue-600 border-blue-300 text-xs"
+                        >
+                          Company
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="text-purple-600 border-purple-300 text-xs"
+                        >
+                          Employee
+                        </Badge>
+                      )}
+                      {cred.approval_status ===
+                      CREDENTIAL_APPROVAL_STATUS.APPROVED ? (
+                        <Badge variant="success" className="text-xs">
+                          Approved
+                        </Badge>
+                      ) : (
+                        <Badge variant="warning" className="text-xs">
+                          Pending Review
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground flex items-center gap-2 font-mono">
+                      <span>Username: {cred.username}</span>
+                      {cred.url && (
+                        <a
+                          href={cred.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline font-sans"
+                        >
+                          (Portal URL)
+                        </a>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 gap-1 text-xs"
+                      onClick={() => setRevealingCred(cred)}
+                    >
+                      <Eye className="h-3.5 w-3.5" /> Reveal
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 gap-1 text-xs"
+                      onClick={() => setRotatingCred(cred)}
+                    >
+                      <RefreshCw className="h-3.5 w-3.5" /> Rotate
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 text-xs"
+                      onClick={() => setHistoryCred(cred)}
+                    >
+                      <History className="h-3.5 w-3.5" />
+                    </Button>
+                    {canManageAssets && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 text-xs text-destructive hover:bg-destructive/10"
+                        onClick={() => setDeletingCred(cred)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No credentials registered"
+              description="No accounts or login secrets are currently associated with this employee."
+            />
+          )}
+        </Card>
       ) : activeTab === "Activity" ? (
         <Card className="p-6">
           <h2 className="mb-6 text-base font-semibold text-foreground">
@@ -465,6 +634,52 @@ export function EmployeeDetail() {
           />
         </Card>
       )}
+
+      <AddEditCredentialDialog
+        open={addCredOpen}
+        onOpenChange={setAddCredOpen}
+        credential={null}
+        defaultEmployeeId={Number(id)}
+      />
+
+      <CreateCollectionRequestDialog
+        open={requestCredOpen}
+        onOpenChange={setRequestCredOpen}
+        defaultEmployeeId={Number(id)}
+      />
+
+      <RevealSecretDialog
+        open={Boolean(revealingCred)}
+        onOpenChange={(o) => !o && setRevealingCred(null)}
+        credential={revealingCred}
+      />
+
+      <RotatePasswordDialog
+        open={Boolean(rotatingCred)}
+        onOpenChange={(o) => !o && setRotatingCred(null)}
+        credential={rotatingCred}
+      />
+
+      <CredentialHistoryDialog
+        open={Boolean(historyCred)}
+        onOpenChange={(o) => !o && setHistoryCred(null)}
+        credential={historyCred}
+      />
+
+      <ConfirmDialog
+        open={Boolean(deletingCred)}
+        onOpenChange={(o) => !o && setDeletingCred(null)}
+        title="Revoke / Delete Credential"
+        description={`Are you sure you want to delete credential "${deletingCred?.label}"? This action is permanent and logged in the immutable audit trail.`}
+        confirmText="Delete"
+        variant="destructive"
+        onConfirm={async () => {
+          if (deletingCred) {
+            await deleteCredMutation.mutateAsync(deletingCred.id);
+            setDeletingCred(null);
+          }
+        }}
+      />
     </div>
   );
 }

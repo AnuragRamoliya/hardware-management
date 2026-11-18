@@ -25,6 +25,9 @@
     "db:migrate": "npm run migrate --workspace=@hm/api",
     "db:seed": "npm run seed --workspace=@hm/api",
     "db:seed:bulk": "npm run seed:bulk --workspace=@hm/api",
+    "vault:generate-key": "npm run vault:generate-key --workspace=@hm/api",
+    "vault:rotate": "npm run vault:rotate --workspace=@hm/api",
+    "audit:verify": "npm run audit:verify --workspace=@hm/api",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "prepare": "husky || true"

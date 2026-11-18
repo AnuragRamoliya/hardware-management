@@ -21,6 +21,8 @@ const emptyPermission = (): PermissionSet => ({
   read_access: false,
   write_access: false,
   delete_access: false,
+  approve_access: false,
+  reveal_access: false,
 });
 
 const accessIsEnabled = (value: boolean | number | string) =>
@@ -62,6 +64,22 @@ export function RolesPage() {
                     read_access: accessIsEnabled(permission.read_access),
                     write_access: accessIsEnabled(permission.write_access),
                     delete_access: accessIsEnabled(permission.delete_access),
+                    approve_access: accessIsEnabled(
+                      (
+                        permission as unknown as Record<
+                          string,
+                          boolean | number | string
+                        >
+                      ).approve_access ?? false,
+                    ),
+                    reveal_access: accessIsEnabled(
+                      (
+                        permission as unknown as Record<
+                          string,
+                          boolean | number | string
+                        >
+                      ).reveal_access ?? false,
+                    ),
                   },
                 ],
               ]
@@ -140,6 +158,8 @@ export function RolesPage() {
       if (key === "read_access" && !next.read_access) {
         next.write_access = false;
         next.delete_access = false;
+        next.approve_access = false;
+        next.reveal_access = false;
       }
       return { ...current, [moduleName]: next };
     });
@@ -256,12 +276,14 @@ export function RolesPage() {
                     <th className="px-4 py-3 text-center">View</th>
                     <th className="px-4 py-3 text-center">Create & edit</th>
                     <th className="px-4 py-3 text-center">Delete</th>
+                    <th className="px-4 py-3 text-center">Approve</th>
+                    <th className="px-4 py-3 text-center">Reveal</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
                   {modulesQuery.isLoading ? (
                     <tr>
-                      <td colSpan={4} className="p-5">
+                      <td colSpan={6} className="p-5">
                         <Spinner label="Loading modules" />
                       </td>
                     </tr>
@@ -276,6 +298,8 @@ export function RolesPage() {
                             "read_access",
                             "write_access",
                             "delete_access",
+                            "approve_access",
+                            "reveal_access",
                           ] as const
                         ).map((permission) => (
                           <td

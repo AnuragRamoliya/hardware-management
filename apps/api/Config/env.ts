@@ -42,10 +42,14 @@ const envSchema = z.object({
   ENCRYPTION_SECRET: z.string().min(1),
   VAULT_ENCRYPTION_KEY: z
     .string()
+    .optional()
+    .default('12345678901234567890123456789012')
     .refine(
       (value) => Buffer.byteLength(value, 'utf8') === 32,
       'VAULT_ENCRYPTION_KEY must be exactly 32 bytes.',
     ),
+  VAULT_ENCRYPTION_KEYS: z.string().optional().default(''),
+  VAULT_KEY_VERSION: z.string().optional().default('1'),
   MAIL_SERVICE: z.string().optional().default(''),
   MAIL_HOST: z.string().optional().default(''),
   MAIL_PORT: integerWithDefault(587),

@@ -2,12 +2,21 @@ import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 type BadgeVariant =
-  "default" | "success" | "warning" | "danger" | "info" | "muted";
+  | "default"
+  | "success"
+  | "warning"
+  | "danger"
+  | "destructive"
+  | "outline"
+  | "info"
+  | "muted";
 const styles: Record<BadgeVariant, string> = {
   default: "bg-accent text-accent-foreground",
   success: "bg-success/10 text-success",
   warning: "bg-warning/10 text-warning",
   danger: "bg-danger/10 text-danger",
+  destructive: "bg-destructive/10 text-destructive",
+  outline: "border border-border text-foreground bg-transparent",
   info: "bg-info/10 text-info",
   muted: "bg-muted text-muted-foreground",
 };

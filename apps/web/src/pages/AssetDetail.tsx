@@ -17,7 +17,11 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/States";
 import { ReferenceLabel } from "@/components/common/ReferenceLabel";
-import { KeyValueList, Timeline, type TimelineItem } from "@/components/common/DataDisplay";
+import {
+  KeyValueList,
+  Timeline,
+  type TimelineItem,
+} from "@/components/common/DataDisplay";
 import { TabsList } from "@/components/ui/tabs";
 import { AssetStatusBadge } from "@/components/assets/AssetStatusBadge";
 import { AddEditAsset } from "@/components/assets/AddEditAsset";
@@ -38,11 +42,18 @@ import useAuthStore from "@/zustand/user-store";
 import usePermissionStore from "@/zustand/permission-store";
 import { getUserRole } from "@/lib/roles";
 
+import { useCredentialsList } from "@/hooks/queries/credentials";
+import type { CredentialDto } from "@/api/credentials";
+import { RevealSecretDialog } from "@/components/credentials/RevealSecretDialog";
+import { Eye } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+
 const tabs = [
   "Overview",
   "Assignment history",
   "Maintenance",
   "Accessories",
+  "Credentials",
   "Activity",
 ] as const;
 type Tab = (typeof tabs)[number];
@@ -58,16 +69,30 @@ export function AssetDetail() {
   const [assignOpen, setAssignOpen] = useState(false);
   const [returnOpen, setReturnOpen] = useState(false);
   const [maintenanceOpen, setMaintenanceOpen] = useState(false);
+  const [revealingCred, setRevealingCred] = useState<CredentialDto | null>(
+    null,
+  );
 
   // User & permissions
   const currentUser = useAuthStore((state) => state.user);
   const role = getUserRole(currentUser);
-  const permissions = usePermissionStore((state) => state.modulePermissions["asset"]);
-  const canWrite = role === "admin" || role === "hardware" || permissions?.write_access === true;
+  const permissions = usePermissionStore(
+    (state) => state.modulePermissions["asset"],
+  );
+  const canWrite =
+    role === "admin" ||
+    role === "hardware" ||
+    permissions?.write_access === true;
 
   // Queries
   const query = useAsset(id);
   const historyQuery = useAssetHistory(id, activeTab === "Assignment history");
+  const credentialsQuery = useCredentialsList({
+    currentPage: 1,
+    itemsPerPage: 50,
+    sortBy: [],
+    filters: { asset_id: Number(id) },
+  });
   const maintenanceQuery = useAssetMaintenance(id, activeTab === "Maintenance");
   const activityQuery = useAssetActivity(id, activeTab === "Activity");
   const updateMutation = useUpdateAsset();
@@ -82,10 +107,18 @@ export function AssetDetail() {
         id: asset.id,
         asset_status: newStatus,
       });
-      toast.success(newStatus === 5 ? "Asset retired" : "Asset restored to available");
-      void queryClient.invalidateQueries({ queryKey: ["assets", "detail", String(asset.id)] });
+      toast.success(
+        newStatus === 5 ? "Asset retired" : "Asset restored to available",
+      );
+      void queryClient.invalidateQueries({
+        queryKey: ["assets", "detail", String(asset.id)],
+      });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update asset status");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to update asset status",
+      );
     }
   };
 
@@ -135,7 +168,10 @@ export function AssetDetail() {
     {
       label: "Category",
       value: (
-        <ReferenceLabel endpoint="asset_category/options" id={asset.category_id} />
+        <ReferenceLabel
+          endpoint="asset_category/options"
+          id={asset.category_id}
+        />
       ),
     },
     { label: "Brand", value: asset.brand ?? "—" },
@@ -157,9 +193,7 @@ export function AssetDetail() {
     },
     {
       label: "Supplier Vendor",
-      value: (
-        <ReferenceLabel endpoint="vendor/options" id={asset.vendor_id} />
-      ),
+      value: <ReferenceLabel endpoint="vendor/options" id={asset.vendor_id} />,
     },
     { label: "Purchase Date", value: asset.purchase_date ?? "—" },
     {
@@ -176,7 +210,10 @@ export function AssetDetail() {
     <>
       <PageHeader
         title={asset.asset_tag}
-        description={[asset.brand, asset.model].filter(Boolean).join(" ") || "Hardware asset record"}
+        description={
+          [asset.brand, asset.model].filter(Boolean).join(" ") ||
+          "Hardware asset record"
+        }
         breadcrumbs={[
           { label: "Assets", to: PATHS.ASSETS },
           { label: asset.asset_tag },
@@ -189,11 +226,7 @@ export function AssetDetail() {
                 Back to assets
               </Button>
             </Link>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setQrOpen(true)}
-            >
+            <Button variant="outline" size="sm" onClick={() => setQrOpen(true)}>
               <QrCode className="mr-1.5 h-4 w-4" />
               QR Label
             </Button>
@@ -208,10 +241,7 @@ export function AssetDetail() {
                   Edit
                 </Button>
                 {isAvailable && (
-                  <Button
-                    size="sm"
-                    onClick={() => setAssignOpen(true)}
-                  >
+                  <Button size="sm" onClick={() => setAssignOpen(true)}>
                     <UserCheck className="mr-1.5 h-4 w-4" />
                     Assign
                   </Button>
@@ -255,14 +285,17 @@ export function AssetDetail() {
                 <AssetStatusBadge status={asset.asset_status} />
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
-                {[asset.brand, asset.model].filter(Boolean).join(" ") || "Hardware equipment"}
+                {[asset.brand, asset.model].filter(Boolean).join(" ") ||
+                  "Hardware equipment"}
                 {asset.serial_no ? ` · S/N: ${asset.serial_no}` : ""}
               </p>
             </div>
           </div>
           {asset.current_assignment?.employee && (
             <div className="rounded-lg border bg-muted/40 p-3 text-xs sm:text-right">
-              <span className="text-muted-foreground">Currently assigned to:</span>
+              <span className="text-muted-foreground">
+                Currently assigned to:
+              </span>
               <p className="font-semibold text-foreground">
                 {asset.current_assignment.employee.first_name}{" "}
                 {asset.current_assignment.employee.last_name}
@@ -292,30 +325,37 @@ export function AssetDetail() {
             <KeyValueList items={overviewItems} />
 
             {/* Specifications if available */}
-            {asset.specs && typeof asset.specs === "object" && Object.keys(asset.specs).length > 0 && (
-              <div className="mt-6 border-t pt-5">
-                <h3 className="mb-3 text-sm font-semibold text-foreground">
-                  Technical Specifications
-                </h3>
-                <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-                  {Object.entries(asset.specs as Record<string, unknown>).map(
-                    ([k, v]) => (
-                      <div key={k} className="rounded-md border bg-muted/30 p-2.5">
-                        <dt className="text-xs text-muted-foreground">{k}</dt>
-                        <dd className="mt-0.5 font-medium text-foreground">
-                          {String(v ?? "—")}
-                        </dd>
-                      </div>
-                    ),
-                  )}
-                </dl>
-              </div>
-            )}
+            {asset.specs &&
+              typeof asset.specs === "object" &&
+              Object.keys(asset.specs).length > 0 && (
+                <div className="mt-6 border-t pt-5">
+                  <h3 className="mb-3 text-sm font-semibold text-foreground">
+                    Technical Specifications
+                  </h3>
+                  <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+                    {Object.entries(asset.specs as Record<string, unknown>).map(
+                      ([k, v]) => (
+                        <div
+                          key={k}
+                          className="rounded-md border bg-muted/30 p-2.5"
+                        >
+                          <dt className="text-xs text-muted-foreground">{k}</dt>
+                          <dd className="mt-0.5 font-medium text-foreground">
+                            {String(v ?? "—")}
+                          </dd>
+                        </div>
+                      ),
+                    )}
+                  </dl>
+                </div>
+              )}
 
             {/* Notes if available */}
             {asset.notes && (
               <div className="mt-6 border-t pt-5">
-                <h3 className="mb-1 text-sm font-semibold text-foreground">Notes</h3>
+                <h3 className="mb-1 text-sm font-semibold text-foreground">
+                  Notes
+                </h3>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                   {asset.notes}
                 </p>
@@ -346,7 +386,9 @@ export function AssetDetail() {
                       <dt className="text-muted-foreground">Assigned on</dt>
                       <dd className="font-medium">
                         {asset.current_assignment.assigned_at
-                          ? new Date(asset.current_assignment.assigned_at).toLocaleDateString()
+                          ? new Date(
+                              asset.current_assignment.assigned_at,
+                            ).toLocaleDateString()
                           : "—"}
                       </dd>
                     </div>
@@ -354,7 +396,9 @@ export function AssetDetail() {
                       <dt className="text-muted-foreground">Due return date</dt>
                       <dd className="font-medium">
                         {asset.current_assignment.due_return_date
-                          ? new Date(asset.current_assignment.due_return_date).toLocaleDateString()
+                          ? new Date(
+                              asset.current_assignment.due_return_date,
+                            ).toLocaleDateString()
                           : "Permanent allocation"}
                       </dd>
                     </div>
@@ -445,7 +489,9 @@ export function AssetDetail() {
             Assignment Audit Trail
           </h2>
           {historyQuery.isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading history records…</p>
+            <p className="text-sm text-muted-foreground">
+              Loading history records…
+            </p>
           ) : historyQuery.isError ? (
             <p className="text-sm text-danger">{historyQuery.error?.message}</p>
           ) : historyQuery.data?.length ? (
@@ -517,9 +563,13 @@ export function AssetDetail() {
             )}
           </div>
           {maintenanceQuery.isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading maintenance log…</p>
+            <p className="text-sm text-muted-foreground">
+              Loading maintenance log…
+            </p>
           ) : maintenanceQuery.isError ? (
-            <p className="text-sm text-danger">{maintenanceQuery.error?.message}</p>
+            <p className="text-sm text-danger">
+              {maintenanceQuery.error?.message}
+            </p>
           ) : maintenanceQuery.data?.length ? (
             <div className="divide-y rounded-lg border">
               {maintenanceQuery.data.map((record) => (
@@ -545,9 +595,16 @@ export function AssetDetail() {
                         />
                       </>
                     ) : null}
-                    {record.cost != null && ` · Cost: $${Number(record.cost).toFixed(2)}`}
+                    {record.cost != null &&
+                      ` · Cost: $${Number(record.cost).toFixed(2)}`}
                     {record.returned_at ? (
-                      <span> · Completed: {new Date(String(record.returned_at)).toLocaleDateString()}</span>
+                      <span>
+                        {" "}
+                        · Completed:{" "}
+                        {new Date(
+                          String(record.returned_at),
+                        ).toLocaleDateString()}
+                      </span>
                     ) : null}
                   </p>
                   {record.resolution ? (
@@ -585,7 +642,8 @@ export function AssetDetail() {
                       {acc.asset_tag}
                     </Link>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      {[acc.brand, acc.model].filter(Boolean).join(" ") || "Accessory"}
+                      {[acc.brand, acc.model].filter(Boolean).join(" ") ||
+                        "Accessory"}
                       {acc.serial_no ? ` · S/N: ${acc.serial_no}` : ""}
                     </p>
                   </div>
@@ -600,6 +658,63 @@ export function AssetDetail() {
             />
           )}
         </Card>
+      ) : activeTab === "Credentials" ? (
+        <Card className="p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">
+                Device Logins & Encrypted Credentials
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Workstation passwords, local admin, BitLocker keys, and device
+                access credentials.
+              </p>
+            </div>
+          </div>
+
+          {credentialsQuery.isLoading ? (
+            <p className="text-sm text-muted-foreground">
+              Loading device credentials...
+            </p>
+          ) : credentialsQuery.data?.rows?.length ? (
+            <div className="divide-y rounded-lg border">
+              {credentialsQuery.data.rows.map((cred: CredentialDto) => (
+                <div
+                  key={cred.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-foreground text-sm">
+                        {cred.label}
+                      </span>
+                      <Badge variant="outline" className="text-xs">
+                        {cred.credential_type?.name}
+                      </Badge>
+                    </div>
+                    <div className="text-xs text-muted-foreground font-mono">
+                      Username: {cred.username}
+                    </div>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 gap-1 text-xs"
+                    onClick={() => setRevealingCred(cred)}
+                  >
+                    <Eye className="h-3.5 w-3.5" /> Reveal Secret
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No credentials linked to this device"
+              description="Hardware accounts, recovery keys, and local logins configured for this asset will appear here."
+            />
+          )}
+        </Card>
       ) : (
         /* Activity Tab with Shared Timeline */
         <Card className="p-6">
@@ -607,24 +722,26 @@ export function AssetDetail() {
             Activity Timeline
           </h2>
           {activityQuery.isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading activity history…</p>
+            <p className="text-sm text-muted-foreground">
+              Loading activity history…
+            </p>
           ) : activityQuery.isError ? (
-            <p className="text-sm text-danger">{activityQuery.error?.message}</p>
+            <p className="text-sm text-danger">
+              {activityQuery.error?.message}
+            </p>
           ) : activityQuery.data?.length ? (
             <Timeline
-              items={activityQuery.data.map(
-                (entry, idx): TimelineItem => ({
-                  id: (entry.id as string | number) ?? idx,
-                  title: String(entry.action || "System action"),
-                  description:
-                    (entry.note as string) ||
-                    (entry.description as string) ||
-                    undefined,
-                  time: entry.createdAt
-                    ? new Date(String(entry.createdAt)).toLocaleString()
-                    : "—",
-                }),
-              )}
+              items={activityQuery.data.map((entry, idx): TimelineItem => ({
+                id: (entry.id as string | number) ?? idx,
+                title: String(entry.action || "System action"),
+                description:
+                  (entry.note as string) ||
+                  (entry.description as string) ||
+                  undefined,
+                time: entry.createdAt
+                  ? new Date(String(entry.createdAt)).toLocaleString()
+                  : "—",
+              }))}
             />
           ) : (
             <EmptyState
@@ -642,11 +759,7 @@ export function AssetDetail() {
         asset={asset}
       />
 
-      <AssetQrModal
-        open={qrOpen}
-        onOpenChange={setQrOpen}
-        asset={asset}
-      />
+      <AssetQrModal open={qrOpen} onOpenChange={setQrOpen} asset={asset} />
 
       <AssignAssetDialog
         open={assignOpen}
@@ -664,6 +777,12 @@ export function AssetDetail() {
         open={maintenanceOpen}
         onOpenChange={setMaintenanceOpen}
         initialAssetId={Number(asset.id)}
+      />
+
+      <RevealSecretDialog
+        open={Boolean(revealingCred)}
+        onOpenChange={(o) => !o && setRevealingCred(null)}
+        credential={revealingCred}
       />
     </>
   );

@@ -10,8 +10,11 @@ import { useTheme } from "next-themes";
 import { Command } from "cmdk";
 import {
   Bell,
+  CheckSquare,
   ChevronDown,
   Command as CommandIcon,
+  FileText,
+  KeyRound,
   LayoutDashboard,
   Laptop,
   Menu,
@@ -80,6 +83,12 @@ const navigation: NavigationItem[] = [
     label: "My software",
     path: PATHS.PORTAL_SOFTWARE,
     icon: CommandIcon,
+    roles: ["employee"],
+  },
+  {
+    label: "My accounts",
+    path: PATHS.PORTAL_ACCOUNTS,
+    icon: KeyRound,
     roles: ["employee"],
   },
   {
@@ -165,6 +174,46 @@ const navigation: NavigationItem[] = [
     group: "Software",
   },
   {
+    label: "Credentials",
+    path: PATHS.CREDENTIALS,
+    icon: KeyRound,
+    roles: ["admin", "hardware"],
+    permission: "credential",
+    group: "Credentials",
+  },
+  {
+    label: "Approvals queue",
+    path: PATHS.CREDENTIAL_APPROVALS,
+    icon: CheckSquare,
+    roles: ["admin", "hardware"],
+    permission: "credential",
+    group: "Credentials",
+  },
+  {
+    label: "Credential types",
+    path: PATHS.CREDENTIAL_TYPES,
+    icon: Settings2,
+    roles: ["admin"],
+    permission: "credential_type",
+    group: "Credentials",
+  },
+  {
+    label: "Collection requests",
+    path: PATHS.CREDENTIAL_REQUESTS,
+    icon: FileText,
+    roles: ["admin", "hardware"],
+    permission: "credential",
+    group: "Credentials",
+  },
+  {
+    label: "Vault access audit",
+    path: PATHS.CREDENTIAL_ACCESS_LOGS,
+    icon: ShieldCheck,
+    roles: ["admin"],
+    permission: "credential_access_log",
+    group: "Credentials",
+  },
+  {
     label: "Audit logs",
     path: PATHS.AUDIT_LOGS,
     icon: ShieldCheck,
@@ -218,14 +267,19 @@ export function AppShell() {
   const notificationQuery = useQuery({
     queryKey: ["notifications"],
     queryFn: async () => {
-      const result = await callApi<Array<{ read_at: string | null }>>({ url: endPoints.notifications, method: "GET" });
-      if (!result.ok) throw new Error(result.message || "Unable to load notifications");
+      const result = await callApi<Array<{ read_at: string | null }>>({
+        url: endPoints.notifications,
+        method: "GET",
+      });
+      if (!result.ok)
+        throw new Error(result.message || "Unable to load notifications");
       return result.data ?? [];
     },
     enabled: Boolean(user) && role !== "employee",
     refetchInterval: 60_000,
   });
-  const unreadNotificationCount = notificationQuery.data?.filter((item) => !item.read_at).length ?? 0;
+  const unreadNotificationCount =
+    notificationQuery.data?.filter((item) => !item.read_at).length ?? 0;
   const visibleNavigation = useMemo(
     () =>
       navigation.filter(
@@ -315,25 +369,29 @@ export function AppShell() {
           <nav aria-label="Main navigation" className="space-y-1">
             {visibleNavigation.map((item, index) => (
               <div key={item.path}>
-              {!isCollapsed && item.group && visibleNavigation[index - 1]?.group !== item.group && (
-                <p className="mb-1 mt-4 px-3 text-[10px] font-semibold uppercase tracking-[.14em] text-muted-foreground">{item.group}</p>
-              )}
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={onNavigate}
-                title={isCollapsed ? item.label : undefined}
-                className={({ isActive }) =>
-                  cn(
-                    "flex min-h-10 items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground",
-                    isActive && "bg-accent text-accent-foreground",
-                    isCollapsed && "justify-center px-0",
-                  )
-                }
-              >
-                <item.icon className="h-[17px] w-[17px] shrink-0" />
-                {!isCollapsed && item.label}
-              </NavLink>
+                {!isCollapsed &&
+                  item.group &&
+                  visibleNavigation[index - 1]?.group !== item.group && (
+                    <p className="mb-1 mt-4 px-3 text-[10px] font-semibold uppercase tracking-[.14em] text-muted-foreground">
+                      {item.group}
+                    </p>
+                  )}
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={onNavigate}
+                  title={isCollapsed ? item.label : undefined}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex min-h-10 items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground",
+                      isActive && "bg-accent text-accent-foreground",
+                      isCollapsed && "justify-center px-0",
+                    )
+                  }
+                >
+                  <item.icon className="h-[17px] w-[17px] shrink-0" />
+                  {!isCollapsed && item.label}
+                </NavLink>
               </div>
             ))}
           </nav>
@@ -443,7 +501,11 @@ export function AppShell() {
               className="relative"
             >
               <Bell className="h-[18px] w-[18px]" />
-              {unreadNotificationCount > 0 && <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[9px] font-semibold text-white ring-2 ring-background">{unreadNotificationCount > 9 ? "9+" : unreadNotificationCount}</span>}
+              {unreadNotificationCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[9px] font-semibold text-white ring-2 ring-background">
+                  {unreadNotificationCount > 9 ? "9+" : unreadNotificationCount}
+                </span>
+              )}
             </Button>
             <Button
               variant="ghost"

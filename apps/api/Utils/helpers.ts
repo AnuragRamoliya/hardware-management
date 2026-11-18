@@ -39,7 +39,7 @@ interface ActivityInput {
   meta?: Record<string, unknown>;
   createdBy?: number;
   createdByName?: string;
-  transaction: Transaction;
+  transaction?: Transaction;
 }
 
 export async function createActivityLog(input: ActivityInput): Promise<void> {
