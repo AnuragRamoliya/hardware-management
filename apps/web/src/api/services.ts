@@ -5,7 +5,7 @@ import type { ApiResult, ListQuery, Paginated } from "@/types";
 export interface ResourceRecord {
   id: string | number;
   name?: string;
-  email?: string;
+  email?: string | null;
   status?: string | number;
 }
 

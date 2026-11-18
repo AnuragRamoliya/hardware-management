@@ -82,7 +82,7 @@ const Locations = lazy(() =>
   import("@/pages/Locations").then((module) => ({ default: module.Locations })),
 );
 const Vendors = lazy(() =>
-  import("@/pages/Entities").then((module) => ({ default: module.Vendors })),
+  import("@/pages/Vendors").then((module) => ({ default: module.Vendors })),
 );
 const AssetCategories = lazy(() =>
   import("@/pages/Entities").then((module) => ({
