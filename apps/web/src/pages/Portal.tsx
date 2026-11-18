@@ -10,6 +10,7 @@ export function Portal() {
       <PageHeader
         title="Your IT portal"
         description="A personal view of the tools and equipment that help you do your best work."
+        breadcrumbs={[{ label: "Portal" }]}
         action={
           <Link
             to={PATHS.PORTAL_PROFILE}
@@ -22,9 +23,27 @@ export function Portal() {
       />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {[
-          [Laptop, "Assigned equipment", "View devices assigned to you.", PATHS.PORTAL_ASSETS, "View my assets"],
-          [PackageCheck, "Software access", "Your approved work applications.", PATHS.PORTAL_SOFTWARE, "View my software"],
-          [UserRound, "Profile", "Keep your details up to date.", PATHS.PORTAL_PROFILE, "View my profile"],
+          [
+            Laptop,
+            "Assigned equipment",
+            "View devices assigned to you.",
+            PATHS.PORTAL_ASSETS,
+            "View my assets",
+          ],
+          [
+            PackageCheck,
+            "Software access",
+            "Your approved work applications.",
+            PATHS.PORTAL_SOFTWARE,
+            "View my software",
+          ],
+          [
+            UserRound,
+            "Profile",
+            "Keep your details up to date.",
+            PATHS.PORTAL_PROFILE,
+            "View my profile",
+          ],
         ].map(([Icon, title, description, to, action]) => {
           const IconComponent = Icon as typeof Laptop;
           return (
@@ -36,7 +55,12 @@ export function Portal() {
               <p className="mt-1 text-xs text-muted-foreground">
                 {String(description)}
               </p>
-              <Link className="mt-4 inline-flex text-sm font-medium text-primary hover:underline" to={String(to)}>{String(action)}</Link>
+              <Link
+                className="mt-4 inline-flex text-sm font-medium text-primary hover:underline"
+                to={String(to)}
+              >
+                {String(action)}
+              </Link>
             </Card>
           );
         })}

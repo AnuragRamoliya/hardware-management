@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/States";
 import { AssetStatusBadge } from "@/components/assets/AssetStatusBadge";
+import { PATHS } from "@/routes/paths";
 
 export function PortalAssets() {
   const query = useQuery({
@@ -30,6 +31,10 @@ export function PortalAssets() {
       <PageHeader
         title="My Assigned Hardware"
         description="Physical equipment, laptops, and peripherals currently checked out to you."
+        breadcrumbs={[
+          { label: "Portal", to: PATHS.PORTAL },
+          { label: "My Assets" },
+        ]}
       />
 
       {query.isLoading ? (
@@ -58,7 +63,10 @@ export function PortalAssets() {
                 7 * 24 * 60 * 60 * 1000;
 
             return (
-              <Card key={assignment.id} className="p-5 flex flex-col justify-between">
+              <Card
+                key={assignment.id}
+                className="p-5 flex flex-col justify-between"
+              >
                 <div>
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
@@ -66,10 +74,13 @@ export function PortalAssets() {
                         <Laptop className="h-4 w-4" />
                       </div>
                       <h2 className="font-semibold text-foreground">
-                        {assignment.asset?.asset_tag ?? `Asset #${assignment.asset_id}`}
+                        {assignment.asset?.asset_tag ??
+                          `Asset #${assignment.asset_id}`}
                       </h2>
                     </div>
-                    <AssetStatusBadge status={assignment.asset?.asset_status ?? 2} />
+                    <AssetStatusBadge
+                      status={assignment.asset?.asset_status ?? 2}
+                    />
                   </div>
 
                   <p className="mt-3 text-sm text-muted-foreground">
@@ -100,10 +111,14 @@ export function PortalAssets() {
                             variant={isDueSoon ? "warning" : "muted"}
                             className="text-[11px]"
                           >
-                            {new Date(assignment.due_return_date).toLocaleDateString()}
+                            {new Date(
+                              assignment.due_return_date,
+                            ).toLocaleDateString()}
                           </Badge>
                         ) : (
-                          <span className="text-muted-foreground">Permanent setup</span>
+                          <span className="text-muted-foreground">
+                            Permanent setup
+                          </span>
                         )}
                       </dd>
                     </div>
@@ -115,7 +130,9 @@ export function PortalAssets() {
                       </dt>
                       <dd className="text-muted-foreground">
                         {assignment.asset?.warranty_end
-                          ? new Date(assignment.asset.warranty_end).toLocaleDateString()
+                          ? new Date(
+                              assignment.asset.warranty_end,
+                            ).toLocaleDateString()
                           : "—"}
                       </dd>
                     </div>

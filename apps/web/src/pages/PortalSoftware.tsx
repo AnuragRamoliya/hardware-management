@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/States";
+import { PATHS } from "@/routes/paths";
 
 export function PortalSoftware() {
   const query = useQuery({
@@ -29,6 +30,10 @@ export function PortalSoftware() {
       <PageHeader
         title="My Software Subscriptions"
         description="Applications, licenses, and cloud seats provisioned for your work account."
+        breadcrumbs={[
+          { label: "Portal", to: PATHS.PORTAL },
+          { label: "My Software" },
+        ]}
       />
 
       {query.isLoading ? (
@@ -50,7 +55,10 @@ export function PortalSoftware() {
       ) : rows.length ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {rows.map((assignment) => (
-            <Card key={assignment.id} className="p-5 flex flex-col justify-between">
+            <Card
+              key={assignment.id}
+              className="p-5 flex flex-col justify-between"
+            >
               <div>
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
