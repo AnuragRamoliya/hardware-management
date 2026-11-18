@@ -5,9 +5,11 @@ import * as yup from "yup";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { RHFPasswordField, RHFTextField } from "@/components/hook-form/fields";
+import FormProvider from "@/components/hook-form/form-provider";
 import { forgotPasswordApi, resetPasswordApi, verifyOtpApi } from "@/api/auth";
 import { PATHS } from "@/routes/paths";
+import { emailValidator, FORM_VALIDATION } from "@/utils/form-validation";
 
 type AuthFields = {
   email: string;
@@ -15,6 +17,31 @@ type AuthFields = {
   password?: string;
   confirmPassword?: string;
 };
+
+const forgotSchema = yup.object({
+  email: emailValidator(),
+});
+
+const otpSchema = yup.object({
+  email: emailValidator(),
+  otp: yup
+    .string()
+    .trim()
+    .length(6, "Enter the 6-digit verification code.")
+    .required(FORM_VALIDATION.REQUIRED),
+});
+
+const resetSchema = yup.object({
+  email: emailValidator(),
+  password: yup
+    .string()
+    .min(12, FORM_VALIDATION.PASSWORD_MINIMUM)
+    .required(FORM_VALIDATION.REQUIRED),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password")], FORM_VALIDATION.PASSWORD_MISMATCH)
+    .required(FORM_VALIDATION.REQUIRED),
+});
 
 function AuthFlowPage({ mode }: { mode: "forgot" | "otp" | "reset" }) {
   const location = useLocation();
@@ -26,34 +53,12 @@ function AuthFlowPage({ mode }: { mode: "forgot" | "otp" | "reset" }) {
       otp_reference?: string;
       reset_token?: string;
     } | null) ?? {};
+
   const emailFromState = routeState.email ?? "";
+
   const schema =
-    mode === "forgot"
-      ? yup.object({
-          email: yup
-            .string()
-            .email("Enter a valid email")
-            .required("Email is required"),
-        })
-      : mode === "otp"
-        ? yup.object({
-            email: yup.string().email().required(),
-            otp: yup
-              .string()
-              .length(6, "Enter the 6-digit code")
-              .required("Code is required"),
-          })
-        : yup.object({
-            email: yup.string().email().required(),
-            password: yup
-              .string()
-              .min(12, "Use at least 12 characters")
-              .required("Password is required"),
-            confirmPassword: yup
-              .string()
-              .oneOf([yup.ref("password")], "Passwords must match")
-              .required("Confirm your password"),
-          });
+    mode === "forgot" ? forgotSchema : mode === "otp" ? otpSchema : resetSchema;
+
   const methods = useForm<AuthFields>({
     mode: "onTouched",
     resolver: yupResolver(schema),
@@ -64,6 +69,7 @@ function AuthFlowPage({ mode }: { mode: "forgot" | "otp" | "reset" }) {
       confirmPassword: "",
     },
   });
+
   const submit = methods.handleSubmit(
     async ({ email, otp = "", password = "", confirmPassword = "" }) => {
       const result =
@@ -79,10 +85,12 @@ function AuthFlowPage({ mode }: { mode: "forgot" | "otp" | "reset" }) {
                 new_password: password,
                 confirm_password: confirmPassword,
               });
+
       if (!result.ok) {
         toast.error(result.message);
         return;
       }
+
       const nextState =
         mode === "forgot"
           ? {
@@ -98,6 +106,7 @@ function AuthFlowPage({ mode }: { mode: "forgot" | "otp" | "reset" }) {
                   ?.reset_token,
               }
             : { email };
+
       if (
         mode === "forgot" &&
         !(nextState as { otp_reference?: string }).otp_reference
@@ -105,6 +114,7 @@ function AuthFlowPage({ mode }: { mode: "forgot" | "otp" | "reset" }) {
         toast.error("The server did not return an OTP reference.");
         return;
       }
+
       if (
         mode === "otp" &&
         !(nextState as { reset_token?: string }).reset_token
@@ -112,12 +122,14 @@ function AuthFlowPage({ mode }: { mode: "forgot" | "otp" | "reset" }) {
         toast.error("The server did not return a password reset token.");
         return;
       }
+
       toast.success(
         result.message ||
           (mode === "reset"
             ? "Password updated"
             : "Check your email for the next step"),
       );
+
       navigate(
         mode === "forgot"
           ? PATHS.OTP_VERIFICATION
@@ -128,12 +140,14 @@ function AuthFlowPage({ mode }: { mode: "forgot" | "otp" | "reset" }) {
       );
     },
   );
+
   const title =
     mode === "forgot"
       ? "Reset your password"
       : mode === "otp"
         ? "Verify your email"
         : "Create a new password";
+
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
       <section className="w-full max-w-[420px] rounded-2xl border bg-card p-7 shadow-soft sm:p-9">
@@ -153,35 +167,53 @@ function AuthFlowPage({ mode }: { mode: "forgot" | "otp" | "reset" }) {
               ? "Enter the six-digit code sent to your email address."
               : "Choose a strong password you have not used before."}
         </p>
-        <form className="mt-7 space-y-4" onSubmit={submit} noValidate>
-          <Field
+
+        <FormProvider
+          methods={methods}
+          onSubmit={submit}
+          className="mt-7 space-y-4"
+        >
+          <RHFTextField
             name="email"
             label="Work email"
-            methods={methods}
             type="email"
             disabled={mode !== "forgot" && Boolean(emailFromState)}
+            required
+            autoComplete="email"
           />
+
           {mode === "otp" && (
-            <Field name="otp" label="Verification code" methods={methods} />
+            <RHFTextField
+              name="otp"
+              label="Verification code"
+              placeholder="123456"
+              autoFocus
+              required
+            />
           )}
+
           {mode === "reset" && (
             <>
-              <Field
+              <RHFPasswordField
                 name="password"
                 label="New password"
-                methods={methods}
-                type="password"
+                placeholder="Enter new password"
+                autoComplete="new-password"
+                autoFocus
+                required
               />
-              <Field
+              <RHFPasswordField
                 name="confirmPassword"
                 label="Confirm password"
-                methods={methods}
-                type="password"
+                placeholder="Confirm new password"
+                autoComplete="new-password"
+                required
               />
             </>
           )}
+
           <Button
-            className="w-full"
+            className="w-full mt-2"
             type="submit"
             loading={methods.formState.isSubmitting}
           >
@@ -191,43 +223,12 @@ function AuthFlowPage({ mode }: { mode: "forgot" | "otp" | "reset" }) {
                 ? "Verify code"
                 : "Update password"}
           </Button>
-        </form>
+        </FormProvider>
       </section>
     </main>
   );
 }
-function Field({
-  name,
-  label,
-  methods,
-  type = "text",
-  disabled = false,
-}: {
-  name: keyof AuthFields;
-  label: string;
-  methods: ReturnType<typeof useForm<AuthFields>>;
-  type?: string;
-  disabled?: boolean;
-}) {
-  const error = methods.formState.errors[name];
-  return (
-    <div>
-      <label htmlFor={name} className="mb-2 block text-[13px] font-medium">
-        {label}
-      </label>
-      <Input
-        id={name}
-        type={type}
-        disabled={disabled}
-        aria-invalid={Boolean(error)}
-        {...methods.register(name)}
-      />
-      {error?.message && (
-        <p className="mt-1 text-xs text-danger">{error.message}</p>
-      )}
-    </div>
-  );
-}
+
 export const ForgotPassword = () => <AuthFlowPage mode="forgot" />;
 export const OtpVerification = () => <AuthFlowPage mode="otp" />;
 export const ResetPassword = () => <AuthFlowPage mode="reset" />;
