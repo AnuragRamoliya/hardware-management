@@ -8,7 +8,6 @@ const legacyNativeAllowlist = new Set([
   "components/common/CommonTable.tsx",
   "components/common/TableFilters/TableFilterPanel.tsx",
   "components/common/TableSelectFilter.tsx",
-  "components/common/Tooltip.tsx",
   "components/hook-form/fields.tsx",
   "components/layout/AppShell.tsx",
   "components/ui/button.tsx",
