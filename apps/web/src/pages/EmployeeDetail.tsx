@@ -40,13 +40,14 @@ import {
   useDeleteCredential,
 } from "@/hooks/queries/credentials";
 import type { CredentialDto } from "@/api/credentials";
-import { AddEditCredentialDialog } from "@/components/credentials/AddEditCredentialDialog";
+import { AddEditCredential } from "@/components/credentials/AddEditCredential";
 import { CreateCollectionRequestDialog } from "@/components/credentials/CreateCollectionRequestDialog";
 import { RevealSecretDialog } from "@/components/credentials/RevealSecretDialog";
 import { RotatePasswordDialog } from "@/components/credentials/RotatePasswordDialog";
 import { CredentialHistoryDialog } from "@/components/credentials/CredentialHistoryDialog";
 import { Plus, Send, Eye, RefreshCw, Trash2, History } from "lucide-react";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { RowActionsMenu } from "@/components/common/RowActionsMenu";
 import { CREDENTIAL_APPROVAL_STATUS, PROVIDED_BY } from "@hm/shared";
 
 const tabs = [
@@ -543,42 +544,41 @@ export function EmployeeDetail() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-8 gap-1 text-xs"
-                      onClick={() => setRevealingCred(cred)}
-                    >
-                      <Eye className="h-3.5 w-3.5" /> Reveal
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-8 gap-1 text-xs"
-                      onClick={() => setRotatingCred(cred)}
-                    >
-                      <RefreshCw className="h-3.5 w-3.5" /> Rotate
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-8 text-xs"
-                      onClick={() => setHistoryCred(cred)}
-                    >
-                      <History className="h-3.5 w-3.5" />
-                    </Button>
-                    {canManageAssets && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 text-xs text-destructive hover:bg-destructive/10"
-                        onClick={() => setDeletingCred(cred)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
-                  </div>
+                  <RowActionsMenu
+                    label="Account actions"
+                    actions={[
+                      {
+                        key: "reveal",
+                        label: "Reveal secret",
+                        icon: Eye,
+                        onSelect: () => setRevealingCred(cred),
+                      },
+                      {
+                        key: "rotate",
+                        label: "Rotate password",
+                        icon: RefreshCw,
+                        onSelect: () => setRotatingCred(cred),
+                      },
+                      {
+                        key: "history",
+                        label: "Audit history",
+                        icon: History,
+                        onSelect: () => setHistoryCred(cred),
+                      },
+                      ...(canManageAssets
+                        ? [
+                            {
+                              key: "delete",
+                              label: "Revoke & Delete",
+                              icon: Trash2,
+                              destructive: true,
+                              separatorBefore: true,
+                              onSelect: () => setDeletingCred(cred),
+                            },
+                          ]
+                        : []),
+                    ]}
+                  />
                 </div>
               ))}
             </div>
@@ -635,7 +635,7 @@ export function EmployeeDetail() {
         </Card>
       )}
 
-      <AddEditCredentialDialog
+      <AddEditCredential
         open={addCredOpen}
         onOpenChange={setAddCredOpen}
         credential={null}
