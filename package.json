@@ -1,0 +1,40 @@
+{
+  "name": "hardware-management",
+  "private": true,
+  "version": "1.0.0",
+  "description": "IT Asset & Employee Management Monorepo",
+  "packageManager": "npm@10.9.9",
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "check:ui": "turbo run check:ui",
+    "format": "prettier --write \"**/*.{ts,tsx,js,cjs,mjs,json,md,css,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,cjs,mjs,json,md,css,yml,yaml}\"",
+    "clean": "turbo run clean && rm -rf node_modules apps/*/node_modules apps/*/dist packages/*/node_modules packages/*/dist",
+    "db:migrate": "npm run migrate --workspace=@hm/api",
+    "db:seed": "npm run seed --workspace=@hm/api",
+    "db:seed:bulk": "npm run seed:bulk --workspace=@hm/api",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "prepare": "husky || true"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.0",
+    "@commitlint/config-conventional": "^19.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3"
+  }
+}
