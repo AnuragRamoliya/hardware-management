@@ -1,6 +1,7 @@
 import { DataTypes, Model, type ModelAttributes, type ModelStatic } from 'sequelize';
 import { sequelize } from '../../Config/database';
 import { phase2Schemas } from './phase2';
+import { phase3Schemas } from './phase3';
 
 export type RowAttributes = Record<string, unknown>;
 export type EntityModel = ModelStatic<Model<RowAttributes, RowAttributes>>;
@@ -30,6 +31,8 @@ const schemas = {
     write_access: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
     delete_access: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
     options_access: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
+    approve_access: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
+    reveal_access: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
   },
   users: {
     role_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
@@ -38,6 +41,10 @@ const schemas = {
     email: { type: DataTypes.STRING(255), allowNull: false },
     password: { type: DataTypes.STRING(255), allowNull: false },
     image: { type: DataTypes.STRING(255), allowNull: true },
+    failed_login_count: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    locked_until: { type: DataTypes.DATE, allowNull: true },
+    consent_accepted_at: { type: DataTypes.DATE, allowNull: true },
+    consent_version: { type: DataTypes.STRING(20), allowNull: true },
   },
   user_tokens: {
     user_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
@@ -48,6 +55,11 @@ const schemas = {
     otp: { type: DataTypes.STRING(10), allowNull: true },
     otp_reference: { type: DataTypes.STRING(512), allowNull: true },
     reset_token: { type: DataTypes.STRING(512), allowNull: true },
+    is_revoked: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
+    device_name: { type: DataTypes.STRING(255), allowNull: true },
+    ip_address: { type: DataTypes.STRING(100), allowNull: true },
+    user_agent: { type: DataTypes.STRING(500), allowNull: true },
+    last_active_at: { type: DataTypes.DATE, allowNull: true },
   },
   activity_logs: {
     module: { type: DataTypes.STRING(100), allowNull: false },
@@ -59,6 +71,8 @@ const schemas = {
     description: { type: DataTypes.STRING(500), allowNull: false },
     meta: { type: DataTypes.JSON, allowNull: true },
     created_by_name: { type: DataTypes.STRING(255), allowNull: true },
+    prev_hash: { type: DataTypes.STRING(64), allowNull: true },
+    hash: { type: DataTypes.STRING(64), allowNull: true },
   },
   app_settings: {
     key: { type: DataTypes.STRING(100), allowNull: false, unique: true },
@@ -89,6 +103,7 @@ const schemas = {
     description: { type: DataTypes.TEXT, allowNull: true },
   },
   ...phase2Schemas,
+  ...phase3Schemas,
   employees: {
     user_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true, unique: true },
     employee_code: { type: DataTypes.STRING(100), allowNull: false, unique: true },
@@ -112,10 +127,27 @@ function defineModel(tableName: string, attributes: Record<string, object>): Ent
     Model<RowAttributes, RowAttributes>,
     RowAttributes
   >;
+
+  let defaultScope: { attributes?: { exclude: string[] } } | undefined;
+  if (tableName === 'users') {
+    defaultScope = { attributes: { exclude: ['password'] } };
+  } else if (tableName === 'credentials') {
+    // Strictly exclude password fields and encryption materials by default!
+    defaultScope = { attributes: { exclude: ['password_enc', 'iv', 'auth_tag', 'key_version'] } };
+  }
+
   return sequelize.define<Model<RowAttributes, RowAttributes>>(tableName, definition, {
     tableName,
     timestamps: true,
-    ...(tableName === 'users' ? { defaultScope: { attributes: { exclude: ['password'] } } } : {}),
+    ...(defaultScope ? { defaultScope } : {}),
+    scopes:
+      tableName === 'credentials'
+        ? {
+            withSecret: {
+              attributes: { include: ['password_enc', 'iv', 'auth_tag', 'key_version'] },
+            },
+          }
+        : undefined,
   });
 }
 
@@ -144,6 +176,15 @@ export const software = models.software;
 export const software_licenses = models.software_licenses;
 export const software_assignments = models.software_assignments;
 
+// Phase 3 Models
+export const credential_types = models.credential_types;
+export const credentials = models.credentials;
+export const credential_history = models.credential_history;
+export const credential_collection_requests = models.credential_collection_requests;
+export const credential_access_logs = models.credential_access_logs;
+export const login_history = models.login_history;
+
+// Associations
 roles.hasMany(permissions, { foreignKey: 'role_id', as: 'permissions' });
 permissions.belongsTo(roles, { foreignKey: 'role_id' });
 modules.hasMany(permissions, { foreignKey: 'module_id', as: 'permissions' });
@@ -177,3 +218,34 @@ software.hasMany(software_assignments, { foreignKey: 'software_id', as: 'assignm
 software_assignments.belongsTo(software, { foreignKey: 'software_id', as: 'software' });
 software_assignments.belongsTo(software_licenses, { foreignKey: 'license_id', as: 'license' });
 software_assignments.belongsTo(employees, { foreignKey: 'employee_id', as: 'employee' });
+
+// Phase 3 Associations
+credentials.belongsTo(employees, { foreignKey: 'employee_id', as: 'employee' });
+credentials.belongsTo(credential_types, {
+  foreignKey: 'credential_type_id',
+  as: 'credential_type',
+});
+credentials.belongsTo(software, { foreignKey: 'software_id', as: 'software' });
+credentials.belongsTo(assets, { foreignKey: 'asset_id', as: 'asset' });
+credentials.belongsTo(users, { foreignKey: 'reviewed_by', as: 'reviewer' });
+credentials.hasMany(credential_history, { foreignKey: 'credential_id', as: 'history' });
+credentials.hasMany(credential_access_logs, { foreignKey: 'credential_id', as: 'access_logs' });
+credential_history.belongsTo(credentials, { foreignKey: 'credential_id', as: 'credential' });
+credential_history.belongsTo(users, { foreignKey: 'changed_by', as: 'user' });
+
+credential_collection_requests.belongsTo(employees, { foreignKey: 'employee_id', as: 'employee' });
+credential_collection_requests.belongsTo(credential_types, {
+  foreignKey: 'credential_type_id',
+  as: 'credential_type',
+});
+credential_collection_requests.belongsTo(users, { foreignKey: 'requested_by', as: 'requester' });
+credential_collection_requests.belongsTo(credentials, {
+  foreignKey: 'credential_id',
+  as: 'credential',
+});
+
+credential_access_logs.belongsTo(credentials, { foreignKey: 'credential_id', as: 'credential' });
+credential_access_logs.belongsTo(employees, { foreignKey: 'employee_id', as: 'employee' });
+credential_access_logs.belongsTo(users, { foreignKey: 'accessed_by', as: 'accessor' });
+
+login_history.belongsTo(users, { foreignKey: 'user_id', as: 'user' });

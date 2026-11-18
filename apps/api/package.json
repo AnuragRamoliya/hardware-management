@@ -10,11 +10,14 @@
     "start": "node dist/server.js",
     "migrate": "sequelize-cli db:migrate",
     "seed": "sequelize-cli db:seed:all",
-    "seed:bulk": "sequelize-cli db:seed --seed 20261117110000-seed-bulk-employees.js && sequelize-cli db:seed --seed 20261117130000-seed-bulk-assets.js",
+    "seed:bulk": "sequelize-cli db:seed --seed 20261117110000-seed-bulk-employees.js && sequelize-cli db:seed --seed 20261117130000-seed-bulk-assets.js && sequelize-cli db:seed --seed 20261118152000-seed-bulk-credentials.js",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "gen:module": "node scripts/gen-module.mjs"
+    "gen:module": "node scripts/gen-module.mjs",
+    "vault:generate-key": "tsx scripts/vault-generate-key.ts",
+    "vault:rotate": "tsx scripts/vault-rotate.ts",
+    "audit:verify": "tsx scripts/audit-verify.ts"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
