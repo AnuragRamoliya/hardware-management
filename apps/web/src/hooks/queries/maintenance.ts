@@ -20,7 +20,8 @@ export const maintenanceKeys = {
   all: ["asset-maintenance"] as const,
   lists: () => [...maintenanceKeys.all, "list"] as const,
   list: (query: ListQuery) => [...maintenanceKeys.lists(), query] as const,
-  detail: (id: string | number) => [...maintenanceKeys.all, "detail", String(id)] as const,
+  detail: (id: string | number) =>
+    [...maintenanceKeys.all, "detail", String(id)] as const,
 };
 
 export function useMaintenanceList(query: ListQuery) {
@@ -33,7 +34,9 @@ export function useMaintenanceList(query: ListQuery) {
         body: query,
       });
       if (!response.ok) {
-        throw new Error(response.message || "Unable to load maintenance records");
+        throw new Error(
+          response.message || "Unable to load maintenance records",
+        );
       }
       return response.data ?? { rows: [], count: 0 };
     },
@@ -62,7 +65,9 @@ export function useCreateMaintenance() {
       toast.success("Maintenance service started");
       void queryClient.invalidateQueries({ queryKey: maintenanceKeys.all });
       void queryClient.invalidateQueries({ queryKey: ["assets"] });
-      void queryClient.invalidateQueries({ queryKey: ["asset", String(variables.asset_id)] });
+      void queryClient.invalidateQueries({
+        queryKey: ["asset", String(variables.asset_id)],
+      });
     },
     onError: (error: Error) => {
       toast.error(error.message);

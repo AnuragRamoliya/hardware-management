@@ -14,7 +14,10 @@ import {
   RHFDatePicker,
   RHFTextArea,
 } from "@/components/hook-form/fields";
-import { maintenanceFormSchema, type MaintenanceFormValues } from "./Maintenance.schema";
+import {
+  maintenanceFormSchema,
+  type MaintenanceFormValues,
+} from "./Maintenance.schema";
 import { useCreateMaintenance } from "@/hooks/queries/maintenance";
 
 interface AddEditMaintenanceProps {
@@ -90,21 +93,14 @@ export function AddEditMaintenance({
                 endpoint="asset/options"
                 required
               />
-              <RHFDatePicker
-                name="sent_at"
-                label="Dispatch Date"
-                required
-              />
+              <RHFDatePicker name="sent_at" label="Dispatch Date" required />
               <RHFAsyncSelect
                 name="vendor_id"
                 label="Servicing Vendor / Shop"
                 endpoint="vendor/options"
                 clearable
               />
-              <RHFCurrencyField
-                name="cost"
-                label="Estimated Repair Cost"
-              />
+              <RHFCurrencyField name="cost" label="Estimated Repair Cost" />
             </FormGrid>
             <div className="mt-4">
               <RHFTextArea

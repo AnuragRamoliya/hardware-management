@@ -38,10 +38,18 @@ Desktop forms open in `Drawer`; on mobile the drawer fills the viewport. Show a 
   <FormSection title="Employee details" description="Basic work information.">
     <FormGrid>
       <RHFTextField name="first_name" label="First name" required autoFocus />
-      <RHFAsyncSelect name="department_id" label="Department" endpoint="department/options" required />
+      <RHFAsyncSelect
+        name="department_id"
+        label="Department"
+        endpoint="department/options"
+        required
+      />
     </FormGrid>
   </FormSection>
-  <FormActions submitting={methods.formState.isSubmitting} onCancel={requestClose} />
+  <FormActions
+    submitting={methods.formState.isSubmitting}
+    onCancel={requestClose}
+  />
 </FormProvider>
 ```
 
@@ -55,21 +63,21 @@ Follow `PortalAssets` and `PortalSoftware`: read-only self data, compact cards o
 
 ## Field catalogue
 
-| Data | Component |
-| --- | --- |
-| Plain text, email, URL | `RHFTextField` with the right input type |
-| Password / confirmation | `RHFPasswordField` |
-| Integer / decimal | `RHFNumberField` |
-| Currency | `RHFCurrencyField` |
-| Long text | `RHFTextArea` |
-| Foreign key / ID | `RHFSelect` or `RHFAsyncSelect`; hydrate selected labels |
-| Multi-valued foreign keys | `RHFMultiSelect` |
-| Enum | `RHFSelect` or `RHFSegmentedControl` with module constants |
-| Date / date interval | `RHFDatePicker` / `RHFDateRangePicker` |
-| Boolean | `RHFSwitch` |
-| Yes/no choice | `RHFRadioGroup` |
-| Repeated tags / key-values | `RHFTagsInput` / shared `KeyValueEditor` |
-| Phone, OTP, file, image | `RHFPhoneInput`, `RHFOtpInput`, `RHFFileUpload`, `RHFImageUpload` |
+| Data                       | Component                                                         |
+| -------------------------- | ----------------------------------------------------------------- |
+| Plain text, email, URL     | `RHFTextField` with the right input type                          |
+| Password / confirmation    | `RHFPasswordField`                                                |
+| Integer / decimal          | `RHFNumberField`                                                  |
+| Currency                   | `RHFCurrencyField`                                                |
+| Long text                  | `RHFTextArea`                                                     |
+| Foreign key / ID           | `RHFSelect` or `RHFAsyncSelect`; hydrate selected labels          |
+| Multi-valued foreign keys  | `RHFMultiSelect`                                                  |
+| Enum                       | `RHFSelect` or `RHFSegmentedControl` with module constants        |
+| Date / date interval       | `RHFDatePicker` / `RHFDateRangePicker`                            |
+| Boolean                    | `RHFSwitch`                                                       |
+| Yes/no choice              | `RHFRadioGroup`                                                   |
+| Repeated tags / key-values | `RHFTagsInput` / shared `KeyValueEditor`                          |
+| Phone, OTP, file, image    | `RHFPhoneInput`, `RHFOtpInput`, `RHFFileUpload`, `RHFImageUpload` |
 
 Every field has an associated label. Required fields show `*` and also validate. Put helper text under the control; replace it with the inline error when invalid. Use concise examples as placeholders, not as labels. Autofocus only the first field when a form opens. Native form submit preserves Enter-to-submit for text inputs.
 

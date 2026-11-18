@@ -1,25 +1,30 @@
-import { useMemo, useState, useCallback } from "react";
-import { Check, X, Edit3, CheckCheck } from "lucide-react";
+import { useState, useMemo, useCallback } from "react";
 import { ListPageScaffold } from "@/components/common/ListPageScaffold";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { useTableState } from "@/hooks/use-tableState";
+import useAuthStore from "@/zustand/user-store";
+import usePermissionStore from "@/zustand/permission-store";
+import { getUserRole } from "@/lib/roles";
 import {
   useCredentialApprovalsList,
   useApproveCredential,
   useBulkApproveCredentials,
 } from "@/hooks/queries/credentials";
-import type { TableColumn } from "@/components/common/CommonTable";
 import { approvalQueueFilters } from "@/components/credentials/CredentialFilters";
+import { getCredentialApprovalColumns } from "@/components/credentials/CredentialApprovalColumns";
 import {
   RejectCredentialDialog,
   NeedsChangeDialog,
 } from "@/components/credentials/ApprovalActionDialogs";
 import type { CredentialDto } from "@/api/credentials";
-import { CREDENTIAL_APPROVAL_STATUS } from "@hm/shared";
 
 export function CredentialApprovals() {
+  const role = useAuthStore((state) => getUserRole(state.user));
+  const permissions = usePermissionStore(
+    (state) => state.modulePermissions.credential,
+  );
+  const canApprove = role === "admin" || permissions?.write_access === true;
+
   const { tableState, setTableState } = useTableState(10);
   const [rejectingItem, setRejectingItem] = useState<CredentialDto | null>(
     null,
@@ -27,7 +32,7 @@ export function CredentialApprovals() {
   const [needsChangeItem, setNeedsChangeItem] = useState<CredentialDto | null>(
     null,
   );
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [bulkApproveIds, setBulkApproveIds] = useState<number[] | null>(null);
 
   const { data, isLoading, error, refetch } =
     useCredentialApprovalsList(tableState);
@@ -35,137 +40,41 @@ export function CredentialApprovals() {
   const bulkApproveMutation = useBulkApproveCredentials();
 
   const handleApprove = useCallback(
-    async (id: number) => {
-      await approveMutation.mutateAsync(id);
+    async (credential: CredentialDto) => {
+      await approveMutation.mutateAsync(credential.id);
     },
     [approveMutation],
   );
 
-  const handleBulkApprove = async () => {
-    if (selectedIds.length === 0) return;
-    await bulkApproveMutation.mutateAsync(selectedIds);
-    setSelectedIds([]);
+  const handleBulkApprove = useCallback(async (ids: (string | number)[]) => {
+    const numericIds = ids.map(Number).filter((id) => !isNaN(id));
+    if (numericIds.length === 0) return;
+    setBulkApproveIds(numericIds);
+  }, []);
+
+  const confirmBulkApprove = async () => {
+    if (!bulkApproveIds || bulkApproveIds.length === 0) return;
+    await bulkApproveMutation.mutateAsync(bulkApproveIds);
+    setBulkApproveIds(null);
   };
 
-  const columns = useMemo<TableColumn<CredentialDto>[]>(
-    () => [
-      {
-        id: "select",
-        label: "",
-        sortable: false,
-        render: (row) => (
-          <Checkbox
-            checked={selectedIds.includes(row.id)}
-            onChange={(e) => {
-              if (e.target.checked) {
-                setSelectedIds((prev) => [...prev, row.id]);
-              } else {
-                setSelectedIds((prev) => prev.filter((id) => id !== row.id));
-              }
-            }}
-          />
-        ),
-      },
-      {
-        id: "label",
-        label: "Account / Service",
-        sortable: true,
-        render: (row) => (
-          <div>
-            <span className="font-medium text-foreground">{row.label}</span>
-            <div className="text-xs text-muted-foreground">
-              {row.credential_type?.name}
-            </div>
-          </div>
-        ),
-      },
-      {
-        id: "username",
-        label: "Username / Identity",
-        sortable: true,
-        render: (row) => (
-          <span className="font-mono text-sm">{row.username}</span>
-        ),
-      },
-      {
-        id: "employee",
-        label: "Submitted By",
-        sortable: true,
-        render: (row) =>
-          row.employee ? (
-            <span className="text-sm font-medium">
-              {row.employee.first_name} {row.employee.last_name} (
-              {row.employee.employee_code})
-            </span>
-          ) : (
-            <span className="text-muted-foreground">—</span>
-          ),
-      },
-      {
-        id: "approval_status",
-        label: "Current Status",
-        sortable: true,
-        render: (row) =>
-          row.approval_status === CREDENTIAL_APPROVAL_STATUS.NEEDS_CHANGE ? (
-            <Badge
-              variant="outline"
-              className="text-amber-600 border-amber-300"
-            >
-              Needs Changes
-            </Badge>
-          ) : (
-            <Badge variant="warning">Pending Review</Badge>
-          ),
-      },
-      {
-        id: "submitted_at",
-        label: "Submitted Date",
-        sortable: true,
-        render: (row) => (
-          <span className="text-xs text-muted-foreground">
-            {row.submitted_at
-              ? new Date(row.submitted_at).toLocaleDateString()
-              : "—"}
-          </span>
-        ),
-      },
-      {
-        id: "actions",
-        label: "Review Actions",
-        sortable: false,
-        render: (row) => (
-          <div className="flex items-center gap-1.5">
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-8 gap-1 text-green-600 border-green-200 hover:bg-green-50 dark:hover:bg-green-950/30"
-              onClick={() => handleApprove(row.id)}
-              disabled={approveMutation.isPending}
-            >
-              <Check className="h-3.5 w-3.5" /> Approve
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-8 gap-1 text-amber-600 border-amber-200 hover:bg-amber-50 dark:hover:bg-amber-950/30"
-              onClick={() => setNeedsChangeItem(row)}
-            >
-              <Edit3 className="h-3.5 w-3.5" /> Needs Change
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-8 gap-1 text-destructive border-red-200 hover:bg-red-50 dark:hover:bg-red-950/30"
-              onClick={() => setRejectingItem(row)}
-            >
-              <X className="h-3.5 w-3.5" /> Reject
-            </Button>
-          </div>
-        ),
-      },
-    ],
-    [selectedIds, approveMutation.isPending, handleApprove],
+  const columns = useMemo(
+    () =>
+      getCredentialApprovalColumns({
+        onApprove: (row) => handleApprove(row),
+        onNeedsChange: (row) => setNeedsChangeItem(row),
+        onReject: (row) => setRejectingItem(row),
+        canApprove,
+      }),
+    [handleApprove, canApprove],
   );
+
+  const rows =
+    (data?.rows as CredentialDto[]) ??
+    (data as unknown as { items?: CredentialDto[] })?.items ??
+    [];
+  const count =
+    data?.count ?? (data as unknown as { total?: number })?.total ?? 0;
 
   return (
     <>
@@ -177,33 +86,16 @@ export function CredentialApprovals() {
           { label: "Credentials", href: "/credentials" },
           { label: "Approvals" },
         ]}
-        action={
-          selectedIds.length > 0 ? (
-            <Button
-              onClick={handleBulkApprove}
-              disabled={bulkApproveMutation.isPending}
-              className="gap-2 bg-green-600 hover:bg-green-700 text-white"
-            >
-              <CheckCheck className="h-4 w-4" />
-              Approve Selected ({selectedIds.length})
-            </Button>
-          ) : undefined
-        }
         columns={columns}
-        rows={
-          (data?.rows as CredentialDto[]) ??
-          (data as unknown as { items?: CredentialDto[] })?.items ??
-          []
-        }
-        count={
-          data?.count ?? (data as unknown as { total?: number })?.total ?? 0
-        }
+        rows={rows}
+        count={count}
         query={tableState}
         onQueryChange={setTableState}
         loading={isLoading}
         error={error instanceof Error ? error.message : undefined}
         onRetry={refetch}
         filterFields={approvalQueueFilters}
+        onBulkAction={canApprove ? handleBulkApprove : undefined}
         emptyTitle="Approval queue is empty"
       />
 
@@ -218,7 +110,17 @@ export function CredentialApprovals() {
         onOpenChange={(open) => !open && setNeedsChangeItem(null)}
         credential={needsChangeItem}
       />
+
+      <ConfirmDialog
+        open={Boolean(bulkApproveIds && bulkApproveIds.length > 0)}
+        onOpenChange={(open) => !open && setBulkApproveIds(null)}
+        title="Bulk Approve Credentials"
+        description={`Are you sure you want to approve all ${bulkApproveIds?.length ?? 0} selected credentials?`}
+        confirmText="Approve All"
+        onConfirm={confirmBulkApprove}
+      />
     </>
   );
 }
+
 export default CredentialApprovals;

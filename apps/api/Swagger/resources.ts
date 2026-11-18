@@ -60,12 +60,19 @@ const optionsBody = {
     ids: {
       type: 'array',
       maxItems: 200,
-      items: { oneOf: [{ type: 'integer', minimum: 1 }, { type: 'string', pattern: '^[1-9][0-9]*$' }] },
+      items: {
+        oneOf: [
+          { type: 'integer', minimum: 1 },
+          { type: 'string', pattern: '^[1-9][0-9]*$' },
+        ],
+      },
     },
     filters: {
       type: 'object',
       description: 'Only resource-specific whitelisted filters are applied.',
-      additionalProperties: { oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }] },
+      additionalProperties: {
+        oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
+      },
     },
   },
 };
@@ -129,9 +136,19 @@ for (const name of names) {
     },
   });
   resourcePaths[`${root}/options`] = {
-    ...protectedOperation(`${name} options with search, paging, filters, and ID hydration`, 'post', optionsBody),
+    ...protectedOperation(
+      `${name} options with search, paging, filters, and ID hydration`,
+      'post',
+      optionsBody,
+    ),
     post: {
-      ...((protectedOperation(`${name} options with search, paging, filters, and ID hydration`, 'post', optionsBody) as Record<string, unknown>).post as Record<string, unknown>),
+      ...((
+        protectedOperation(
+          `${name} options with search, paging, filters, and ID hydration`,
+          'post',
+          optionsBody,
+        ) as Record<string, unknown>
+      ).post as Record<string, unknown>),
       responses: {
         '200': optionsResponse,
         '400': response,

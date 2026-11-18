@@ -117,9 +117,7 @@ export function buildOptions(
   const labelExpression = config.labelExpr
     ? config.labelExpr
     : quoteIdentifier(config.labelField ?? 'name');
-  const subLabelExpression = config.subLabelField
-    ? quoteIdentifier(config.subLabelField)
-    : 'NULL';
+  const subLabelExpression = config.subLabelField ? quoteIdentifier(config.subLabelField) : 'NULL';
   const searchFields = config.searchFields.map(quoteIdentifier);
   const allowedFilters = new Set(config.allowedFilters);
   const order = config.defaultOrder ?? [
@@ -289,16 +287,15 @@ export function buildOptions(
     const hasMore = input.cursor
       ? selectedRows.length > limit
       : hasSearch
-      ? selectedRows.length > offset + limit
-      : selectedRows.length > limit;
+        ? selectedRows.length > offset + limit
+        : selectedRows.length > limit;
     const pageRows = input.cursor
       ? selectedRows.slice(0, limit)
       : hasSearch
-      ? selectedRows.slice(offset, offset + limit)
-      : selectedRows.slice(0, limit);
+        ? selectedRows.slice(offset, offset + limit)
+        : selectedRows.slice(0, limit);
     const rows = pageRows.map((row) => normalizeRow(row as DatabaseOption));
-    const resolvedCount =
-      count ?? offset + rows.length + (hasMore ? 1 : 0);
+    const resolvedCount = count ?? offset + rows.length + (hasMore ? 1 : 0);
     const lastRow = pageRows[pageRows.length - 1];
     const nextCursor =
       hasMore && lastRow

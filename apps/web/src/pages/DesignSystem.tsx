@@ -9,7 +9,12 @@ import {
   Pencil,
   RefreshCw,
   Trash2,
+  KeyRound,
 } from "lucide-react";
+import { PasswordStrengthMeter } from "@/components/common/PasswordStrengthMeter";
+import { RevealSecretDialog } from "@/components/credentials/RevealSecretDialog";
+import { RotatePasswordDialog } from "@/components/credentials/RotatePasswordDialog";
+import type { CredentialDto } from "@/api/credentials";
 import { RowActionsMenu } from "@/components/common/RowActionsMenu";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -83,9 +88,43 @@ const tableFilterPreview: FilterField[] = [
   { key: "name", label: "Name contains", type: "text" },
 ];
 
+const mockDemoCredential: CredentialDto = {
+  id: 1,
+  label: "AWS Production Root",
+  username: "admin@production.aws",
+  credential_type_id: 1,
+  credential_type: {
+    id: 1,
+    name: "Cloud Account",
+    category: "cloud",
+    expiry_days: 90,
+    min_length: 12,
+    require_complexity: true,
+    requires_approval: true,
+    allow_employee_submit: true,
+    status: 1,
+  },
+  employee_id: 1,
+  employee: {
+    id: 1,
+    first_name: "Jordan",
+    last_name: "Lee",
+    email: "jordan.lee@example.com",
+    employee_code: "EMP-001",
+  },
+  provided_by: 1,
+  approval_status: 2,
+  must_change_on_first_use: false,
+  status: 1,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
 export function DesignSystem() {
   const [confirm, setConfirm] = useState(false);
   const [modal, setModal] = useState(false);
+  const [revealOpen, setRevealOpen] = useState(false);
+  const [rotateOpen, setRotateOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("Overview");
   const [tableFilters, setTableFilters] = useState<FilterValues>({});
   const methods = useForm({
@@ -208,8 +247,11 @@ export function DesignSystem() {
                     name="password"
                     label="Password"
                     required
-                    strengthMeter
-                    placeholder="At least 8 characters"
+                    showStrengthMeter
+                    showGenerator
+                    showCopy
+                    policy={{ minLength: 12, requireComplexity: true }}
+                    placeholder="At least 12 characters"
                   />
                 </FormGrid>
               </FormSection>
@@ -705,6 +747,85 @@ export function DesignSystem() {
             ))}
           </CardContent>
         </Card>
+        <Card>
+          <CardHeader>
+            <div>
+              <h2 className="text-sm font-semibold">
+                Credential & Vault UX Primitives
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Phase 3 security controls: password generation, real-time
+                entropy calculation, and tokenized audit badges.
+              </p>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <h3 className="text-xs font-semibold text-muted-foreground mb-3">
+                Password Strength Entropy Levels
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="rounded-lg border p-3 space-y-2">
+                  <span className="text-xs font-mono">"pass"</span>
+                  <PasswordStrengthMeter password="pass" />
+                </div>
+                <div className="rounded-lg border p-3 space-y-2">
+                  <span className="text-xs font-mono">"password123"</span>
+                  <PasswordStrengthMeter password="password123" />
+                </div>
+                <div className="rounded-lg border p-3 space-y-2">
+                  <span className="text-xs font-mono">"SecurePass2026"</span>
+                  <PasswordStrengthMeter password="SecurePass2026" />
+                </div>
+                <div className="rounded-lg border p-3 space-y-2">
+                  <span className="text-xs font-mono">"vK9#mQ2$pL7!zX4@"</span>
+                  <PasswordStrengthMeter password="vK9#mQ2$pL7!zX4@" />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-semibold text-muted-foreground mb-3">
+                Credential Governance & Expiry Badges
+              </h3>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="success">Approved</Badge>
+                <Badge variant="warning">Pending Review</Badge>
+                <Badge variant="outline">Needs Changes</Badge>
+                <Badge variant="destructive">Rejected</Badge>
+                <Badge variant="outline">Company Provided</Badge>
+                <Badge variant="default">Employee Submitted</Badge>
+                <Badge variant="muted">Auto-Approved</Badge>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-semibold text-muted-foreground mb-3">
+                Security Action Dialogs
+              </h3>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => setRevealOpen(true)}
+                >
+                  <KeyRound className="h-4 w-4 text-primary" />
+                  Preview Reveal Secret Dialog
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => setRotateOpen(true)}
+                >
+                  <RefreshCw className="h-4 w-4 text-primary" />
+                  Preview Rotate Password Dialog
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
       <ConfirmDialog
         open={confirm}
@@ -728,6 +849,16 @@ export function DesignSystem() {
           </Button>
         </DialogContent>
       </Dialog>
+      <RevealSecretDialog
+        open={revealOpen}
+        onOpenChange={setRevealOpen}
+        credential={mockDemoCredential}
+      />
+      <RotatePasswordDialog
+        open={rotateOpen}
+        onOpenChange={setRotateOpen}
+        credential={mockDemoCredential}
+      />
     </>
   );
 }

@@ -76,12 +76,37 @@ export function Login() {
           <p className="mt-2 text-sm text-muted-foreground">
             Enter your details below to continue.
           </p>
-          <FormProvider methods={methods} className="mt-8 space-y-5" onSubmit={submit}>
+          <FormProvider
+            methods={methods}
+            className="mt-8 space-y-5"
+            onSubmit={submit}
+          >
             <FormSection title="Sign-in details">
-              <RHFTextField name="email" label="Work email" type="email" autoComplete="email" placeholder="you@company.com" required autoFocus />
+              <RHFTextField
+                name="email"
+                label="Work email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@company.com"
+                required
+                autoFocus
+              />
               <div className="space-y-2">
-                <div className="flex justify-end"><Link to={PATHS.FORGOT_PASSWORD} className="text-xs font-medium text-primary hover:underline">Forgot password?</Link></div>
-                <RHFPasswordField name="password" label="Password" autoComplete="current-password" placeholder="Enter your password" required />
+                <div className="flex justify-end">
+                  <Link
+                    to={PATHS.FORGOT_PASSWORD}
+                    className="text-xs font-medium text-primary hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <RHFPasswordField
+                  name="password"
+                  label="Password"
+                  autoComplete="current-password"
+                  placeholder="Enter your password"
+                  required
+                />
               </div>
             </FormSection>
             <Button

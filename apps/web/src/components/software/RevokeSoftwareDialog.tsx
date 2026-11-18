@@ -24,7 +24,9 @@ export function RevokeSoftwareDialog({
       onOpenChange(false);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to revoke software access",
+        error instanceof Error
+          ? error.message
+          : "Failed to revoke software access",
       );
     }
   };

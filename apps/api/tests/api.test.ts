@@ -164,10 +164,7 @@ describe('API authentication and resource CRUD', () => {
       .post('/department/options')
       .set(headers)
       .send({ search: ' Ops ', page: 1, limit: 30 });
-    const capped = await request(app)
-      .post('/department/options')
-      .set(headers)
-      .send({ limit: 500 });
+    const capped = await request(app).post('/department/options').set(headers).send({ limit: 500 });
     const invalidPage = await request(app)
       .post('/department/options')
       .set(headers)

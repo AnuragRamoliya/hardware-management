@@ -10,8 +10,22 @@ import { routeHandler } from '../Utils/route_handler';
 const router = Router();
 const controller = new EmployeeInventoryController();
 const id = [param('employee_id').isInt({ min: 1 }).toInt()];
-router.get('/assets/:employee_id', decryptPayload, userAuth, checkAccess(MODULES.ASSET_ASSIGNMENT, ACCESS_TYPES.READ), validate(id), routeHandler((request) => controller.assets(request)));
-router.get('/software/:employee_id', decryptPayload, userAuth, checkAccess(MODULES.SOFTWARE, ACCESS_TYPES.READ), validate(id), routeHandler((request) => controller.software(request)));
+router.get(
+  '/assets/:employee_id',
+  decryptPayload,
+  userAuth,
+  checkAccess(MODULES.ASSET_ASSIGNMENT, ACCESS_TYPES.READ),
+  validate(id),
+  routeHandler((request) => controller.assets(request)),
+);
+router.get(
+  '/software/:employee_id',
+  decryptPayload,
+  userAuth,
+  checkAccess(MODULES.SOFTWARE, ACCESS_TYPES.READ),
+  validate(id),
+  routeHandler((request) => controller.software(request)),
+);
 
 export const employeeInventoryRouter = Router();
 employeeInventoryRouter.use('/employee', router);

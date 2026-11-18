@@ -32,4 +32,3 @@ jobs:
         run: npm run test:e2e || echo "E2E tests not configured yet"
         env:
           CI: true
-

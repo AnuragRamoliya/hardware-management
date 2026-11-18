@@ -9,10 +9,7 @@ import {
   RHFNumberField,
   RHFDatePicker,
 } from "@/components/hook-form/fields";
-import {
-  licenseFormSchema,
-  type LicenseFormValues,
-} from "./License.schema";
+import { licenseFormSchema, type LicenseFormValues } from "./License.schema";
 import { useCreateLicense } from "@/hooks/queries/software";
 
 interface AddEditLicenseDialogProps {
@@ -94,14 +91,8 @@ export function AddEditLicenseDialog({
             />
 
             <div className="grid grid-cols-2 gap-3">
-              <RHFDatePicker
-                name="purchase_date"
-                label="Purchase Date"
-              />
-              <RHFDatePicker
-                name="expiry_date"
-                label="Expiry Date"
-              />
+              <RHFDatePicker name="purchase_date" label="Purchase Date" />
+              <RHFDatePicker name="expiry_date" label="Expiry Date" />
             </div>
           </div>
 
