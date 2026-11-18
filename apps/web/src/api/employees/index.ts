@@ -1,4 +1,5 @@
 import { employeesApi } from "@/api/resourceApi";
+export { employeesApi };
 import { callApi } from "@/api/callApi";
 import { api_methods, endPoints } from "@/api/endpoint";
 

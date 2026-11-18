@@ -63,7 +63,7 @@ const NotFound = lazy(() =>
   import("@/pages/NotFound").then((module) => ({ default: module.NotFound })),
 );
 const Employees = lazy(() =>
-  import("@/pages/Entities").then((module) => ({ default: module.Employees })),
+  import("@/pages/Employees").then((module) => ({ default: module.Employees })),
 );
 const Users = lazy(() =>
   import("@/pages/Users").then((module) => ({ default: module.Users })),

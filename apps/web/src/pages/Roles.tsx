@@ -160,7 +160,7 @@ export function RolesPage() {
       <ListPageScaffold<RoleRecord>
         title="Roles & access"
         description="Create roles and define exactly which areas they can view, edit, or manage."
-        breadcrumbs={[{ label: "Dashboard", href: "/" }, { label: "Roles" }]}
+        breadcrumbs={[{ label: "Dashboard", to: "/" }, { label: "Roles" }]}
         action={
           <Button onClick={openNew} className="gap-2">
             <Plus className="h-4 w-4" />
