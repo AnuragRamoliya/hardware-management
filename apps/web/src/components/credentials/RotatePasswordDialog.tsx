@@ -1,38 +1,34 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { ActionDialogLayout } from "@/components/common/ActionDialogLayout";
+import FormProvider from "@/components/hook-form/form-provider";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, RefreshCw, Key } from "lucide-react";
-import { toast } from "sonner";
+  FormGrid,
+  FormGridItem,
+  FormActions,
+} from "@/components/common/FormLayout";
+import { RHFPasswordField } from "@/components/hook-form/fields";
+import { Badge } from "@/components/ui/badge";
 import { useChangeCredentialPassword } from "@/hooks/queries/credentials";
 import type { CredentialDto } from "@/api/credentials";
+import { FORM_VALIDATION } from "@/utils/form-validation";
 
-interface RotatePasswordDialogProps {
+const rotatePasswordSchema = yup.object({
+  password: yup
+    .string()
+    .trim()
+    .required(FORM_VALIDATION.REQUIRED)
+    .min(8, "Password must be at least 8 characters long"),
+});
+
+type RotatePasswordValues = yup.InferType<typeof rotatePasswordSchema>;
+
+export interface RotatePasswordDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   credential: CredentialDto | null;
-}
-
-function generateSecureRandomPassword(length = 16): string {
-  const chars =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~|}{[]:;?><,./-=";
-  let result = "";
-  const cryptoObj =
-    window.crypto || (window as unknown as { msCrypto: Crypto }).msCrypto;
-  const values = new Uint32Array(length);
-  cryptoObj.getRandomValues(values);
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(values[i]! % chars.length);
-  }
-  return result;
 }
 
 export function RotatePasswordDialog({
@@ -40,107 +36,91 @@ export function RotatePasswordDialog({
   onOpenChange,
   credential,
 }: RotatePasswordDialogProps) {
-  const [newPassword, setNewPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const changeMutation = useChangeCredentialPassword();
 
-  const handleGenerate = () => {
-    setNewPassword(generateSecureRandomPassword(16));
-    setShowPassword(true);
+  const methods = useForm<RotatePasswordValues>({
+    resolver: yupResolver(rotatePasswordSchema),
+    defaultValues: { password: "" },
+  });
+
+  const {
+    reset,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
+
+  useEffect(() => {
+    if (open) {
+      reset({ password: "" });
+    }
+  }, [open, reset]);
+
+  if (!credential) return null;
+
+  const onSubmit = async (values: RotatePasswordValues) => {
+    await changeMutation.mutateAsync({
+      id: credential.id,
+      password: values.password,
+    });
+    onOpenChange(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPassword || newPassword.length < 8) {
-      toast.error("Password must be at least 8 characters long");
-      return;
-    }
-    if (!credential) return;
-
-    try {
-      await changeMutation.mutateAsync({
-        id: credential.id,
-        password: newPassword,
-      });
-      onOpenChange(false);
-      setNewPassword("");
-    } catch {
-      // toast in mutation
-    }
-  };
+  const summaryCard = (
+    <div className="space-y-1.5 text-xs">
+      <div className="flex items-center justify-between">
+        <span className="font-semibold text-foreground text-sm">
+          {credential.label}
+        </span>
+        {credential.credential_type && (
+          <Badge variant="outline">{credential.credential_type.name}</Badge>
+        )}
+      </div>
+      <div className="flex items-center justify-between text-muted-foreground">
+        <span>Username / ID:</span>
+        <span className="font-mono text-foreground">{credential.username}</span>
+      </div>
+      {credential.employee && (
+        <div className="flex items-center justify-between text-muted-foreground">
+          <span>Assigned to:</span>
+          <span className="font-medium text-foreground">
+            {credential.employee.first_name} {credential.employee.last_name}
+          </span>
+        </div>
+      )}
+    </div>
+  );
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <div className="flex items-center gap-2">
-            <Key className="h-5 w-5 text-primary" />
-            <DialogTitle>Rotate Password</DialogTitle>
-          </div>
-          <DialogDescription>
-            Encrypt and rotate the password for {credential?.label || "account"}
-            .
-          </DialogDescription>
-        </DialogHeader>
+    <ActionDialogLayout
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Rotate Account Password"
+      description={`Set a new encrypted password for ${credential.label}.`}
+      summaryCard={summaryCard}
+    >
+      <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+        <FormGrid>
+          <FormGridItem span={2}>
+            <RHFPasswordField
+              name="password"
+              label="New Password"
+              placeholder="Enter or generate new password"
+              required
+              showGenerator
+              showStrengthMeter
+              showCopy
+              policy={{ minLength: 12, requireComplexity: true }}
+              autoFocus
+            />
+          </FormGridItem>
+        </FormGrid>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="rotate-password">New Password</Label>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-7 text-xs flex items-center gap-1 text-primary"
-                onClick={handleGenerate}
-              >
-                <RefreshCw className="h-3.5 w-3.5" /> Generate
-              </Button>
-            </div>
-
-            <div className="relative flex items-center">
-              <Input
-                id="rotate-password"
-                type={showPassword ? "text" : "password"}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Enter or generate new password"
-                className="pr-10 font-mono"
-                required
-                autoFocus
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-1 h-8 w-8"
-                onClick={() => setShowPassword((p) => !p)}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </div>
-
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={changeMutation.isPending}>
-              {changeMutation.isPending
-                ? "Re-encrypting..."
-                : "Rotate & Encrypt"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+        <FormActions
+          submitting={isSubmitting || changeMutation.isPending}
+          onCancel={() => onOpenChange(false)}
+          submitLabel="Rotate & Encrypt"
+        />
+      </FormProvider>
+    </ActionDialogLayout>
   );
 }
