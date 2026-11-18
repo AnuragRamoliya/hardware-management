@@ -1,5 +1,5 @@
 {
-  "name": "itam-api",
+  "name": "@hm/api",
   "version": "1.0.0",
   "private": true,
   "description": "IT asset and employee management API",
@@ -14,8 +14,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "gen:module": "node scripts/gen-module.mjs",
-    "prepare": "husky"
+    "gen:module": "node scripts/gen-module.mjs"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -40,7 +39,8 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "winston": "^3.19.0",
-    "zod": "^4.1.12"
+    "zod": "^4.1.12",
+    "@hm/shared": "*"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -67,15 +67,7 @@
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vitest": "^4.0.8"
-  },
-  "lint-staged": {
-    "*.{ts,js,cjs,json}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.ts": [
-      "tsc --noEmit -p tsconfig.json"
-    ]
+    "vitest": "^4.0.8",
+    "@hm/tsconfig": "*"
   }
 }

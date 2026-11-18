@@ -1,18 +1,12 @@
-export interface ApiResponse<T> {
-  message: string;
-  data: T;
-}
+import type { ApiResponse, Paginated } from "@hm/shared";
+
+export type { ApiResponse, Paginated };
 
 export interface ApiResult<T> {
   ok: boolean;
   status: number;
   data: T | null;
   message: string;
-}
-
-export interface Paginated<T> {
-  rows: T[];
-  count: number;
 }
 
 export interface Option {
