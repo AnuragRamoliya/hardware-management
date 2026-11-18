@@ -4,13 +4,14 @@ import { ListPageScaffold } from "@/components/common/ListPageScaffold";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { useTableState } from "@/hooks/use-tableState";
+import { useFormDrawer } from "@/hooks/useFormDrawer";
 import {
   useCredentialsList,
   useDeleteCredential,
 } from "@/hooks/queries/credentials";
 import { getCredentialColumns } from "@/components/credentials/CredentialColumns";
 import { credentialFilters } from "@/components/credentials/CredentialFilters";
-import { AddEditCredentialDialog } from "@/components/credentials/AddEditCredentialDialog";
+import { AddEditCredential } from "@/components/credentials/AddEditCredential";
 import { RevealSecretDialog } from "@/components/credentials/RevealSecretDialog";
 import { RotatePasswordDialog } from "@/components/credentials/RotatePasswordDialog";
 import { CredentialHistoryDialog } from "@/components/credentials/CredentialHistoryDialog";
@@ -21,8 +22,8 @@ import type { CredentialDto } from "@/api/credentials";
 
 export function Credentials() {
   const { tableState, setTableState } = useTableState(10);
-  const [addEditOpen, setAddEditOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<CredentialDto | null>(null);
+  const { isOpen, editingItem, openCreate, openEdit, setIsOpen } =
+    useFormDrawer<CredentialDto>();
   const [revealingItem, setRevealingItem] = useState<CredentialDto | null>(
     null,
   );
@@ -47,10 +48,7 @@ export function Credentials() {
     () =>
       getCredentialColumns({
         onReveal: (cred) => setRevealingItem(cred),
-        onEdit: (cred) => {
-          setEditingItem(cred);
-          setAddEditOpen(true);
-        },
+        onEdit: openEdit,
         onChangePassword: (cred) => setRotatingItem(cred),
         onHistory: (cred) => setHistoryItem(cred),
         onDelete: (cred) => setDeletingItem(cred),
@@ -58,7 +56,7 @@ export function Credentials() {
         canDelete,
         canReveal,
       }),
-    [canWrite, canDelete, canReveal],
+    [openEdit, canWrite, canDelete, canReveal],
   );
 
   const handleDeleteConfirm = async () => {
@@ -78,13 +76,7 @@ export function Credentials() {
         ]}
         action={
           canWrite ? (
-            <Button
-              onClick={() => {
-                setEditingItem(null);
-                setAddEditOpen(true);
-              }}
-              className="gap-2"
-            >
+            <Button onClick={openCreate} className="gap-2">
               <Plus className="h-4 w-4" />
               Add credential
             </Button>
@@ -108,12 +100,9 @@ export function Credentials() {
         emptyTitle="No credentials in vault"
       />
 
-      <AddEditCredentialDialog
-        open={addEditOpen}
-        onOpenChange={(open) => {
-          setAddEditOpen(open);
-          if (!open) setEditingItem(null);
-        }}
+      <AddEditCredential
+        open={isOpen}
+        onOpenChange={setIsOpen}
         credential={editingItem}
       />
 

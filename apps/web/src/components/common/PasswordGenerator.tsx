@@ -3,8 +3,6 @@ import { KeyRound, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { generateSecureRandomPassword } from "@/utils/password";
 
-export { generateSecureRandomPassword };
-
 export interface PasswordGeneratorButtonProps {
   onGenerate: (password: string) => void;
   length?: number;
