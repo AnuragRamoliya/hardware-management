@@ -1,61 +1,54 @@
 import { useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { Check, Pencil, Plus, ShieldCheck } from "lucide-react";
-import { PageHeader } from "@/components/common/PageHeader";
-import { CommonTable, type TableColumn } from "@/components/common/CommonTable";
+import { Pencil, Plus, ShieldCheck } from "lucide-react";
+import { ListPageScaffold } from "@/components/common/ListPageScaffold";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { EmptyState, Spinner } from "@/components/common/States";
+import { Spinner } from "@/components/common/States";
 import {
-  getRoleListApi,
-  addRoleApi,
-  updateRoleApi,
-  getRolePermissionsApi,
-  setRolePermissionsApi,
-} from "@/api/roles";
-import { getModuleListApi } from "@/api/modules";
+  useRolesList,
+  useRolePermissions,
+  useModulesList,
+  useSaveRole,
+  type RoleRecord,
+} from "@/hooks/queries/roles";
 import { useTableState } from "@/hooks/use-tableState";
-import type { PermissionSet, Role } from "@/types";
+import type { PermissionSet } from "@/types";
 import { RECORD_STATUS_FILTER } from "@/components/common/TableSelectFilter";
+import type { TableColumn } from "@/components/common/CommonTable";
 
-type RoleRow = Role & { users_count?: number };
 const emptyPermission = (): PermissionSet => ({
   read_access: false,
   write_access: false,
   delete_access: false,
 });
+
 const accessIsEnabled = (value: boolean | number | string) =>
   value === true || value === 1 || value === "1";
 
 export function RolesPage() {
   const { tableState, setTableState } = useTableState(10);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selected, setSelected] = useState<RoleRow | null>(null);
+  const [selected, setSelected] = useState<RoleRecord | null>(null);
   const [name, setName] = useState("");
   const [roleType, setRoleType] = useState("");
   const [matrix, setMatrix] = useState<Record<string, PermissionSet>>({});
-  const client = useQueryClient();
-  const rolesQuery = useQuery({
-    queryKey: ["roles", tableState],
-    queryFn: async () => {
-      const result = await getRoleListApi(tableState);
-      if (!result.ok) throw new Error(result.message);
-      return result.data ?? { rows: [], count: 0 };
-    },
-  });
-  const permissionsQuery = useQuery({
-    queryKey: ["role-permissions", selected?.id],
-    queryFn: async () => {
-      if (!selected) return [];
-      const result = await getRolePermissionsApi(selected.id);
-      if (!result.ok) throw new Error(result.message);
-      return result.data ?? [];
-    },
-    enabled: Boolean(selected && dialogOpen),
-  });
+
+  const {
+    data: rolesData,
+    isLoading: isRolesLoading,
+    error: rolesError,
+    refetch: refetchRoles,
+  } = useRolesList(tableState);
+
+  const permissionsQuery = useRolePermissions(
+    selected?.id ?? "",
+    Boolean(selected && dialogOpen),
+  );
+
+  const modulesQuery = useModulesList();
+  const saveMutation = useSaveRole();
+
   useEffect(() => {
     if (!selected || !permissionsQuery.data) return;
     setMatrix(
@@ -77,63 +70,35 @@ export function RolesPage() {
       ),
     );
   }, [permissionsQuery.data, selected]);
-  const modulesQuery = useQuery({
-    queryKey: ["modules"],
-    queryFn: async () => {
-      const result = await getModuleListApi({
-        currentPage: 1,
-        itemsPerPage: 100,
-        filters: {},
-        sortBy: [],
-        general_search: "",
-      });
-      if (!result.ok) throw new Error(result.message);
-      return result.data?.rows ?? [];
-    },
-  });
-  const save = useMutation({
-    mutationFn: async () => {
-      const response = selected
-        ? await updateRoleApi({ id: selected.id, name })
-        : await addRoleApi({
-            name,
-            type: roleType,
-          });
-      if (!response.ok) throw new Error(response.message);
-      const roleId = selected?.id ?? response.data?.id;
-      if (!roleId)
-        throw new Error("The server did not return the saved role ID.");
-      const permissionsResponse = await setRolePermissionsApi(
-        roleId,
-        (modulesQuery.data ?? []).map((module) => ({
-          module_id: module.id,
-          read_access: matrix[module.name]?.read_access ?? false,
-          write_access: matrix[module.name]?.write_access ?? false,
-          delete_access: matrix[module.name]?.delete_access ?? false,
-        })),
-      );
-      if (!permissionsResponse.ok) throw new Error(permissionsResponse.message);
-      return response;
-    },
-    onSuccess: async (result) => {
-      toast.success(result.message || "Role saved");
-      setDialogOpen(false);
-      await client.invalidateQueries({ queryKey: ["roles"] });
-      await client.invalidateQueries({ queryKey: ["role-permissions"] });
-    },
-    onError: (error) => toast.error(error.message),
-  });
-  const columns = useMemo<TableColumn<RoleRow>[]>(
+
+  const columns = useMemo<TableColumn<RoleRecord>[]>(
     () => [
       {
         id: "name",
         label: "Role",
-        render: (row) => <span className="font-medium">{row.name}</span>,
+        sortable: true,
+        render: (row) => (
+          <div>
+            <span className="font-medium text-foreground">{row.name}</span>
+            {row.description && (
+              <p className="text-xs text-muted-foreground">{row.description}</p>
+            )}
+          </div>
+        ),
       },
-      { id: "type", label: "Role type" },
+      {
+        id: "type",
+        label: "Role type",
+        sortable: true,
+        render: (row) => (
+          <span className="font-mono text-xs text-muted-foreground">
+            {row.type || "—"}
+          </span>
+        ),
+      },
       {
         id: "actions",
-        label: "",
+        label: "Actions",
         sortable: false,
         render: (row) => (
           <Button
@@ -156,6 +121,7 @@ export function RolesPage() {
     ],
     [],
   );
+
   const openNew = () => {
     setSelected(null);
     setName("");
@@ -163,6 +129,7 @@ export function RolesPage() {
     setMatrix({});
     setDialogOpen(true);
   };
+
   const toggle = (moduleName: string, key: keyof PermissionSet) =>
     setMatrix((current) => {
       const next = {
@@ -177,30 +144,41 @@ export function RolesPage() {
       return { ...current, [moduleName]: next };
     });
 
+  const handleSave = async () => {
+    await saveMutation.mutateAsync({
+      selectedId: selected?.id,
+      name,
+      roleType,
+      modules: modulesQuery.data ?? [],
+      matrix,
+    });
+    setDialogOpen(false);
+  };
+
   return (
     <>
-      <PageHeader
+      <ListPageScaffold<RoleRecord>
         title="Roles & access"
         description="Create roles and define exactly which areas they can view, edit, or manage."
-        breadcrumbs={[{ label: "Roles" }]}
+        breadcrumbs={[{ label: "Dashboard", href: "/" }, { label: "Roles" }]}
         action={
-          <Button onClick={openNew}>
+          <Button onClick={openNew} className="gap-2">
             <Plus className="h-4 w-4" />
             Create role
           </Button>
         }
-      />
-      <CommonTable<RoleRow>
         columns={columns}
         filterFields={[RECORD_STATUS_FILTER]}
-        rows={rolesQuery.data?.rows ?? []}
-        count={rolesQuery.data?.count ?? 0}
+        rows={(rolesData?.rows as RoleRecord[]) ?? []}
+        count={rolesData?.count ?? 0}
         query={tableState}
         onQueryChange={setTableState}
-        loading={rolesQuery.isLoading}
-        error={rolesQuery.error?.message}
-        onRetry={() => void rolesQuery.refetch()}
+        loading={isRolesLoading}
+        error={rolesError instanceof Error ? rolesError.message : undefined}
+        onRetry={refetchRoles}
+        emptyTitle="No roles found"
       />
+
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-3xl p-0">
           <div className="border-b p-6">
@@ -256,13 +234,18 @@ export function RolesPage() {
             )}
             {modulesQuery.isError && (
               <p role="alert" className="text-sm text-danger">
-                Could not load modules: {modulesQuery.error.message}
+                Could not load modules:{" "}
+                {modulesQuery.error instanceof Error
+                  ? modulesQuery.error.message
+                  : "Unknown error"}
               </p>
             )}
             {permissionsQuery.isError && selected && (
               <p role="alert" className="text-sm text-danger">
                 Could not load this role's permissions:{" "}
-                {permissionsQuery.error.message}
+                {permissionsQuery.error instanceof Error
+                  ? permissionsQuery.error.message
+                  : "Unknown error"}
               </p>
             )}
             <div className="overflow-x-auto rounded-lg border">
@@ -279,7 +262,7 @@ export function RolesPage() {
                   {modulesQuery.isLoading ? (
                     <tr>
                       <td colSpan={4} className="p-5">
-                        <Spinner />
+                        <Spinner label="Loading modules" />
                       </td>
                     </tr>
                   ) : (
@@ -328,7 +311,11 @@ export function RolesPage() {
               </p>
             </div>
             <div className="flex justify-end gap-2 border-t pt-4">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+                disabled={saveMutation.isPending}
+              >
                 Cancel
               </Button>
               <Button
@@ -338,29 +325,18 @@ export function RolesPage() {
                   modulesQuery.isLoading ||
                   modulesQuery.isError ||
                   (Boolean(selected) &&
-                    (permissionsQuery.isLoading || permissionsQuery.isError))
+                    (permissionsQuery.isLoading || permissionsQuery.isError)) ||
+                  saveMutation.isPending
                 }
-                loading={save.isPending}
-                onClick={() => save.mutate()}
+                loading={saveMutation.isPending}
+                onClick={handleSave}
               >
-                {selected ? "Save role" : "Create role"}
-                <Check className="h-4 w-4" />
+                Save permissions
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
     </>
-  );
-}
-
-export function RolesEmptyState() {
-  return (
-    <Card>
-      <EmptyState
-        title="No roles configured"
-        description="Create a role to define a group of permissions."
-      />
-    </Card>
   );
 }
