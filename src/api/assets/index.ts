@@ -20,7 +20,13 @@ export interface AssetRecord {
   specs?: Record<string, string> | null;
   notes?: string | null;
   accessories?: AssetRecord[];
-  current_assignment?: { employee_id: number; employee?: { first_name: string; last_name: string; employee_code: string } } | null;
+  current_assignment?: {
+    employee_id: number;
+    assigned_at?: string | null;
+    due_return_date?: string | null;
+    note?: string | null;
+    employee?: { first_name: string; last_name: string; employee_code: string; email?: string };
+  } | null;
 }
 export interface AssignmentRecord {
   id: number;
@@ -31,6 +37,7 @@ export interface AssignmentRecord {
   returned_at?: string | null;
   note?: string | null;
   asset?: AssetRecord;
+  employee?: { first_name: string; last_name: string; employee_code: string; email?: string };
 }
 export interface AssetImportResult {
   imported: number;
