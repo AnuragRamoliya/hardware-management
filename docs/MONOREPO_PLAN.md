@@ -3,20 +3,22 @@
 **Date**: 2026-11-18  
 **Author**: Senior DevOps / Full-Stack Engineer  
 **Target Repository**: `git@github.com:AnuragRamoliya/hardware-management.git`  
-**Workspace Root**: `hardware-management/`  
+**Workspace Root**: `hardware-management/`
 
 ---
 
 ## 1. Pre-Flight Findings & Source Audit
 
 ### 1.1 Source Repositories
-| Component | Source Path | Size (with node_modules) | Git Status | Commits | Large Files (> 5MB) | Lockfile |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **API** | `/hardware-app/hardware-mnagement-api` | ~289 MB | Not a git repo | 0 | None | `package-lock.json` |
-| **WEB** | `/hardware-app/hardware-management-web` | ~316 MB | Clean repo (`master`) | 19 commits | None | `package-lock.json` |
-| **DOCS** | `/hardware-app/docs` | ~84 KB | Tracked in root | N/A | None | N/A |
+
+| Component | Source Path                             | Size (with node_modules) | Git Status            | Commits    | Large Files (> 5MB) | Lockfile            |
+| :-------- | :-------------------------------------- | :----------------------- | :-------------------- | :--------- | :------------------ | :------------------ |
+| **API**   | `/hardware-app/hardware-mnagement-api`  | ~289 MB                  | Not a git repo        | 0          | None                | `package-lock.json` |
+| **WEB**   | `/hardware-app/hardware-management-web` | ~316 MB                  | Clean repo (`master`) | 19 commits | None                | `package-lock.json` |
+| **DOCS**  | `/hardware-app/docs`                    | ~84 KB                   | Tracked in root       | N/A        | None                | N/A                 |
 
 ### 1.2 Target Remote Inspection
+
 - Command: `git ls-remote git@github.com:AnuragRamoliya/hardware-management.git`
 - Status: **Accessible via SSH**.
 - Existing Remote Content: `5bb2da090c6deb4fd4c0fb7fefcde715ec99b15b refs/heads/main` (Initial commit containing a 1-line `README.md`).
@@ -26,6 +28,7 @@
   - Deliver changes on `chore/monorepo-setup` for PR review.
 
 ### 1.3 Secret Scan Results
+
 - **API Scan**:
   - Raw findings in local `.env` (contains local database password placeholders, JWT secrets, mail config).
   - `.env.example` verified: purely empty placeholder strings.
@@ -38,6 +41,7 @@
   - Gitleaks CI workflow step configured in `.github/workflows/ci.yml`.
 
 ### 1.4 Runtime & Infrastructure Environment
+
 - **Node.js**: `v22.23.4` (LTS Iron).
 - **npm**: `10.9.9`. Lockfile format: npm `package-lock.json` only.
 - **Docker**: Docker CLI `29.8.2` and Docker Compose `v5.6.1` installed; local Docker Desktop socket inactive. Multi-stage Dockerfiles and compose configs will be created and documented as untested locally.
@@ -82,6 +86,7 @@ hardware-management/
 ## 3. Migration Decisions & Step-by-Step Strategy
 
 ### 3.1 App Code Import
+
 1. **WEB (`apps/web`)**:
    - Source has 19 high-quality, verified commits with clean parity standardization and test cleanup.
    - Import using `git subtree add --prefix=apps/web <web-source-path> master` to preserve complete commit history and blame fidelity.
@@ -94,6 +99,7 @@ hardware-management/
    - Maintain parity screenshots (`docs/parity/before/` and `docs/parity/after/`).
 
 ### 3.2 Tooling Packages
+
 1. **`@hm/tsconfig`**:
    - `base.json`: ES2022, strict, isolatedModules, skipLibCheck, resolveJsonModule.
    - `node.json`: extends `base.json`, ModuleResolution NodeNext / Node16, types `["node"]`.
@@ -109,6 +115,7 @@ hardware-management/
      - Common DTO interfaces (`Employee`, `Asset`, `Software`, `Maintenance`).
 
 ### 3.3 Path & Configuration Adjustments
+
 - Update `apps/api`:
   - `package.json`: name `@hm/api`, add dependency `"@hm/shared": "*"` and devDependencies `"@hm/tsconfig": "*"`.
   - `.sequelizerc`: verify relative paths to models, migrations, seeders.
@@ -120,6 +127,7 @@ hardware-management/
   - Replace duplicate type declarations and constants with `@hm/shared`.
 
 ### 3.4 Verification & Clean Clone Test
+
 - Clone to a temporary directory (`/tmp/hardware-management-verify`).
 - Run `npm ci`, `npm run build`, `npm run typecheck`, `npm run lint`, `npm run check:ui`.
 - Verify database migration and seeding on local MySQL.

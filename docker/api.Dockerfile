@@ -55,3 +55,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 WORKDIR /app/apps/api
 CMD ["node", "dist/server.js"]
+
