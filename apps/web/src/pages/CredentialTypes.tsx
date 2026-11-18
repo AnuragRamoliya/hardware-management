@@ -225,8 +225,14 @@ export function CredentialTypes() {
           </Button>
         }
         columns={columns}
-        rows={(data?.rows as CredentialTypeDto[]) ?? []}
-        count={data?.count ?? 0}
+        rows={
+          (data?.rows as CredentialTypeDto[]) ??
+          (data as unknown as { items?: CredentialTypeDto[] })?.items ??
+          []
+        }
+        count={
+          data?.count ?? (data as unknown as { total?: number })?.total ?? 0
+        }
         query={tableState}
         onQueryChange={setTableState}
         loading={isLoading}

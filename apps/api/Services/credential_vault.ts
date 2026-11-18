@@ -71,9 +71,12 @@ export class CredentialVaultService {
       order: [['id', 'DESC']],
     });
 
+    const mappedRows = rows.map(record);
     return {
+      rows: mappedRows,
+      count,
       total: count,
-      items: rows.map(record),
+      items: mappedRows,
       currentPage: Number(input.currentPage ?? 1),
       itemsPerPage: limit,
     };
@@ -305,9 +308,12 @@ export class CredentialVaultService {
       ],
     });
 
+    const mappedRows = rows.map(record);
     return {
+      rows: mappedRows,
+      count,
       total: count,
-      items: rows.map(record),
+      items: mappedRows,
       currentPage: Number(input.currentPage ?? 1),
       itemsPerPage: limit,
     };
@@ -677,9 +683,12 @@ export class CredentialVaultService {
       ],
     });
 
+    const mappedRows = rows.map(record);
     return {
+      rows: mappedRows,
+      count,
       total: count,
-      items: rows.map(record),
+      items: mappedRows,
       currentPage: Number(input.currentPage ?? 1),
       itemsPerPage: limit,
     };
@@ -949,9 +958,12 @@ export class CredentialVaultService {
       ],
     });
 
+    const mappedRows = rows.map(record);
     return {
+      rows: mappedRows,
+      count,
       total: count,
-      items: rows.map(record),
+      items: mappedRows,
       currentPage: Number(input.currentPage ?? 1),
       itemsPerPage: limit,
     };
@@ -1182,9 +1194,12 @@ export class CredentialVaultService {
       ],
     });
 
+    const mappedRows = rows.map(record);
     return {
+      rows: mappedRows,
+      count,
       total: count,
-      items: rows.map(record),
+      items: mappedRows,
       currentPage: Number(input.currentPage ?? 1),
       itemsPerPage: limit,
     };
@@ -1305,9 +1320,12 @@ export class CredentialVaultService {
       ],
     });
 
+    const mappedRows = rows.map(record);
     return {
+      rows: mappedRows,
+      count,
       total: count,
-      items: rows.map(record),
+      items: mappedRows,
       currentPage: Number(input.currentPage ?? 1),
       itemsPerPage: limit,
     };
