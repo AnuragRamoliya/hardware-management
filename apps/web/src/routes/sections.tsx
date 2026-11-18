@@ -85,7 +85,7 @@ const Vendors = lazy(() =>
   import("@/pages/Vendors").then((module) => ({ default: module.Vendors })),
 );
 const AssetCategories = lazy(() =>
-  import("@/pages/Entities").then((module) => ({
+  import("@/pages/AssetCategories").then((module) => ({
     default: module.AssetCategories,
   })),
 );
