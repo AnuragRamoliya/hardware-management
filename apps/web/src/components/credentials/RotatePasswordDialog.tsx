@@ -11,7 +11,10 @@ import {
 } from "@/components/common/FormLayout";
 import { RHFPasswordField } from "@/components/hook-form/fields";
 import { Badge } from "@/components/ui/badge";
-import { useChangeCredentialPassword } from "@/hooks/queries/credentials";
+import {
+  useChangeCredentialPassword,
+  usePortalChangePassword,
+} from "@/hooks/queries/credentials";
 import type { CredentialDto } from "@/api/credentials";
 import { FORM_VALIDATION } from "@/utils/form-validation";
 
@@ -29,14 +32,18 @@ export interface RotatePasswordDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   credential: CredentialDto | null;
+  isPortal?: boolean;
 }
 
 export function RotatePasswordDialog({
   open,
   onOpenChange,
   credential,
+  isPortal = false,
 }: RotatePasswordDialogProps) {
   const changeMutation = useChangeCredentialPassword();
+  const portalChangeMutation = usePortalChangePassword();
+  const activeMutation = isPortal ? portalChangeMutation : changeMutation;
 
   const methods = useForm<RotatePasswordValues>({
     resolver: yupResolver(rotatePasswordSchema),
@@ -58,7 +65,7 @@ export function RotatePasswordDialog({
   if (!credential) return null;
 
   const onSubmit = async (values: RotatePasswordValues) => {
-    await changeMutation.mutateAsync({
+    await activeMutation.mutateAsync({
       id: credential.id,
       password: values.password,
     });
@@ -116,9 +123,9 @@ export function RotatePasswordDialog({
         </FormGrid>
 
         <FormActions
-          submitting={isSubmitting || changeMutation.isPending}
+          submitting={isSubmitting || activeMutation.isPending}
           onCancel={() => onOpenChange(false)}
-          submitLabel="Rotate & Encrypt"
+          submitLabel={isPortal ? "Update Password" : "Rotate & Encrypt"}
         />
       </FormProvider>
     </ActionDialogLayout>
