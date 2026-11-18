@@ -99,6 +99,8 @@ export function useSaveRole() {
         read_access: matrix[module.name]?.read_access ?? false,
         write_access: matrix[module.name]?.write_access ?? false,
         delete_access: matrix[module.name]?.delete_access ?? false,
+        approve_access: matrix[module.name]?.approve_access ?? false,
+        reveal_access: matrix[module.name]?.reveal_access ?? false,
       }));
 
       const permissionsResponse = await setRolePermissionsApi(

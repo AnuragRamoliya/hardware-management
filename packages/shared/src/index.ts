@@ -432,6 +432,7 @@ export interface CredentialCollectionRequestDto {
     first_name: string;
     last_name?: string;
     email: string;
+    employee_code?: string;
   };
   credential_type?: CredentialTypeDto;
   requester?: { id: number; first_name: string; last_name?: string };
@@ -452,8 +453,19 @@ export interface CredentialAccessLogDto {
   prev_hash: string;
   hash: string;
   credential?: { id: number; label: string; username: string };
-  employee?: { id: number; first_name: string; last_name?: string };
-  accessor?: { id: number; first_name: string; last_name?: string };
+  employee?: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    employee_code?: string;
+    email?: string;
+  };
+  accessor?: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    email?: string;
+  };
 }
 
 export interface LoginHistoryDto {
@@ -490,7 +502,7 @@ export interface ReauthResponse {
 }
 
 export interface RevealSecretRequest {
-  id: number;
+  id?: number;
   reauth_token: string;
   reason?: string;
 }
@@ -498,5 +510,27 @@ export interface RevealSecretRequest {
 export interface RevealSecretResponse {
   id: number;
   secret: string;
+  password?: string;
   expires_in_seconds: number;
+}
+
+export interface ConsentStatusResponse {
+  consented?: boolean;
+  consent_accepted?: boolean;
+  consented_at?: string | null;
+  policy_version?: string | null;
+  policy_text?: string | null;
+}
+
+export interface AuditVerificationResult {
+  valid?: boolean;
+  total_records?: number;
+  broken_at_id?: number | null;
+  details?: string;
+  accessLogsValid?: boolean;
+  totalAccessLogsVerified?: number;
+  accessLogsError?: string | null;
+  activityLogsValid?: boolean;
+  totalActivityLogsVerified?: number;
+  activityLogsError?: string | null;
 }

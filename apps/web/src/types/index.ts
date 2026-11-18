@@ -28,6 +28,8 @@ export interface PermissionSet {
   read_access: boolean;
   write_access: boolean;
   delete_access: boolean;
+  approve_access?: boolean;
+  reveal_access?: boolean;
 }
 
 export interface User {

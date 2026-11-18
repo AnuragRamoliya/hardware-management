@@ -131,6 +131,36 @@ const PortalSoftware = lazy(() =>
 const Roles = lazy(() =>
   import("@/pages/Roles").then((module) => ({ default: module.RolesPage })),
 );
+const Credentials = lazy(() =>
+  import("@/pages/Credentials").then((module) => ({
+    default: module.Credentials,
+  })),
+);
+const CredentialApprovals = lazy(() =>
+  import("@/pages/CredentialApprovals").then((module) => ({
+    default: module.CredentialApprovals,
+  })),
+);
+const CredentialTypes = lazy(() =>
+  import("@/pages/CredentialTypes").then((module) => ({
+    default: module.CredentialTypes,
+  })),
+);
+const CredentialRequests = lazy(() =>
+  import("@/pages/CredentialRequests").then((module) => ({
+    default: module.CredentialRequests,
+  })),
+);
+const CredentialAccessLogs = lazy(() =>
+  import("@/pages/CredentialAccessLogs").then((module) => ({
+    default: module.CredentialAccessLogs,
+  })),
+);
+const PortalAccounts = lazy(() =>
+  import("@/pages/PortalAccounts").then((module) => ({
+    default: module.PortalAccounts,
+  })),
+);
 
 function NavigationBridge() {
   const navigate = useNavigate();
@@ -291,6 +321,46 @@ export const routesSection = createBrowserRouter([
                 ),
               },
               {
+                path: PATHS.CREDENTIALS,
+                element: page(
+                  <Credentials />,
+                  ["admin", "hardware"],
+                  "credential",
+                ),
+              },
+              {
+                path: PATHS.CREDENTIAL_APPROVALS,
+                element: page(
+                  <CredentialApprovals />,
+                  ["admin", "hardware"],
+                  "credential",
+                ),
+              },
+              {
+                path: PATHS.CREDENTIAL_TYPES,
+                element: page(
+                  <CredentialTypes />,
+                  ["admin"],
+                  "credential_type",
+                ),
+              },
+              {
+                path: PATHS.CREDENTIAL_REQUESTS,
+                element: page(
+                  <CredentialRequests />,
+                  ["admin", "hardware"],
+                  "credential",
+                ),
+              },
+              {
+                path: PATHS.CREDENTIAL_ACCESS_LOGS,
+                element: page(
+                  <CredentialAccessLogs />,
+                  ["admin"],
+                  "credential_access_log",
+                ),
+              },
+              {
                 path: PATHS.AUDIT_LOGS,
                 element: page(<AuditLogs />, ["admin"], "audit_log"),
               },
@@ -306,6 +376,10 @@ export const routesSection = createBrowserRouter([
               {
                 path: PATHS.PORTAL_SOFTWARE,
                 element: page(<PortalSoftware />, ["employee"]),
+              },
+              {
+                path: PATHS.PORTAL_ACCOUNTS,
+                element: page(<PortalAccounts />, ["employee"]),
               },
               {
                 path: PATHS.PORTAL_PROFILE,

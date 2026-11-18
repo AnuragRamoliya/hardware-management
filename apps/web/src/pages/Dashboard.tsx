@@ -1,10 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
-import { Laptop, PackageCheck, ShieldAlert, UsersRound } from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  Laptop,
+  PackageCheck,
+  ShieldAlert,
+  UsersRound,
+  CheckSquare,
+  FileText,
+  ShieldCheck,
+} from "lucide-react";
 import { callApi } from "@/api/callApi";
 import { endPoints } from "@/api/endpoint";
 import { PageHeader } from "@/components/common/PageHeader";
 import { StatCard } from "@/components/common/StatCard";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PATHS } from "@/routes/paths";
+import {
+  useCredentialApprovalsList,
+  useCredentialRequestsList,
+  useCredentialAccessLogsList,
+} from "@/hooks/queries/credentials";
 
 type Summary = {
   totalAssets: number;
@@ -34,6 +49,25 @@ export function Dashboard() {
     retry: 1,
   });
   const summary = summaryQuery.data;
+  const approvalsQuery = useCredentialApprovalsList({
+    currentPage: 1,
+    itemsPerPage: 1,
+    sortBy: [],
+    filters: {},
+  });
+  const requestsQuery = useCredentialRequestsList({
+    currentPage: 1,
+    itemsPerPage: 1,
+    sortBy: [],
+    filters: {},
+  });
+  const accessLogsQuery = useCredentialAccessLogsList({
+    currentPage: 1,
+    itemsPerPage: 1,
+    sortBy: [],
+    filters: {},
+  });
+
   const seatsUsedPercent = summary?.seatsTotal
     ? Math.min(100, (summary.seatsUsed / summary.seatsTotal) * 100)
     : 0;
@@ -154,6 +188,77 @@ export function Dashboard() {
             </p>
           </CardContent>
         </Card>
+      </section>
+
+      {/* Credential Vault Overview Section */}
+      <section className="mt-6">
+        <h2 className="text-base font-semibold mb-3">
+          Credential Vault & Security
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Link to={PATHS.CREDENTIAL_APPROVALS} className="group">
+            <Card className="p-4 transition-colors group-hover:border-primary/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    Pending Approvals
+                  </p>
+                  <p className="text-2xl font-bold mt-1">
+                    {approvalsQuery.data?.count ?? 0}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-amber-500/10 p-2.5 text-amber-500">
+                  <CheckSquare className="h-5 w-5" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1 group-hover:text-primary">
+                Review employee accounts →
+              </p>
+            </Card>
+          </Link>
+
+          <Link to={PATHS.CREDENTIAL_REQUESTS} className="group">
+            <Card className="p-4 transition-colors group-hover:border-primary/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    Open Collection Requests
+                  </p>
+                  <p className="text-2xl font-bold mt-1">
+                    {requestsQuery.data?.count ?? 0}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-blue-500/10 p-2.5 text-blue-500">
+                  <FileText className="h-5 w-5" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1 group-hover:text-primary">
+                Manage collection requests →
+              </p>
+            </Card>
+          </Link>
+
+          <Link to={PATHS.CREDENTIAL_ACCESS_LOGS} className="group">
+            <Card className="p-4 transition-colors group-hover:border-primary/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    Vault Access Events
+                  </p>
+                  <p className="text-2xl font-bold mt-1">
+                    {accessLogsQuery.data?.count ?? 0}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-green-500/10 p-2.5 text-green-500">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1 group-hover:text-primary">
+                Inspect audit trail →
+              </p>
+            </Card>
+          </Link>
+        </div>
       </section>
     </>
   );
