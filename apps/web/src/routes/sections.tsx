@@ -74,7 +74,7 @@ const Departments = lazy(() =>
   })),
 );
 const Designations = lazy(() =>
-  import("@/pages/Entities").then((module) => ({
+  import("@/pages/Designations").then((module) => ({
     default: module.Designations,
   })),
 );
