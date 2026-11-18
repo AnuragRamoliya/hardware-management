@@ -12,6 +12,14 @@ import type { ListDto, UserInfo } from '../Types/api';
 
 const plain = (value: import('sequelize').Model) => value.get({ plain: true }) as RowAttributes;
 const actorLabel = (actor: UserInfo) => `${actor.first_name} ${actor.last_name}`;
+
+export type SoftwareRow = RowAttributes & {
+  id: number | string;
+  seats_total: number;
+  seats_used: number;
+  seats_available: number;
+};
+
 const softwareFields = [
   'name',
   'vendor_id',
@@ -24,7 +32,7 @@ const softwareFields = [
 ] as const;
 
 export class SoftwareService {
-  async list(input: ListDto) {
+  async list(input: ListDto): Promise<{ rows: SoftwareRow[]; count: number }> {
     const filters = input.filters ?? {};
     const where: Record<string | symbol, unknown> = { status: 1 };
     for (const field of ['category', 'license_type'] as const) {
@@ -131,7 +139,7 @@ export class SoftwareService {
           seats_total: totalSeats,
           seats_used: seatsUsed,
           seats_available: totalSeats - seatsUsed,
-        };
+        } as unknown as SoftwareRow;
       }),
     );
     return { rows, count: result.count };
