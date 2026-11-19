@@ -200,6 +200,8 @@ All add and edit forms across modules strictly adhere to shared UI standards:
 - [MODULE_CHECKLIST.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/MODULE_CHECKLIST.md): Production checklist for all modules
 - [ASSET_SOFTWARE_PARITY_AUDIT.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/ASSET_SOFTWARE_PARITY_AUDIT.md): Detailed parity audit and screenshots
 - [MONOREPO_PLAN.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/MONOREPO_PLAN.md): Monorepo setup plan and verification audit
+- [PHASE5_OFFBOARDING_REPORT.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/PHASE5_OFFBOARDING_REPORT.md): Employee offboarding, task generation, and hardware handover verification
+- [PHASE_R_REALTIME_REPORT.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/PHASE_R_REALTIME_REPORT.md): Socket.IO real-time architecture, transactional events, and notification system
 
 ---
 
