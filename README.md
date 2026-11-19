@@ -194,14 +194,25 @@ All add and edit forms across modules strictly adhere to shared UI standards:
 
 ## 8. Documentation Index
 
+### Core Standards & Architecture
+
 - [PROJECT_CONTEXT.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/PROJECT_CONTEXT.md): System architecture and core business logic
 - [UI_STANDARDS.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/UI_STANDARDS.md): Design system and frontend patterns
 - [API_STANDARDS.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/API_STANDARDS.md): REST API conventions and endpoint shapes
 - [MODULE_CHECKLIST.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/MODULE_CHECKLIST.md): Production checklist for all modules
-- [ASSET_SOFTWARE_PARITY_AUDIT.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/ASSET_SOFTWARE_PARITY_AUDIT.md): Detailed parity audit and screenshots
-- [MONOREPO_PLAN.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/MONOREPO_PLAN.md): Monorepo setup plan and verification audit
-- [PHASE5_OFFBOARDING_REPORT.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/PHASE5_OFFBOARDING_REPORT.md): Employee offboarding, task generation, and hardware handover verification
-- [PHASE_R_REALTIME_REPORT.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/PHASE_R_REALTIME_REPORT.md): Socket.IO real-time architecture, transactional events, and notification system
+- [FORM_FIELD_GUIDELINES.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/FORM_FIELD_GUIDELINES.md): RHF form field catalogue and validation patterns
+- [CREDENTIAL_VAULT_SECURITY.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/CREDENTIAL_VAULT_SECURITY.md): AES-256-GCM zero-knowledge vault specification
+
+### Phase Implementation Guides
+
+Detailed documentation for each project phase is maintained in [docs/phases/](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/phases/README.md):
+
+- [Phase 1: Foundation, Authentication, RBAC & Core Resources](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/phases/PHASE_1_README.md)
+- [Phase 2: Hardware Assets, Software Licenses & Maintenance](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/phases/PHASE_2_README.md)
+- [Phase 3: Zero-Knowledge Credential Vault](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/phases/PHASE_3_README.md)
+- [Phase 4: Employee Requests & Approval Engine](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/phases/PHASE_4_README.md)
+- [Phase 5: Employee Offboarding & Hardware Handover](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/phases/PHASE_5_README.md)
+- [Phase R: Real-Time Push & Notification System](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/phases/PHASE_R_README.md)
 
 ---
 
