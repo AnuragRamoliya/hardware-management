@@ -157,82 +157,83 @@ export function AddEditSoftware({
           </div>
         ) : (
           <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-            <FormSection
-              title="Application Information"
-              description="Core software identity, categorization, and license structure."
-            >
-              <FormGrid>
-                <FormGridItem span={2}>
-                  <RHFTextField
-                    name="name"
-                    label="Software / App Name"
-                    placeholder="e.g. Figma Organization, Slack Pro, JetBrains All Products"
+            <div className="space-y-8">
+              <FormSection
+                title="Application Information"
+                description="Core software identity, categorization, and license structure."
+              >
+                <FormGrid>
+                  <FormGridItem span={2}>
+                    <RHFTextField
+                      name="name"
+                      label="Software / App Name"
+                      placeholder="e.g. Figma Organization, Slack Pro, JetBrains All Products"
+                      required
+                    />
+                  </FormGridItem>
+
+                  <RHFSelect
+                    name="category"
+                    label="Category"
+                    options={[...SOFTWARE_CATEGORIES]}
                     required
                   />
-                </FormGridItem>
 
-                <RHFSelect
-                  name="category"
-                  label="Category"
-                  options={[...SOFTWARE_CATEGORIES]}
-                  required
-                />
-
-                <RHFSelect
-                  name="license_type"
-                  label="License Type"
-                  options={[...SOFTWARE_LICENSE_TYPES]}
-                  required
-                />
-              </FormGrid>
-            </FormSection>
-
-            <FormSection
-              title="Vendor & Subscription"
-              description="Supplier vendor, subscription billing cycle, and renewal scheduling."
-            >
-              <FormGrid>
-                <FormGridItem span={2}>
-                  <RHFAsyncSelect
-                    name="vendor_id"
-                    label="Software Vendor / Reseller"
-                    endpoint="vendor/options"
-                    clearable
+                  <RHFSelect
+                    name="license_type"
+                    label="License Type"
+                    options={[...SOFTWARE_LICENSE_TYPES]}
+                    required
                   />
-                </FormGridItem>
+                </FormGrid>
+              </FormSection>
 
-                <RHFCurrencyField
-                  name="cost"
-                  label="Subscription / Seat Cost"
-                />
+              <FormSection
+                title="Vendor & Subscription"
+                description="Supplier vendor, subscription billing cycle, and renewal scheduling."
+              >
+                <FormGrid>
+                  <FormGridItem span={2}>
+                    <RHFAsyncSelect
+                      name="vendor_id"
+                      label="Software Vendor / Reseller"
+                      endpoint="vendor/options"
+                      clearable
+                    />
+                  </FormGridItem>
 
-                <RHFTextField
-                  name="billing_cycle"
-                  label="Billing Cycle"
-                  placeholder="e.g. monthly, annual, perpetual"
-                />
-
-                <FormGridItem span={2}>
-                  <RHFDatePicker
-                    name="renewal_date"
-                    label="Upcoming Renewal Date"
+                  <RHFCurrencyField
+                    name="cost"
+                    label="Subscription / Seat Cost"
                   />
-                </FormGridItem>
-              </FormGrid>
-            </FormSection>
 
-            <FormSection
-              title="Additional Notes"
-              description="Internal administrative guidelines, provisioning notes, or procurement contracts."
-            >
-              <RHFTextArea
-                name="notes"
-                label="Notes & Terms"
-                placeholder="e.g. Single Sign-On configured via Okta; license keys stored in security vault..."
-                rows={3}
-              />
-            </FormSection>
+                  <RHFTextField
+                    name="billing_cycle"
+                    label="Billing Cycle"
+                    placeholder="e.g. monthly, annual, perpetual"
+                  />
 
+                  <FormGridItem span={2}>
+                    <RHFDatePicker
+                      name="renewal_date"
+                      label="Upcoming Renewal Date"
+                    />
+                  </FormGridItem>
+                </FormGrid>
+              </FormSection>
+
+              <FormSection
+                title="Additional Notes"
+                description="Internal administrative guidelines, provisioning notes, or procurement contracts."
+              >
+                <RHFTextArea
+                  name="notes"
+                  label="Notes & Terms"
+                  placeholder="e.g. Single Sign-On configured via Okta; license keys stored in security vault..."
+                  rows={3}
+                />
+              </FormSection>
+            </div>
             <FormActions
               submitting={
                 isSubmitting ||
