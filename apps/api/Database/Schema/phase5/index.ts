@@ -1,48 +1,9 @@
-import { DataTypes } from 'sequelize';
+import { offboardingChecklistTemplatesSchema } from './offboarding_checklist_templates';
+import { offboardingCasesSchema } from './offboarding_cases';
+import { offboardingTasksSchema } from './offboarding_tasks';
 
 export const phase5Schemas = {
-  offboarding_checklist_templates: {
-    title: { type: DataTypes.STRING(255), allowNull: false },
-    description: { type: DataTypes.TEXT, allowNull: true },
-    default_assignee_role: { type: DataTypes.STRING(50), allowNull: true },
-    is_mandatory: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 1 },
-    sort_order: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
-    is_active: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 1 },
-  },
-  offboarding_cases: {
-    case_no: { type: DataTypes.STRING(50), allowNull: false, unique: true },
-    employee_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
-    exit_type: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false },
-    resignation_date: { type: DataTypes.DATEONLY, allowNull: false },
-    last_working_date: { type: DataTypes.DATEONLY, allowNull: false },
-    reason: { type: DataTypes.TEXT, allowNull: false },
-    initiated_by: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
-    handover_to: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
-    manager_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
-    case_status: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 1 },
-    completed_at: { type: DataTypes.DATE, allowNull: true },
-    clearance_number: { type: DataTypes.STRING(100), allowNull: true },
-    clearance_issued_at: { type: DataTypes.DATE, allowNull: true },
-    clearance_file_path: { type: DataTypes.STRING(255), allowNull: true },
-    handover_receipt_file_path: { type: DataTypes.STRING(255), allowNull: true },
-    notes: { type: DataTypes.TEXT, allowNull: true },
-  },
-  offboarding_tasks: {
-    case_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
-    task_type: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false },
-    ref_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
-    ref_label: { type: DataTypes.STRING(255), allowNull: true },
-    title: { type: DataTypes.STRING(255), allowNull: false },
-    assigned_to: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
-    task_status: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 1 },
-    is_mandatory: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 1 },
-    due_date: { type: DataTypes.DATEONLY, allowNull: false },
-    completed_at: { type: DataTypes.DATE, allowNull: true },
-    completed_by: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
-    return_condition: { type: DataTypes.STRING(50), allowNull: true },
-    to_status: { type: DataTypes.STRING(50), allowNull: true },
-    outcome_notes: { type: DataTypes.TEXT, allowNull: true },
-    waived_by: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
-    waive_reason: { type: DataTypes.TEXT, allowNull: true },
-  },
+  offboarding_checklist_templates: offboardingChecklistTemplatesSchema,
+  offboarding_cases: offboardingCasesSchema,
+  offboarding_tasks: offboardingTasksSchema,
 };

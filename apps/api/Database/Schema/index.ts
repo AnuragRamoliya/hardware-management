@@ -1,5 +1,6 @@
 import { DataTypes, Model, type ModelAttributes, type ModelStatic } from 'sequelize';
 import { sequelize } from '../../Config/database';
+import { phase1Schemas } from './phase1';
 import { phase2Schemas } from './phase2';
 import { phase3Schemas } from './phase3';
 import { phase4Schemas } from './phase4';
@@ -18,112 +19,11 @@ const commonAttributes = {
 };
 
 const schemas = {
-  roles: {
-    name: { type: DataTypes.STRING(100), allowNull: false, unique: true },
-    type: { type: DataTypes.STRING(50), allowNull: false, unique: true },
-  },
-  modules: {
-    name: { type: DataTypes.STRING(100), allowNull: false, unique: true },
-    sortOrder: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
-  },
-  permissions: {
-    role_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
-    module_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
-    read_access: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
-    write_access: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
-    delete_access: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
-    options_access: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
-    approve_access: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
-    reveal_access: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
-  },
-  users: {
-    role_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
-    first_name: { type: DataTypes.STRING(255), allowNull: false },
-    last_name: { type: DataTypes.STRING(255), allowNull: false },
-    email: { type: DataTypes.STRING(255), allowNull: false },
-    password: { type: DataTypes.STRING(255), allowNull: false },
-    image: { type: DataTypes.STRING(255), allowNull: true },
-    failed_login_count: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
-    locked_until: { type: DataTypes.DATE, allowNull: true },
-    consent_accepted_at: { type: DataTypes.DATE, allowNull: true },
-    consent_version: { type: DataTypes.STRING(20), allowNull: true },
-  },
-  user_tokens: {
-    user_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
-    token: { type: DataTypes.STRING(512), allowNull: true, unique: true },
-    refresh_token_hash: { type: DataTypes.STRING(64), allowNull: true, unique: true },
-    expires_at: { type: DataTypes.DATE, allowNull: true },
-    refresh_expires_at: { type: DataTypes.DATE, allowNull: true },
-    otp: { type: DataTypes.STRING(10), allowNull: true },
-    otp_reference: { type: DataTypes.STRING(512), allowNull: true },
-    reset_token: { type: DataTypes.STRING(512), allowNull: true },
-    is_revoked: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
-    device_name: { type: DataTypes.STRING(255), allowNull: true },
-    ip_address: { type: DataTypes.STRING(100), allowNull: true },
-    user_agent: { type: DataTypes.STRING(500), allowNull: true },
-    last_active_at: { type: DataTypes.DATE, allowNull: true },
-  },
-  activity_logs: {
-    module: { type: DataTypes.STRING(100), allowNull: false },
-    module_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
-    action: { type: DataTypes.STRING(40), allowNull: false },
-    field: { type: DataTypes.STRING(100), allowNull: true },
-    old_value: { type: DataTypes.JSON, allowNull: true },
-    new_value: { type: DataTypes.JSON, allowNull: true },
-    description: { type: DataTypes.STRING(500), allowNull: false },
-    meta: { type: DataTypes.JSON, allowNull: true },
-    created_by_name: { type: DataTypes.STRING(255), allowNull: true },
-    prev_hash: { type: DataTypes.STRING(64), allowNull: true },
-    hash: { type: DataTypes.STRING(64), allowNull: true },
-  },
-  app_settings: {
-    key: { type: DataTypes.STRING(100), allowNull: false, unique: true },
-    value: { type: DataTypes.TEXT, allowNull: true },
-    description: { type: DataTypes.STRING(255), allowNull: true },
-  },
-  departments: {
-    name: { type: DataTypes.STRING(255), allowNull: false, unique: true },
-    description: { type: DataTypes.TEXT, allowNull: true },
-  },
-  designations: {
-    name: { type: DataTypes.STRING(255), allowNull: false, unique: true },
-    description: { type: DataTypes.TEXT, allowNull: true },
-  },
-  locations: {
-    name: { type: DataTypes.STRING(255), allowNull: false, unique: true },
-    address: { type: DataTypes.TEXT, allowNull: true },
-  },
-  vendors: {
-    name: { type: DataTypes.STRING(255), allowNull: false },
-    contact_name: { type: DataTypes.STRING(255), allowNull: true },
-    email: { type: DataTypes.STRING(255), allowNull: true },
-    phone: { type: DataTypes.STRING(50), allowNull: true },
-    address: { type: DataTypes.TEXT, allowNull: true },
-  },
-  asset_categories: {
-    name: { type: DataTypes.STRING(255), allowNull: false, unique: true },
-    description: { type: DataTypes.TEXT, allowNull: true },
-  },
+  ...phase1Schemas,
   ...phase2Schemas,
   ...phase3Schemas,
   ...phase4Schemas,
   ...phase5Schemas,
-  employees: {
-    user_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true, unique: true },
-    employee_code: { type: DataTypes.STRING(100), allowNull: false, unique: true },
-    first_name: { type: DataTypes.STRING(255), allowNull: false },
-    last_name: { type: DataTypes.STRING(255), allowNull: false },
-    email: { type: DataTypes.STRING(255), allowNull: false },
-    phone: { type: DataTypes.STRING(50), allowNull: true },
-    department_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
-    designation_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
-    manager_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
-    location_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
-    join_date: { type: DataTypes.DATEONLY, allowNull: true },
-    last_working_date: { type: DataTypes.DATEONLY, allowNull: true },
-    employment_status: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 1 },
-    profile_image: { type: DataTypes.STRING(255), allowNull: true },
-  },
 };
 
 function defineModel(tableName: string, attributes: Record<string, object>): EntityModel {
