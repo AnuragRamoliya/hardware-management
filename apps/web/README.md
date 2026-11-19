@@ -25,6 +25,19 @@ The app uses React Query for server state, a persisted Zustand auth store, and t
 
 Includes the app shell, design-system showcase, authentication flows, admin resource views, employee detail tabs, portal entry points, typed API services, route/role/permission guards, and test foundations. Later-phase asset/software/credential/request/offboarding/report functionality is intentionally not implemented.
 
+## Form Standards & Layout Rules
+
+1. **Form Grid & Field Widths**:
+   - Drawers and dialogs use `<FormGrid>` which defaults to a 2-column responsive layout (`sm:grid-cols-2`).
+   - Use `<FormGridItem span={2}>` or `span="full"` for full-width fields (titles, long textareas, security credentials with meters).
+   - Use `<FormGridItem span={1}>` for balanced 50% width field pairs (e.g., first/last name, email/phone, dates, selects).
+   - Multiline textareas (e.g., descriptions, notes, addresses) must always span full width (`span={2}`) at the bottom of the section.
+
+2. **Unsaved Changes Guard**:
+   - All forms must guard against accidental closure when `isDirty` is true.
+   - Never use native browser dialogs (`window.confirm`). Always use the shared `<ConfirmDialog>` component with `variant="destructive"`.
+   - Wire the dirty check to both the Drawer's `onOpenChange` (intercepting backdrop and close-icon clicks) and `<FormActions onCancel={requestClose}>`.
+
 ## Backend contract
 
 The web app sends JSON with `plain-text: true`, carries the access token in the `token` header,

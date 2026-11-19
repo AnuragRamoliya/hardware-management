@@ -31,7 +31,9 @@ Follow `AssetDetail`: `PageHeader` with breadcrumbs and status/actions; keyboard
 
 ### Form and action dialog
 
-Desktop forms open in `Drawer`; on mobile the drawer fills the viewport. Show a loading skeleton while edit data is fetched. Keep form content scrollable and actions sticky. Do not close a dirty form without asking. Only the primary Save action submits the form; Cancel is `type="button"`.
+Desktop forms open in `Drawer`; on mobile the drawer fills the viewport. Show a loading skeleton while edit data is fetched. Keep form content scrollable and actions sticky. Do not close a dirty form without asking: always trigger `<ConfirmDialog>` on backdrop click, drawer close, or Cancel action when `isDirty` is true (native `window.confirm` is strictly forbidden). Only the primary Save action submits the form; Cancel is `type="button"`.
+
+`FormGrid` provides a 2-column responsive layout (`sm:grid-cols-2`) optimized for drawers (supporting `cols?: 1 | 2 | 3`). Use `FormGridItem` with `span={2}` or `span="full"` for full-width fields (titles, long textareas, complex security fields) and `span={1}` for balanced 50% width field pairs. Textareas (notes, descriptions, addresses) must always span full width (`span={2}`) at the bottom of the section.
 
 ```tsx
 <FormProvider methods={methods} onSubmit={methods.handleSubmit(save)}>
