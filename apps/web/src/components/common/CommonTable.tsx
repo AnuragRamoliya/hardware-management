@@ -27,6 +27,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export interface TableColumn<T> {
   id: string;
@@ -371,25 +378,34 @@ export function CommonTable<T extends { id: string | number }>({
             ? "0 records"
             : `${(query.currentPage - 1) * query.itemsPerPage + 1}–${Math.min(query.currentPage * query.itemsPerPage, count)} of ${count} records`}
         </span>
-        <div className="flex items-center justify-between gap-2 sm:justify-end">
-          <label>
-            Rows{" "}
-            <select
-              aria-label="Rows per page"
-              className="ml-1 rounded border bg-card px-2 py-1"
-              value={query.itemsPerPage}
-              onChange={(event) =>
+        <div className="flex items-center justify-between gap-4 sm:justify-end">
+          <div className="flex items-center gap-2">
+            <span className="whitespace-nowrap text-xs text-muted-foreground">
+              Rows per page
+            </span>
+            <Select
+              value={String(query.itemsPerPage)}
+              onValueChange={(value) =>
                 onQueryChange({
                   currentPage: 1,
-                  itemsPerPage: Number(event.target.value),
+                  itemsPerPage: Number(value),
                 })
               }
             >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </select>
-          </label>
+              <SelectTrigger
+                aria-label="Rows per page"
+                className="h-8 w-[74px] bg-card px-2.5 text-xs font-medium"
+              >
+                <SelectValue placeholder={String(query.itemsPerPage)} />
+              </SelectTrigger>
+              <SelectContent side="top" align="end" className="min-w-[74px]">
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="flex gap-1">
             <Button
               aria-label="Previous page"
