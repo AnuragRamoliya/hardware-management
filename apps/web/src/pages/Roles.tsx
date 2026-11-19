@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Pencil, Plus, ShieldCheck } from "lucide-react";
 import { ListPageScaffold } from "@/components/common/ListPageScaffold";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Drawer } from "@/components/common/Drawer";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/common/States";
 import {
@@ -199,168 +199,158 @@ export function RolesPage() {
         emptyTitle="No roles found"
       />
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-3xl p-0">
-          <div className="border-b p-6">
-            <DialogTitle className="text-lg font-semibold">
-              {selected ? "Edit role access" : "Create role"}
-            </DialogTitle>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Select the permissions this role needs. Write and delete require
-              read access.
-            </p>
+      <Drawer
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title={selected ? "Edit role access" : "Create role"}
+        description="Select the permissions this role needs. Write and delete require read access."
+        className="sm:max-w-3xl"
+      >
+        <div className="space-y-5">
+          <div>
+            <label
+              htmlFor="role-name"
+              className="mb-2 block text-sm font-medium"
+            >
+              Role name
+            </label>
+            <Input
+              id="role-name"
+              value={name}
+              onChange={(event) => {
+                const value = event.target.value;
+                setName(value);
+                if (!selected) {
+                  setRoleType(
+                    value
+                      .trim()
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, "_"),
+                  );
+                }
+              }}
+              placeholder="e.g. IT support"
+            />
           </div>
-          <div className="max-h-[70vh] space-y-5 overflow-y-auto p-6">
+          {!selected && (
             <div>
               <label
-                htmlFor="role-name"
+                htmlFor="role-type"
                 className="mb-2 block text-sm font-medium"
               >
-                Role name
+                Role type
               </label>
               <Input
-                id="role-name"
-                value={name}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setName(value);
-                  if (!selected) {
-                    setRoleType(
-                      value
-                        .trim()
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, "_"),
-                    );
-                  }
-                }}
-                placeholder="e.g. IT support"
+                id="role-type"
+                value={roleType}
+                onChange={(event) => setRoleType(event.target.value)}
+                placeholder="e.g. it_support"
               />
             </div>
-            {!selected && (
-              <div>
-                <label
-                  htmlFor="role-type"
-                  className="mb-2 block text-sm font-medium"
-                >
-                  Role type
-                </label>
-                <Input
-                  id="role-type"
-                  value={roleType}
-                  onChange={(event) => setRoleType(event.target.value)}
-                  placeholder="e.g. it_support"
-                />
-              </div>
-            )}
-            {modulesQuery.isError && (
-              <p role="alert" className="text-sm text-danger">
-                Could not load modules:{" "}
-                {modulesQuery.error instanceof Error
-                  ? modulesQuery.error.message
-                  : "Unknown error"}
-              </p>
-            )}
-            {permissionsQuery.isError && selected && (
-              <p role="alert" className="text-sm text-danger">
-                Could not load this role's permissions:{" "}
-                {permissionsQuery.error instanceof Error
-                  ? permissionsQuery.error.message
-                  : "Unknown error"}
-              </p>
-            )}
-            <div className="overflow-x-auto rounded-lg border">
-              <table className="w-full min-w-[560px] text-left text-sm">
-                <thead className="bg-muted/70 text-xs text-muted-foreground">
+          )}
+          {modulesQuery.isError && (
+            <p role="alert" className="text-sm text-danger">
+              Could not load modules:{" "}
+              {modulesQuery.error instanceof Error
+                ? modulesQuery.error.message
+                : "Unknown error"}
+            </p>
+          )}
+          {permissionsQuery.isError && selected && (
+            <p role="alert" className="text-sm text-danger">
+              Could not load this role's permissions:{" "}
+              {permissionsQuery.error instanceof Error
+                ? permissionsQuery.error.message
+                : "Unknown error"}
+            </p>
+          )}
+          <div className="overflow-x-auto rounded-lg border">
+            <table className="w-full min-w-[560px] text-left text-sm">
+              <thead className="bg-muted/70 text-xs text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3">Module</th>
+                  <th className="px-4 py-3 text-center">View</th>
+                  <th className="px-4 py-3 text-center">Create & edit</th>
+                  <th className="px-4 py-3 text-center">Delete</th>
+                  <th className="px-4 py-3 text-center">Approve</th>
+                  <th className="px-4 py-3 text-center">Reveal</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {modulesQuery.isLoading ? (
                   <tr>
-                    <th className="px-4 py-3">Module</th>
-                    <th className="px-4 py-3 text-center">View</th>
-                    <th className="px-4 py-3 text-center">Create & edit</th>
-                    <th className="px-4 py-3 text-center">Delete</th>
-                    <th className="px-4 py-3 text-center">Approve</th>
-                    <th className="px-4 py-3 text-center">Reveal</th>
+                    <td colSpan={6} className="p-5">
+                      <Spinner label="Loading modules" />
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {modulesQuery.isLoading ? (
-                    <tr>
-                      <td colSpan={6} className="p-5">
-                        <Spinner label="Loading modules" />
+                ) : (
+                  modulesQuery.data?.map((module) => (
+                    <tr key={module.id}>
+                      <td className="px-4 py-3 font-medium capitalize">
+                        {module.name.replaceAll("_", " ")}
                       </td>
-                    </tr>
-                  ) : (
-                    modulesQuery.data?.map((module) => (
-                      <tr key={module.id}>
-                        <td className="px-4 py-3 font-medium capitalize">
-                          {module.name.replaceAll("_", " ")}
+                      {(
+                        [
+                          "read_access",
+                          "write_access",
+                          "delete_access",
+                          "approve_access",
+                          "reveal_access",
+                        ] as const
+                      ).map((permission) => (
+                        <td key={permission} className="px-4 py-3 text-center">
+                          <input
+                            aria-label={`${permission.replace("_access", "")} ${module.name}`}
+                            type="checkbox"
+                            checked={matrix[module.name]?.[permission] ?? false}
+                            disabled={
+                              permission !== "read_access" &&
+                              !matrix[module.name]?.read_access
+                            }
+                            className="h-4 w-4 accent-primary disabled:opacity-40"
+                            onChange={() => toggle(module.name, permission)}
+                          />
                         </td>
-                        {(
-                          [
-                            "read_access",
-                            "write_access",
-                            "delete_access",
-                            "approve_access",
-                            "reveal_access",
-                          ] as const
-                        ).map((permission) => (
-                          <td
-                            key={permission}
-                            className="px-4 py-3 text-center"
-                          >
-                            <input
-                              aria-label={`${permission.replace("_access", "")} ${module.name}`}
-                              type="checkbox"
-                              checked={
-                                matrix[module.name]?.[permission] ?? false
-                              }
-                              disabled={
-                                permission !== "read_access" &&
-                                !matrix[module.name]?.read_access
-                              }
-                              className="h-4 w-4 accent-primary disabled:opacity-40"
-                              onChange={() => toggle(module.name, permission)}
-                            />
-                          </td>
-                        ))}
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <div className="flex items-start gap-3 rounded-lg bg-accent p-4 text-sm text-accent-foreground">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>
-                Permissions are checked in both navigation and route guards. The
-                seeded Super Admin role has full access.
-              </p>
-            </div>
-            <div className="flex justify-end gap-2 border-t pt-4">
-              <Button
-                variant="outline"
-                onClick={() => setDialogOpen(false)}
-                disabled={saveMutation.isPending}
-              >
-                Cancel
-              </Button>
-              <Button
-                disabled={
-                  !name.trim() ||
-                  (!selected && !roleType.trim()) ||
-                  modulesQuery.isLoading ||
-                  modulesQuery.isError ||
-                  (Boolean(selected) &&
-                    (permissionsQuery.isLoading || permissionsQuery.isError)) ||
-                  saveMutation.isPending
-                }
-                loading={saveMutation.isPending}
-                onClick={handleSave}
-              >
-                Save permissions
-              </Button>
-            </div>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
-        </DialogContent>
-      </Dialog>
+          <div className="flex items-start gap-3 rounded-lg bg-accent p-4 text-sm text-accent-foreground">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>
+              Permissions are checked in both navigation and route guards. The
+              seeded Super Admin role has full access.
+            </p>
+          </div>
+          <div className="flex justify-end gap-2 border-t pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setDialogOpen(false)}
+              disabled={saveMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={
+                !name.trim() ||
+                (!selected && !roleType.trim()) ||
+                modulesQuery.isLoading ||
+                modulesQuery.isError ||
+                (Boolean(selected) &&
+                  (permissionsQuery.isLoading || permissionsQuery.isError)) ||
+                saveMutation.isPending
+              }
+              loading={saveMutation.isPending}
+              onClick={handleSave}
+            >
+              Save permissions
+            </Button>
+          </div>
+        </div>
+      </Drawer>
     </>
   );
 }

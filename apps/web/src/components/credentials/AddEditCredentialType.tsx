@@ -134,14 +134,14 @@ export function AddEditCredentialType({
         }
       >
         {loading ? (
-          <div className="space-y-4 py-4">
+          <div className="space-y-6">
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-20 w-full" />
           </div>
         ) : (
           <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-            <div className="space-y-6 pb-6">
+            <div className="space-y-6">
               <FormSection
                 title="Basic Information"
                 description="Classification and identification details"

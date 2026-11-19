@@ -191,7 +191,7 @@ export function AddEditCredential({
         }
       >
         {loading ? (
-          <div className="space-y-6 p-6">
+          <div className="space-y-6">
             <Skeleton className="h-6 w-1/3" />
             <div className="grid grid-cols-2 gap-4">
               <Skeleton className="h-10" />
@@ -204,7 +204,7 @@ export function AddEditCredential({
           </div>
         ) : (
           <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-            <div className="space-y-6 p-6">
+            <div className="space-y-6">
               {/* 1. Account Details */}
               <FormSection
                 title="Account details"

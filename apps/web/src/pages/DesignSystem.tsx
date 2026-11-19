@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState, Spinner } from "@/components/common/States";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { Drawer } from "@/components/common/Drawer";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   RHFCheckbox,
@@ -123,6 +124,7 @@ const mockDemoCredential: CredentialDto = {
 export function DesignSystem() {
   const [confirm, setConfirm] = useState(false);
   const [modal, setModal] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [revealOpen, setRevealOpen] = useState(false);
   const [rotateOpen, setRotateOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("Overview");
@@ -429,9 +431,12 @@ export function DesignSystem() {
               </p>
             </div>
           </CardHeader>
-          <CardContent className="flex gap-2">
+          <CardContent className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => setModal(true)}>
               Open modal
+            </Button>
+            <Button variant="outline" onClick={() => setDrawerOpen(true)}>
+              Open form drawer
             </Button>
             <Button variant="destructive" onClick={() => setConfirm(true)}>
               Open confirmation
@@ -836,6 +841,21 @@ export function DesignSystem() {
         variant="destructive"
         confirmText="Delete"
       />
+      <Drawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        title="Standard Form Drawer"
+        description="Standard desktop slide-over and mobile sheet layout for all add/edit entity forms."
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            All Add and Edit forms in the platform use this standard Drawer
+            component with FormProvider, FormSection, FormGrid, and sticky
+            FormActions.
+          </p>
+          <Button onClick={() => setDrawerOpen(false)}>Close Drawer</Button>
+        </div>
+      </Drawer>
       <Dialog open={modal} onOpenChange={setModal}>
         <DialogContent>
           <DialogTitle className="text-lg font-semibold">

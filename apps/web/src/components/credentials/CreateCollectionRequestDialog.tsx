@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { ActionDialogLayout } from "@/components/common/ActionDialogLayout";
+import { Drawer } from "@/components/common/Drawer";
 import FormProvider from "@/components/hook-form/form-provider";
 import {
   FormGrid,
@@ -93,7 +93,7 @@ export function CreateCollectionRequestDialog({
   };
 
   return (
-    <ActionDialogLayout
+    <Drawer
       open={open}
       onOpenChange={onOpenChange}
       title="Request Employee Credential"
@@ -145,6 +145,6 @@ export function CreateCollectionRequestDialog({
           submitLabel="Send Request"
         />
       </FormProvider>
-    </ActionDialogLayout>
+    </Drawer>
   );
 }

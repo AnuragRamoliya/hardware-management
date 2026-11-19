@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Drawer } from "@/components/common/Drawer";
 import { FormActions } from "@/components/common/FormLayout";
 import FormProvider from "@/components/hook-form/form-provider";
 import {
@@ -67,42 +67,44 @@ export function AddEditLicenseDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
-        <DialogTitle>Add Software License Tier</DialogTitle>
-        <p className="text-xs text-muted-foreground">
-          {softwareName
-            ? `Register new seats or license keys for ${softwareName}.`
-            : "Register new seats or license keys."}
-        </p>
-
-        <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4 mt-3">
-            <RHFPasswordField
-              name="license_key"
-              label="License Key / Serial"
-              helperText="Encrypted at rest in the credential vault; never exposed in plain text."
-            />
-
-            <RHFNumberField
-              name="seats_total"
-              label="Total Available Seats"
-              required
-            />
-
-            <div className="grid grid-cols-2 gap-3">
-              <RHFDatePicker name="purchase_date" label="Purchase Date" />
-              <RHFDatePicker name="expiry_date" label="Expiry Date" />
-            </div>
-          </div>
-
-          <FormActions
-            submitting={isSubmitting || createMutation.isPending}
-            submitLabel="Save License"
-            onCancel={handleClose}
+    <Drawer
+      open={open}
+      onOpenChange={handleClose}
+      title="Add Software License Tier"
+      description={
+        softwareName
+          ? `Register new seats or license keys for ${softwareName}.`
+          : "Register new seats or license keys."
+      }
+    >
+      <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+        <div className="space-y-4">
+          <RHFPasswordField
+            name="license_key"
+            label="License Key / Serial"
+            helperText="Encrypted at rest in the credential vault; never exposed in plain text."
           />
-        </FormProvider>
-      </DialogContent>
-    </Dialog>
+
+          <RHFNumberField
+            name="seats_total"
+            label="Total Available Seats"
+            required
+          />
+
+          <div className="grid grid-cols-2 gap-3">
+            <RHFDatePicker name="purchase_date" label="Purchase Date" />
+            <RHFDatePicker name="expiry_date" label="Expiry Date" />
+          </div>
+        </div>
+
+        <FormActions
+          submitting={isSubmitting || createMutation.isPending}
+          submitLabel="Save License"
+          onCancel={handleClose}
+        />
+      </FormProvider>
+    </Drawer>
   );
 }
+
+export const AddEditLicenseDrawer = AddEditLicenseDialog;

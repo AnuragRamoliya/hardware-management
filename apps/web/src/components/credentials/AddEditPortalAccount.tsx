@@ -144,7 +144,7 @@ export function AddEditPortalAccount({
         }
       >
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-6 pb-6">
+          <div className="space-y-6">
             <FormSection
               title="Account Details"
               description="Basic service and identity information"
