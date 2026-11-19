@@ -3,7 +3,7 @@ import { ACCESS_TYPES, MODULES } from '../Config/constant';
 import { checkAccess, userAuth } from '../Middleware/authentication';
 import { decryptPayload } from '../Middleware/cryptography';
 
-// Phase 1 Modular Routers
+// Core Resources
 import { departmentRouter } from './department';
 import { designationRouter } from './designation';
 import { locationRouter } from './location';
@@ -15,16 +15,26 @@ import { permissionRouter } from './permissions';
 import { employeeRouter } from './employees';
 import { auditRouter } from './audit_logs';
 
-// Phase 2, 3, 4, 5 Routers
-import { phase2Router } from './phase2';
-import { phase3Router } from './phase3';
-import { phase4Router } from './requests';
+// Assets, Software, Inventory & Maintenance Routers
+import { assetsRouter } from './assets';
+import { assetAssignmentsRouter } from './asset_assignments';
+import { assetMaintenanceRouter } from './asset_maintenance';
+import { softwareRouter } from './software';
+import { softwareLicensesRouter } from './software_licenses';
+import { employeeInventoryRouter } from './employee_inventory';
+import { portalRouter } from './portal';
+import { dashboardRouter } from './dashboard';
+import { notificationsRouter } from './notifications';
+
+// Credentials, Requests & Offboarding Routers
+import { credentialsRouter } from './credentials';
+import { requestsRouter } from './requests';
 import { offboardingRouter, portalOffboardingRouter } from './offboarding';
 import { offboardingTemplateRouter } from './offboarding_template';
 
 export const router = Router();
 
-// Phase 1 Resources
+// Core Resources
 router.use('/department', departmentRouter);
 router.use('/designation', designationRouter);
 router.use('/location', locationRouter);
@@ -45,16 +55,24 @@ router.get(
   roleController.getCurrentPermissions.bind(roleController),
 );
 
-// Phase 2: Assets, Software, Maintenance, Notifications, Dashboard
-router.use(phase2Router);
+// Assets, Software, Maintenance & Dashboard
+router.use(assetsRouter);
+router.use(assetAssignmentsRouter);
+router.use(assetMaintenanceRouter);
+router.use(softwareRouter);
+router.use(softwareLicensesRouter);
+router.use(employeeInventoryRouter);
+router.use(portalRouter);
+router.use(dashboardRouter);
+router.use(notificationsRouter);
 
-// Phase 3: Credentials Vault
-router.use(phase3Router);
+// Credentials Vault
+router.use(credentialsRouter);
 
-// Phase 4: Requests Workflow
-router.use(phase4Router);
+// Requests Workflow
+router.use(requestsRouter);
 
-// Phase 5: Offboarding
+// Offboarding
 router.use('/offboarding/template', offboardingTemplateRouter);
 router.use('/offboarding', offboardingRouter);
 router.use('/portal', portalOffboardingRouter);

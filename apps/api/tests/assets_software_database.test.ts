@@ -16,7 +16,8 @@ import { SoftwareService } from '../Services/software';
 import { SoftwareLicensesService } from '../Services/software_licenses';
 import type { UserInfo } from '../Types/api';
 
-const dbTest = process.env.PHASE2_DB_INTEGRATION === '1' ? it : it.skip;
+const dbTest =
+  process.env.DB_INTEGRATION === '1' || process.env.PHASE2_DB_INTEGRATION === '1' ? it : it.skip;
 const assetIds: number[] = [];
 const softwareIds: number[] = [];
 const actor: UserInfo = {

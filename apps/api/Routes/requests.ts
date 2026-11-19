@@ -241,7 +241,8 @@ portalRouter.get(
   routeHandler((req) => portalController.options(req)),
 );
 
-// Combine into phase4Router
-export const phase4Router = Router();
-phase4Router.use('/request', adminRouter);
-phase4Router.use('/portal/request', portalRouter);
+// Combine into requestsRouter
+export const requestsRouter = Router();
+requestsRouter.use('/request', adminRouter);
+requestsRouter.use('/portal/request', portalRouter);
+export const phase4Router = requestsRouter;

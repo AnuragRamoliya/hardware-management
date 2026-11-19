@@ -362,7 +362,8 @@ portalCredRouter.get(
   routeHandler(() => portalController.allowedTypes()),
 );
 
-export const phase3Router = Router();
-phase3Router.use('/credential-type', typeRouter);
-phase3Router.use('/credential', credRouter);
-phase3Router.use('/portal/credential', portalCredRouter);
+export const credentialsRouter = Router();
+credentialsRouter.use('/credential-type', typeRouter);
+credentialsRouter.use('/credential', credRouter);
+credentialsRouter.use('/portal/credential', portalCredRouter);
+export const phase3Router = credentialsRouter;

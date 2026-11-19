@@ -1,6 +1,6 @@
 'use strict';
 
-const phase3Modules = [
+const vaultModules = [
   'credential',
   'credential_type',
   'credential_collection_request',
@@ -157,7 +157,7 @@ const appSettings = [
 module.exports = {
   async up(queryInterface) {
     // 1. Ensure modules exist
-    for (const [index, name] of phase3Modules.entries()) {
+    for (const [index, name] of vaultModules.entries()) {
       await queryInterface.sequelize.query(
         'INSERT INTO `modules` (`name`, `sortOrder`, `status`, `createdAt`, `updatedAt`) VALUES (?, ?, 1, NOW(), NOW()) ON DUPLICATE KEY UPDATE `status` = 1',
         { replacements: [name, 30 + index] },
@@ -169,14 +169,14 @@ module.exports = {
     const [modules] = await queryInterface.sequelize.query(
       'SELECT `id`, `name` FROM `modules` WHERE `name` IN (?)',
       {
-        replacements: [phase3Modules],
+        replacements: [vaultModules],
       },
     );
     const moduleMap = new Map(modules.map((m) => [m.name, m.id]));
 
-    // 3. Upsert RBAC permissions for phase 3 modules
+    // 3. Upsert RBAC permissions for vault modules
     for (const role of roles) {
-      for (const modName of phase3Modules) {
+      for (const modName of vaultModules) {
         const modId = moduleMap.get(modName);
         if (!modId) continue;
 

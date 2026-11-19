@@ -1,10 +1,40 @@
 import { DataTypes, Model, type ModelAttributes, type ModelStatic } from 'sequelize';
 import { sequelize } from '../../Config/database';
-import { phase1Schemas } from './phase1';
-import { phase2Schemas } from './phase2';
-import { phase3Schemas } from './phase3';
-import { phase4Schemas } from './phase4';
-import { phase5Schemas } from './phase5';
+
+import { rolesSchema } from './roles';
+import { modulesSchema } from './modules';
+import { permissionsSchema } from './permissions';
+import { usersSchema } from './users';
+import { userTokensSchema } from './user_tokens';
+import { activityLogsSchema } from './activity_logs';
+import { appSettingsSchema } from './app_settings';
+import { departmentsSchema } from './departments';
+import { designationsSchema } from './designations';
+import { locationsSchema } from './locations';
+import { vendorsSchema } from './vendors';
+import { assetCategoriesSchema } from './asset_categories';
+import { employeesSchema } from './employees';
+import { notificationsSchema } from './notifications';
+import { notificationPreferencesSchema } from './notification_preferences';
+import { assetsSchema } from './assets';
+import { assetAssignmentsSchema } from './asset_assignments';
+import { assetMaintenanceSchema } from './asset_maintenance';
+import { softwareSchema } from './software';
+import { softwareLicensesSchema } from './software_licenses';
+import { softwareAssignmentsSchema } from './software_assignments';
+import { credentialTypesSchema } from './credential_types';
+import { credentialsSchema } from './credentials';
+import { credentialHistorySchema } from './credential_history';
+import { credentialCollectionRequestsSchema } from './credential_collection_requests';
+import { credentialAccessLogsSchema } from './credential_access_logs';
+import { loginHistorySchema } from './login_history';
+import { requestsSchema } from './requests';
+import { requestCommentsSchema } from './request_comments';
+import { requestStatusHistorySchema } from './request_status_history';
+import { requestAttachmentsSchema } from './request_attachments';
+import { offboardingChecklistTemplatesSchema } from './offboarding_checklist_templates';
+import { offboardingCasesSchema } from './offboarding_cases';
+import { offboardingTasksSchema } from './offboarding_tasks';
 
 export type RowAttributes = Record<string, unknown>;
 export type EntityModel = ModelStatic<Model<RowAttributes, RowAttributes>>;
@@ -19,11 +49,40 @@ const commonAttributes = {
 };
 
 const schemas = {
-  ...phase1Schemas,
-  ...phase2Schemas,
-  ...phase3Schemas,
-  ...phase4Schemas,
-  ...phase5Schemas,
+  roles: rolesSchema,
+  modules: modulesSchema,
+  permissions: permissionsSchema,
+  users: usersSchema,
+  user_tokens: userTokensSchema,
+  activity_logs: activityLogsSchema,
+  app_settings: appSettingsSchema,
+  departments: departmentsSchema,
+  designations: designationsSchema,
+  locations: locationsSchema,
+  vendors: vendorsSchema,
+  asset_categories: assetCategoriesSchema,
+  employees: employeesSchema,
+  notifications: notificationsSchema,
+  notification_preferences: notificationPreferencesSchema,
+  assets: assetsSchema,
+  asset_assignments: assetAssignmentsSchema,
+  asset_maintenance: assetMaintenanceSchema,
+  software: softwareSchema,
+  software_licenses: softwareLicensesSchema,
+  software_assignments: softwareAssignmentsSchema,
+  credential_types: credentialTypesSchema,
+  credentials: credentialsSchema,
+  credential_history: credentialHistorySchema,
+  credential_collection_requests: credentialCollectionRequestsSchema,
+  credential_access_logs: credentialAccessLogsSchema,
+  login_history: loginHistorySchema,
+  requests: requestsSchema,
+  request_comments: requestCommentsSchema,
+  request_status_history: requestStatusHistorySchema,
+  request_attachments: requestAttachmentsSchema,
+  offboarding_checklist_templates: offboardingChecklistTemplatesSchema,
+  offboarding_cases: offboardingCasesSchema,
+  offboarding_tasks: offboardingTasksSchema,
 };
 
 function defineModel(tableName: string, attributes: Record<string, object>): EntityModel {
@@ -80,22 +139,16 @@ export const asset_maintenance = models.asset_maintenance;
 export const software = models.software;
 export const software_licenses = models.software_licenses;
 export const software_assignments = models.software_assignments;
-
-// Phase 3 Models
 export const credential_types = models.credential_types;
 export const credentials = models.credentials;
 export const credential_history = models.credential_history;
 export const credential_collection_requests = models.credential_collection_requests;
 export const credential_access_logs = models.credential_access_logs;
 export const login_history = models.login_history;
-
-// Phase 4 Models
 export const requests = models.requests;
 export const request_comments = models.request_comments;
 export const request_status_history = models.request_status_history;
 export const request_attachments = models.request_attachments;
-
-// Phase 5 Models
 export const offboarding_checklist_templates = models.offboarding_checklist_templates;
 export const offboarding_cases = models.offboarding_cases;
 export const offboarding_tasks = models.offboarding_tasks;
@@ -143,7 +196,7 @@ software_assignments.belongsTo(software, { foreignKey: 'software_id', as: 'softw
 software_assignments.belongsTo(software_licenses, { foreignKey: 'license_id', as: 'license' });
 software_assignments.belongsTo(employees, { foreignKey: 'employee_id', as: 'employee' });
 
-// Phase 3 Associations
+// Credentials Associations
 credentials.belongsTo(employees, { foreignKey: 'employee_id', as: 'employee' });
 credentials.belongsTo(credential_types, {
   foreignKey: 'credential_type_id',
@@ -174,7 +227,7 @@ credential_access_logs.belongsTo(users, { foreignKey: 'accessed_by', as: 'access
 
 login_history.belongsTo(users, { foreignKey: 'user_id', as: 'user' });
 
-// Phase 4 Associations
+// Requests Associations
 requests.belongsTo(employees, { foreignKey: 'employee_id', as: 'employee' });
 requests.belongsTo(asset_categories, { foreignKey: 'category_id', as: 'category' });
 requests.belongsTo(assets, { foreignKey: 'current_asset_id', as: 'current_asset' });
@@ -203,7 +256,7 @@ request_attachments.belongsTo(users, { foreignKey: 'uploaded_by', as: 'uploader'
 employees.hasMany(requests, { foreignKey: 'employee_id', as: 'requests' });
 assets.hasMany(requests, { foreignKey: 'current_asset_id', as: 'linked_requests' });
 
-// Phase 5 Associations
+// Offboarding Associations
 offboarding_cases.belongsTo(employees, { foreignKey: 'employee_id', as: 'employee' });
 offboarding_cases.belongsTo(users, { foreignKey: 'initiated_by', as: 'initiator' });
 offboarding_cases.belongsTo(users, { foreignKey: 'handover_to', as: 'handover_user' });
