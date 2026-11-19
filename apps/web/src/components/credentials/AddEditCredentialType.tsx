@@ -147,7 +147,7 @@ export function AddEditCredentialType({
                 description="Classification and identification details"
               >
                 <FormGrid>
-                  <FormGridItem span={1}>
+                  <FormGridItem span={2}>
                     <RHFTextField
                       name="name"
                       label="Type Name"
@@ -155,7 +155,7 @@ export function AddEditCredentialType({
                       required
                     />
                   </FormGridItem>
-                  <FormGridItem span={1}>
+                  <FormGridItem span={2}>
                     <RHFSelect
                       name="category"
                       label="Category"
