@@ -161,6 +161,14 @@ const definitions: Record<
       searchFields: ['name'],
       optionFields: ['id', 'name'],
       filterableFields: { name: 'text', status: 'number' },
+      includeAttributes: [
+        [
+          sequelize.literal(
+            '(SELECT COUNT(*) FROM `employees` WHERE `employees`.`department_id` = `departments`.`id` AND `employees`.`status` != 0)',
+          ),
+          'employees_count',
+        ],
+      ],
     },
   },
   designation: {
@@ -210,6 +218,14 @@ const definitions: Record<
       searchFields: ['name'],
       optionFields: ['id', 'name'],
       filterableFields: { name: 'text', status: 'number' },
+      includeAttributes: [
+        [
+          sequelize.literal(
+            '(SELECT COUNT(*) FROM `assets` WHERE `assets`.`category_id` = `asset_categories`.`id` AND `assets`.`status` != 0)',
+          ),
+          'assets_count',
+        ],
+      ],
     },
   },
 };

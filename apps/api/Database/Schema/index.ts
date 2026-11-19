@@ -215,13 +215,17 @@ users.hasMany(user_tokens, { foreignKey: 'user_id', as: 'tokens' });
 user_tokens.belongsTo(users, { foreignKey: 'user_id', as: 'user' });
 employees.belongsTo(users, { foreignKey: 'user_id', as: 'user' });
 employees.belongsTo(departments, { foreignKey: 'department_id', as: 'department' });
+departments.hasMany(employees, { foreignKey: 'department_id', as: 'employees' });
 employees.belongsTo(designations, { foreignKey: 'designation_id', as: 'designation' });
+designations.hasMany(employees, { foreignKey: 'designation_id', as: 'employees' });
 employees.belongsTo(locations, { foreignKey: 'location_id', as: 'location' });
+locations.hasMany(employees, { foreignKey: 'location_id', as: 'employees' });
 employees.belongsTo(employees, { foreignKey: 'manager_id', as: 'manager' });
 
 export { sequelize };
 
 assets.belongsTo(asset_categories, { foreignKey: 'category_id', as: 'category' });
+asset_categories.hasMany(assets, { foreignKey: 'category_id', as: 'assets' });
 assets.belongsTo(vendors, { foreignKey: 'vendor_id', as: 'vendor' });
 assets.belongsTo(locations, { foreignKey: 'location_id', as: 'location' });
 assets.belongsTo(assets, { foreignKey: 'parent_asset_id', as: 'parent' });

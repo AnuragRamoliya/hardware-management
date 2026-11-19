@@ -93,4 +93,51 @@ describe('Table Sorting Helper (getSorting)', () => {
     });
     expect(capturedOrder).toEqual([['status', 'DESC']]);
   });
+
+  it('supports sorting and mapping includeAttributes like employees_count in ResourceModel', async () => {
+    const { ResourceModel } = await import('../Models/resource');
+    let capturedOpts: unknown = null;
+
+    const mockModel = {
+      rawAttributes: {
+        id: {},
+        name: {},
+        status: {},
+      },
+      findAndCountAll: async (opts: unknown) => {
+        capturedOpts = opts;
+        return {
+          rows: [
+            {
+              get: () => ({ id: 1, name: 'Engineering', status: 1, employees_count: '5' }),
+            },
+          ],
+          count: 1,
+        };
+      },
+    };
+
+    const resource = new ResourceModel(
+      mockModel as unknown as import('../Database/Schema').EntityModel,
+      {
+        table: 'department',
+        module: 'department',
+        writableFields: ['name'],
+        searchFields: ['name'],
+        includeAttributes: [['LITERAL_EXPR', 'employees_count']],
+      },
+    );
+
+    const result = await resource.list({
+      currentPage: 1,
+      itemsPerPage: 10,
+      sortBy: [{ id: 'employees_count', value: 'desc' }],
+    });
+
+    expect((capturedOpts as { order: unknown }).order).toEqual([['employees_count', 'DESC']]);
+    expect((capturedOpts as { attributes: { include: unknown } }).attributes.include).toEqual([
+      ['LITERAL_EXPR', 'employees_count'],
+    ]);
+    expect(result.rows[0].employees_count).toBe(5);
+  });
 });

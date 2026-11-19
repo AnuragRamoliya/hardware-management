@@ -21,6 +21,8 @@ export interface ResourceDefinition {
   optionFields?: string[];
   optionsResource?: string;
   filterableFields?: Record<string, 'text' | 'number' | 'boolean' | 'date'>;
+  includeAttributes?: [unknown, string][];
+  extraSortFields?: string[];
 }
 
 export class ResourceModel {
@@ -93,9 +95,22 @@ export class ResourceModel {
   }
 
   async get(id: number): Promise<RowAttributes> {
-    const record = await this.model.findOne({ where: { id, status: { [Op.ne]: STATUS.DELETED } } });
+    const record = await this.model.findOne({
+      where: { id, status: { [Op.ne]: STATUS.DELETED } },
+      ...(this.definition.includeAttributes?.length
+        ? { attributes: { include: this.definition.includeAttributes as unknown as string[] } }
+        : {}),
+    });
     if (!record) throw new AppError(404, `${this.definition.table} not found.`);
-    return record.get({ plain: true }) as RowAttributes;
+    const plain = record.get({ plain: true }) as RowAttributes;
+    if (this.definition.includeAttributes) {
+      for (const [, alias] of this.definition.includeAttributes) {
+        if (alias.endsWith('_count') && plain[alias] !== undefined) {
+          plain[alias] = Number(plain[alias] || 0);
+        }
+      }
+    }
+    return plain;
   }
 
   async list(input: ListDto, options = false): Promise<{ rows: RowAttributes[]; count: number }> {
@@ -170,6 +185,8 @@ export class ResourceModel {
       'updatedAt',
       ...this.definition.writableFields,
       ...modelAttributes,
+      ...(this.definition.extraSortFields ?? []),
+      ...(this.definition.includeAttributes?.map(([, alias]) => alias) ?? []),
     ]);
     const order = getSorting(input, sortFields, [['id', 'DESC']]);
     const pagination = getPagination(input);
@@ -181,10 +198,22 @@ export class ResourceModel {
       distinct: true,
       ...(options && this.definition.optionFields
         ? { attributes: this.definition.optionFields }
-        : {}),
+        : this.definition.includeAttributes?.length
+          ? { attributes: { include: this.definition.includeAttributes as unknown as string[] } }
+          : {}),
     });
     return {
-      rows: result.rows.map((row) => row.get({ plain: true }) as RowAttributes),
+      rows: result.rows.map((row) => {
+        const plain = row.get({ plain: true }) as RowAttributes;
+        if (this.definition.includeAttributes) {
+          for (const [, alias] of this.definition.includeAttributes) {
+            if (alias.endsWith('_count') && plain[alias] !== undefined) {
+              plain[alias] = Number(plain[alias] || 0);
+            }
+          }
+        }
+        return plain;
+      }),
       count: result.count,
     };
   }
