@@ -297,7 +297,14 @@ export function AppShell() {
   const notificationQuery = useQuery({
     queryKey: ["notifications"],
     queryFn: async () => {
-      const result = await callApi<Array<{ read_at: string | null }>>({
+      const result = await callApi<
+        | Array<{ read_at: string | null }>
+        | {
+            rows: Array<{ read_at: string | null }>;
+            count?: number;
+            unread_count?: number;
+          }
+      >({
         url: endPoints.notifications,
         method: "GET",
       });
@@ -308,8 +315,18 @@ export function AppShell() {
     enabled: Boolean(user) && role !== "employee",
     refetchInterval: 60_000,
   });
-  const unreadNotificationCount =
-    notificationQuery.data?.filter((item) => !item.read_at).length ?? 0;
+  const unreadNotificationCount = useMemo(() => {
+    if (!notificationQuery.data) return 0;
+    const data = notificationQuery.data;
+    if (typeof (data as any).unread_count === "number") {
+      return (data as any).unread_count;
+    }
+    const items = Array.isArray(data) ? data : (data as any).rows;
+    if (Array.isArray(items)) {
+      return items.filter((item) => !item.read_at).length;
+    }
+    return 0;
+  }, [notificationQuery.data]);
   const visibleNavigation = useMemo(
     () =>
       navigation

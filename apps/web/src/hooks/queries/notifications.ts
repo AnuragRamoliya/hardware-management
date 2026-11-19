@@ -20,14 +20,23 @@ export function useNotificationsList() {
   return useQuery({
     queryKey: notificationKeys.all,
     queryFn: async () => {
-      const response = await callApi<NotificationRecord[]>({
+      const response = await callApi<
+        | NotificationRecord[]
+        | { rows: NotificationRecord[]; count: number; unread_count: number }
+      >({
         url: endPoints.notifications,
         method: "GET",
       });
       if (!response.ok || !response.data) {
         throw new Error(response.message || "Unable to load notifications");
       }
-      return response.data;
+      if (Array.isArray(response.data)) {
+        return response.data;
+      }
+      if (Array.isArray(response.data.rows)) {
+        return response.data.rows;
+      }
+      return [];
     },
   });
 }

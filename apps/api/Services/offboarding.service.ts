@@ -32,7 +32,7 @@ import {
   activity_logs,
   notifications,
 } from '../Database/Schema';
-import { createActivityLog, getPagination } from '../Utils/helpers';
+import { createActivityLog, getPagination, getSorting } from '../Utils/helpers';
 import type { UserInfo } from '../Types/api';
 import { RequestWorkflowService } from './request_workflow.service';
 import { ClearancePdfService } from './clearance_pdf.service';
@@ -590,14 +590,30 @@ export class OffboardingService {
 
     const { limit, offset } = getPagination(pagination);
 
+    const allowedCaseColumns = {
+      id: 'id',
+      case_no: 'case_no',
+      employee_id: 'employee_id',
+      employee: 'employee_id',
+      case_status: 'case_status',
+      exit_type: 'exit_type',
+      resignation_date: 'resignation_date',
+      last_working_date: 'last_working_date',
+      handover_to: 'handover_to',
+      status: 'status',
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
+    };
+    const order = getSorting(pagination, allowedCaseColumns, [
+      ['last_working_date', 'ASC'],
+      ['id', 'DESC'],
+    ]);
+
     const { rows, count } = await offboarding_cases.findAndCountAll({
       where,
       limit,
       offset,
-      order: [
-        ['last_working_date', 'ASC'],
-        ['id', 'DESC'],
-      ],
+      order,
       include: [
         {
           model: employees,

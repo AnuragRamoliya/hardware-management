@@ -3,7 +3,6 @@ import {
   OFFBOARDING_TASK_TYPE,
   OFFBOARDING_TASK_STATUS,
   OFFBOARDING_CASE_STATUS,
-  type OffboardingTaskStatus,
 } from '@hm/shared';
 import { AppError } from '../Config/app_error';
 import {
@@ -14,9 +13,8 @@ import {
   users,
   assets,
   asset_assignments,
-  app_settings,
 } from '../Database/Schema';
-import { createActivityLog, getPagination } from '../Utils/helpers';
+import { createActivityLog, getPagination, getSorting } from '../Utils/helpers';
 import type { UserInfo } from '../Types/api';
 import { AssetAssignmentService } from './asset_assignment';
 
@@ -79,14 +77,30 @@ export class OffboardingTasksService {
 
     const { limit, offset } = getPagination(pagination);
 
+    const allowedTaskColumns = {
+      id: 'id',
+      case_id: 'case_id',
+      task_name: 'title',
+      title: 'title',
+      task_type: 'task_type',
+      department: 'department',
+      assignee_id: 'assignee_id',
+      due_date: 'due_date',
+      task_status: 'task_status',
+      status: 'status',
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
+    };
+    const order = getSorting(pagination, allowedTaskColumns, [
+      ['due_date', 'ASC'],
+      ['id', 'ASC'],
+    ]);
+
     const { rows, count } = await offboarding_tasks.findAndCountAll({
       where,
       limit,
       offset,
-      order: [
-        ['due_date', 'ASC'],
-        ['id', 'ASC'],
-      ],
+      order,
       include: [
         {
           model: offboarding_cases,
@@ -220,11 +234,11 @@ export class OffboardingTasksService {
       try {
         await this.receive(item, actor);
         results.push({ task_id: item.task_id, success: true });
-      } catch (err: any) {
+      } catch (err: unknown) {
         results.push({
           task_id: item.task_id,
           success: false,
-          error: err.message || 'Failed to receive asset',
+          error: err instanceof Error ? err.message : 'Failed to receive asset',
         });
       }
     }

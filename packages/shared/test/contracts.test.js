@@ -117,4 +117,18 @@ describe("@hm/shared contracts and enums", () => {
     assert.ok(Array.isArray(sampleResponse.data.rows));
     assert.strictEqual(sampleResponse.data.count, 1);
   });
+
+  it("exports Phase R real-time events and room helpers", async () => {
+    const { REALTIME_EVENTS, REALTIME_ROOMS, NOTIFICATION_CATEGORIES } =
+      await import("../dist/index.js");
+    assert.strictEqual(
+      REALTIME_EVENTS.NOTIFICATION_CREATED,
+      "notification.created",
+    );
+    assert.strictEqual(REALTIME_EVENTS.REQUEST_UPDATED, "request.updated");
+    assert.strictEqual(REALTIME_ROOMS.user(42), "user:42");
+    assert.strictEqual(REALTIME_ROOMS.request(100), "request:100");
+    assert.strictEqual(REALTIME_ROOMS.requestStaff(100), "request:100:staff");
+    assert.strictEqual(NOTIFICATION_CATEGORIES.REQUEST, "request");
+  });
 });

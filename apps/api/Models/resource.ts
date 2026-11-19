@@ -1,9 +1,14 @@
-import { Op, type Order, type WhereOptions } from 'sequelize';
+import { Op, type WhereOptions } from 'sequelize';
 import { AppError } from '../Config/app_error';
 import { ACTIVITY_ACTIONS, STATUS } from '../Config/constant';
 import { sequelize } from '../Config/database';
 import type { EntityModel, RowAttributes } from '../Database/Schema';
-import { applyMultiFieldSearch, createActivityLog, getPagination } from '../Utils/helpers';
+import {
+  applyMultiFieldSearch,
+  createActivityLog,
+  getPagination,
+  getSorting,
+} from '../Utils/helpers';
 import type { ListDto, UserInfo } from '../Types/api';
 import { getOptions, isOptionsResource } from './options';
 import type { OptionsDto, OptionsResult } from '../Types/options';
@@ -155,11 +160,18 @@ export class ResourceModel {
     if (typeof search === 'string' && search) {
       applyMultiFieldSearch(where, search, this.definition.searchFields);
     }
-    const sortFields = new Set(['id', ...this.definition.writableFields, 'createdAt', 'updatedAt']);
-    const order: Order = (input.sortBy ?? [])
-      .filter((sort) => sortFields.has(sort.id))
-      .map((sort) => [sort.id, sort.value.toUpperCase() as 'ASC' | 'DESC']);
-    if (order.length === 0) order.push(['id', 'DESC']);
+    const modelAttributes = Object.keys(
+      (this.model as unknown as { rawAttributes?: Record<string, unknown> }).rawAttributes ?? {},
+    );
+    const sortFields = new Set([
+      'id',
+      'status',
+      'createdAt',
+      'updatedAt',
+      ...this.definition.writableFields,
+      ...modelAttributes,
+    ]);
+    const order = getSorting(input, sortFields, [['id', 'DESC']]);
     const pagination = getPagination(input);
     const result = await this.model.findAndCountAll({
       where: where as WhereOptions<RowAttributes>,

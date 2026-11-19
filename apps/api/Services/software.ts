@@ -7,7 +7,7 @@ import {
   SoftwareRecord as software,
 } from '../Models/software';
 import { SoftwareLicenseRecord as software_licenses } from '../Models/software_license';
-import { createActivityLog } from '../Utils/helpers';
+import { createActivityLog, getSorting } from '../Utils/helpers';
 import type { ListDto, UserInfo } from '../Types/api';
 
 const plain = (value: import('sequelize').Model) => value.get({ plain: true }) as RowAttributes;
@@ -99,11 +99,25 @@ export class SoftwareService {
       }));
     const page = Math.max(1, Number(input.currentPage ?? 1));
     const limit = Math.min(100, Math.max(1, Number(input.itemsPerPage ?? 10)));
+    const allowedSoftwareColumns = new Set([
+      'id',
+      'name',
+      'vendor_id',
+      'category',
+      'license_type',
+      'cost',
+      'billing_cycle',
+      'renewal_date',
+      'status',
+      'createdAt',
+      'updatedAt',
+    ]);
+    const order = getSorting(input, allowedSoftwareColumns, [['id', 'DESC']]);
     const result = await software.findAndCountAll({
       where,
       limit,
       offset: (page - 1) * limit,
-      order: [['id', 'DESC']],
+      order,
     });
     const rows = await Promise.all(
       result.rows.map(async (item) => {

@@ -182,7 +182,17 @@ Before opening a pull request, ensure the new module satisfies `docs/MODULE_CHEC
 
 ---
 
-## 7. Documentation Index
+## 7. Frontend Form & UI Standards
+
+All add and edit forms across modules strictly adhere to shared UI standards:
+
+- **Slide-out Drawer**: All Add and Edit forms render in `<Drawer>` (desktop right-panel, mobile full-screen), never centered dialog modals.
+- **Responsive Form Grid**: Forms use `FormGrid` (default 2 columns) with `FormGridItem`. Single-line inputs are paired in 1-column spans (`span={1}`), while full-width inputs and multi-line textareas (address, notes, descriptions) span both columns (`span={2}`) to prevent vertical misalignment.
+- **Unsaved Changes Guard**: Every drawer integrates dirty-state detection (`isDirty`). Attempting to close or cancel a modified form triggers the shared `<ConfirmDialog>` (destructive variant) before discarding changes. Native `window.confirm` is forbidden.
+
+---
+
+## 8. Documentation Index
 
 - [PROJECT_CONTEXT.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/PROJECT_CONTEXT.md): System architecture and core business logic
 - [UI_STANDARDS.md](file:///home/itl-lp-lenovo-13/DTL%20Projects/DTL/hardware-management/docs/UI_STANDARDS.md): Design system and frontend patterns

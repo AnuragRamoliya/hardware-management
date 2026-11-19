@@ -74,6 +74,13 @@ const envSchema = z.object({
   SUPER_ADMIN_EMAIL: z.string().email(),
   SUPER_ADMIN_PASSWORD: z.string().min(12),
   TZ: z.preprocess(emptyAsUndefined, z.string().default('UTC')),
+  REALTIME_ENABLED: z
+    .string()
+    .default('true')
+    .transform((value) => value === 'true'),
+  REALTIME_PATH: z.string().default('/realtime'),
+  REALTIME_REDIS_URL: z.string().optional().default(''),
+  REALTIME_MAX_SOCKETS_PER_USER: integerWithDefault(5),
 });
 
 export const env = envSchema.parse(process.env);

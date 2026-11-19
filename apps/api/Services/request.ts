@@ -6,6 +6,9 @@ import {
   REQUEST_PRIORITY_NAMES,
   ACTIVITY_ACTIONS,
   MODULES,
+  REALTIME_EVENTS,
+  REALTIME_ROOMS,
+  NOTIFICATION_CATEGORIES,
 } from '@hm/shared';
 import { AppError } from '../Config/app_error';
 import {
@@ -22,12 +25,13 @@ import {
   asset_categories,
   software,
   software_licenses,
-  notifications,
 } from '../Database/Schema';
 import { RequestWorkflowService } from './request_workflow.service';
 import { RequestFulfilmentService, type FulfilInput } from './request_fulfilment.service';
-import { createActivityLog, getPagination } from '../Utils/helpers';
+import { createActivityLog, getPagination, getSorting } from '../Utils/helpers';
 import type { ListDto, UserInfo } from '../Types/api';
+import { createNotification } from './notification';
+import { realtimeService } from './realtime.service';
 
 const plain = (val: import('sequelize').Model) =>
   val.get({ plain: true }) as Record<string, unknown>;
@@ -167,14 +171,30 @@ export class RequestService {
     const { limit, offset } = getPagination(input);
     const currentPage = Math.max(1, Number(input.currentPage ?? 1));
     const itemsPerPage = Math.min(100, Math.max(1, Number(input.itemsPerPage ?? 10)));
-    const orderColumn = input.sortBy?.[0]?.id || 'createdAt';
-    const orderDirection = input.sortBy?.[0]?.value?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const allowedRequestColumns = {
+      id: 'id',
+      request_no: 'request_no',
+      employee: 'employee_id',
+      employee_id: 'employee_id',
+      request_type: 'request_type',
+      category: 'category_id',
+      category_id: 'category_id',
+      title: 'title',
+      priority: 'priority',
+      request_status: 'request_status',
+      assigned_to: 'assigned_to',
+      needed_by: 'needed_by',
+      status: 'status',
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
+    };
+    const order = getSorting(input, allowedRequestColumns, [['createdAt', 'DESC']]);
 
     const result = await requests.findAndCountAll({
       where,
       limit,
       offset,
-      order: [[orderColumn, orderDirection]],
+      order,
       include: [
         {
           model: employees,
@@ -402,15 +422,15 @@ export class RequestService {
     });
 
     // Notify new assignee
-    await notifications.create({
+    await createNotification({
       recipient_user_id: assignedTo,
+      category: NOTIFICATION_CATEGORIES.REQUEST,
       kind: 'request_assigned',
-      record_type: 'request',
-      record_id: id,
+      entity_type: 'request',
+      entity_id: id,
       title: `Assigned: Request #${item.get('request_no')}`,
       message: `You were assigned request "${item.get('title')}".`,
-      status: 1,
-      created_by: actor.id,
+      body: `You were assigned request "${item.get('title')}".`,
     });
 
     return plain(item);
@@ -536,19 +556,49 @@ export class RequestService {
       created_by: actor.id,
     });
 
-    // Notify employee only if comment is NOT internal
-    if (!isInternal) {
+    // Notify employee and emit real-time event
+    const commentData = {
+      id: Number(commentRecord.get('id')),
+      request_id: input.request_id,
+      comment: input.comment.trim(),
+      user_id: actor.id,
+      author_name: `${actor.first_name} ${actor.last_name || ''}`.trim(),
+      is_internal: Boolean(isInternal),
+      createdAt: new Date().toISOString(),
+    };
+
+    if (isInternal) {
+      // Delivered ONLY to staff room, never to employees
+      realtimeService.publish({
+        event: REALTIME_EVENTS.REQUEST_COMMENT_ADDED,
+        rooms: REALTIME_ROOMS.requestStaff(input.request_id),
+        data: commentData,
+        actor: { id: actor.id, name: commentData.author_name },
+      });
+    } else {
+      // Delivered to public request room and staff room
+      realtimeService.publish({
+        event: REALTIME_EVENTS.REQUEST_COMMENT_ADDED,
+        rooms: [
+          REALTIME_ROOMS.request(input.request_id),
+          REALTIME_ROOMS.requestStaff(input.request_id),
+        ],
+        data: commentData,
+        actor: { id: actor.id, name: commentData.author_name },
+      });
+
       const emp = await employees.findByPk(Number(req.get('employee_id')));
       if (emp && emp.get('user_id')) {
-        await notifications.create({
+        await createNotification({
           recipient_user_id: Number(emp.get('user_id')),
+          category: NOTIFICATION_CATEGORIES.REQUEST,
           kind: 'request_comment',
-          record_type: 'request',
-          record_id: input.request_id,
+          entity_type: 'request',
+          entity_id: input.request_id,
           title: `New Comment on Request #${req.get('request_no')}`,
+          body: `${actor.first_name} left a message: "${input.comment.trim().slice(0, 100)}"`,
           message: `${actor.first_name} left a message: "${input.comment.trim().slice(0, 100)}"`,
-          status: 1,
-          created_by: actor.id,
+          link: `/requests/${input.request_id}`,
         });
       }
     }

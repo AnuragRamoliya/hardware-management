@@ -15,7 +15,7 @@ import {
 } from '../Models/asset_assignment';
 import { AssetMaintenanceRecord as asset_maintenance } from '../Models/asset_maintenance';
 const assets = AssetRecord;
-import { createActivityLog } from '../Utils/helpers';
+import { createActivityLog, getSorting } from '../Utils/helpers';
 import type { ListDto, UserInfo } from '../Types/api';
 
 const assetFields = [
@@ -173,11 +173,31 @@ export class AssetService {
       }));
     const page = Math.max(1, Number(input.currentPage ?? 1));
     const limit = Math.min(10000, Math.max(1, Number(input.itemsPerPage ?? 10)));
+    const allowedAssetColumns = new Set([
+      'id',
+      'asset_tag',
+      'serial_no',
+      'category_id',
+      'brand',
+      'model',
+      'vendor_id',
+      'location_id',
+      'condition',
+      'asset_status',
+      'purchase_date',
+      'purchase_cost',
+      'warranty_start',
+      'warranty_end',
+      'status',
+      'createdAt',
+      'updatedAt',
+    ]);
+    const order = getSorting(input, allowedAssetColumns, [['id', 'DESC']]);
     const result = await assets.findAndCountAll({
       where,
       limit,
       offset: (page - 1) * limit,
-      order: [['id', 'DESC']],
+      order,
     });
     return { rows: result.rows.map(record), count: result.count };
   }

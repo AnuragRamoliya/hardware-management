@@ -1309,3 +1309,226 @@ export interface PortalOffboardingDto {
     };
   } | null;
 }
+
+// ============================================================================
+// Phase R: Real-Time System Contracts & Enums
+// ============================================================================
+
+export const REALTIME_EVENTS = {
+  // Notifications
+  NOTIFICATION_CREATED: "notification.created",
+  NOTIFICATION_READ: "notification.read_updated",
+  NOTIFICATION_READ_ALL: "notification.read_all",
+
+  // Requests
+  REQUEST_CREATED: "request.created",
+  REQUEST_UPDATED: "request.updated",
+  REQUEST_STATUS_CHANGED: "request.status_changed",
+  REQUEST_ASSIGNED: "request.assigned",
+  REQUEST_FULFILLED: "request.fulfilled",
+  REQUEST_COMMENT_ADDED: "request.comment_added",
+
+  // Credentials
+  CREDENTIAL_SUBMITTED: "credential.submitted",
+  CREDENTIAL_APPROVED: "credential.approved",
+  CREDENTIAL_REJECTED: "credential.rejected",
+  CREDENTIAL_NEEDS_CHANGE: "credential.needs_change",
+  CREDENTIAL_COLLECTION_REQUESTED: "credential.collection_requested",
+
+  // Assets & Software
+  ASSET_ASSIGNED: "asset.assigned",
+  ASSET_RETURNED: "asset.returned",
+  ASSET_STATUS_CHANGED: "asset.status_changed",
+  SOFTWARE_ASSIGNED: "software.assigned",
+  SOFTWARE_REVOKED: "software.revoked",
+
+  // Offboarding
+  OFFBOARDING_INITIATED: "offboarding.initiated",
+  OFFBOARDING_CASE_UPDATED: "offboarding.case_updated",
+  OFFBOARDING_TASK_UPDATED: "offboarding.task_updated",
+  EMPLOYEE_STATUS_CHANGED: "employee.status_changed",
+
+  // System, Stats & Security
+  PERMISSIONS_CHANGED: "permissions.changed",
+  SESSION_REVOKED: "session.revoked",
+  ACCOUNT_LOCKED: "account.locked",
+  STATS_UPDATED: "stats.updated",
+  SYSTEM_BROADCAST: "system.broadcast",
+
+  // Presence & Typing (Ephemerals)
+  PRESENCE_UPDATED: "presence.updated",
+  TYPING_UPDATED: "typing.updated",
+} as const;
+
+export type RealtimeEventName =
+  (typeof REALTIME_EVENTS)[keyof typeof REALTIME_EVENTS];
+
+export const REALTIME_ROOMS = {
+  user: (userId: number | string) => `user:${userId}`,
+  role: (roleName: string) => `role:${roleName}`,
+  request: (requestId: number | string) => `request:${requestId}`,
+  requestStaff: (requestId: number | string) => `request:${requestId}:staff`,
+  offboarding: (caseId: number | string) => `offboarding:${caseId}`,
+  queueRequests: () => "queue:requests",
+  queueApprovals: () => "queue:approvals",
+  queueHandover: () => "queue:handover",
+  queueDashboard: () => "queue:dashboard",
+} as const;
+
+export const NOTIFICATION_CATEGORIES = {
+  REQUEST: "request",
+  CREDENTIAL: "credential",
+  ASSET: "asset",
+  SOFTWARE: "software",
+  OFFBOARDING: "offboarding",
+  SYSTEM: "system",
+} as const;
+
+export type NotificationCategory =
+  (typeof NOTIFICATION_CATEGORIES)[keyof typeof NOTIFICATION_CATEGORIES];
+
+export const NOTIFICATION_PRIORITY = {
+  LOW: 1,
+  NORMAL: 2,
+  HIGH: 3,
+  URGENT: 4,
+} as const;
+
+export type NotificationPriority =
+  (typeof NOTIFICATION_PRIORITY)[keyof typeof NOTIFICATION_PRIORITY];
+
+export interface RealtimeEnvelope<T = unknown> {
+  id: string;
+  event: RealtimeEventName | string;
+  version: number;
+  ts: number;
+  actor?: {
+    id: number;
+    name: string;
+    role?: string;
+  } | null;
+  data: T;
+}
+
+export interface NotificationPayload {
+  id: number;
+  category: NotificationCategory;
+  entity_type?: string | null;
+  entity_id?: number | null;
+  title: string;
+  body: string;
+  link?: string | null;
+  priority: NotificationPriority;
+  read_at?: string | null;
+  createdAt: string;
+}
+
+export interface NotificationPreferencesDto {
+  category: NotificationCategory;
+  in_app: boolean;
+  email: boolean;
+  desktop: boolean;
+  sound: boolean;
+}
+
+export interface RequestEventPayload {
+  id: number;
+  request_no: string;
+  title: string;
+  priority: number;
+  request_type: number;
+  request_status: number;
+  employee_id: number;
+  employee_name?: string;
+  assigned_to?: number | null;
+  assigned_to_name?: string | null;
+  reason?: string | null;
+  updatedAt?: string;
+}
+
+export interface RequestCommentPayload {
+  id: number;
+  request_id: number;
+  comment: string;
+  user_id: number;
+  author_name: string;
+  author_avatar?: string | null;
+  is_internal: boolean;
+  createdAt: string;
+}
+
+export interface CredentialEventPayload {
+  id: number;
+  label: string;
+  credential_type_id: number;
+  employee_id: number;
+  approval_status: number;
+  status: number;
+  updatedAt?: string;
+}
+
+export interface AssetSoftwareEventPayload {
+  id: number;
+  type: "asset" | "software" | "license";
+  employee_id?: number | null;
+  status?: number;
+  action: "assigned" | "returned" | "revoked" | "status_changed";
+  label: string;
+  updatedAt?: string;
+}
+
+export interface OffboardingEventPayload {
+  case_id: number;
+  case_no?: string;
+  employee_id: number;
+  task_id?: number;
+  task_status?: number;
+  case_status?: number;
+  last_working_date?: string;
+  action: "initiated" | "case_updated" | "task_updated" | "status_changed";
+}
+
+export interface PresenceUser {
+  userId: number;
+  name: string;
+  avatar?: string | null;
+  role?: string;
+  joinedAt: number;
+}
+
+export interface PresencePayload {
+  room: string;
+  viewers: PresenceUser[];
+}
+
+export interface TypingPayload {
+  room: string;
+  userId: number;
+  name: string;
+  isTyping: boolean;
+}
+
+export interface StatsUpdatePayload {
+  scope: "dashboard" | "requests" | "approvals" | "offboarding";
+  stats: Record<string, number>;
+}
+
+// Client to Server socket events
+export interface ClientToServerEvents {
+  "room:join": (
+    room: string,
+    callback?: (res: { ok: boolean; error?: string }) => void,
+  ) => void;
+  "room:leave": (
+    room: string,
+    callback?: (res: { ok: boolean; error?: string }) => void,
+  ) => void;
+  "typing:start": (room: string) => void;
+  "typing:stop": (room: string) => void;
+  "presence:heartbeat": (room: string) => void;
+}
+
+// Server to Client socket events
+export interface ServerToClientEvents {
+  [event: string]: (envelope: RealtimeEnvelope<any>) => void;
+}

@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import { AppError } from '../Config/app_error';
 import { sequelize, type RowAttributes } from '../Database/Schema';
 import { AssetMaintenanceRecord, MaintenanceAssetRecord } from '../Models/asset_maintenance';
-import { createActivityLog } from '../Utils/helpers';
+import { createActivityLog, getSorting } from '../Utils/helpers';
 import type { ListDto, UserInfo } from '../Types/api';
 
 const plain = (value: import('sequelize').Model): RowAttributes =>
@@ -47,11 +47,24 @@ export class AssetMaintenanceService {
     }
     const page = Math.max(1, Number(input.currentPage ?? 1));
     const limit = Math.min(100, Math.max(1, Number(input.itemsPerPage ?? 10)));
+    const allowedMaintenanceColumns = new Set([
+      'id',
+      'asset_id',
+      'vendor_id',
+      'maintenance_status',
+      'sent_at',
+      'returned_at',
+      'cost',
+      'status',
+      'createdAt',
+      'updatedAt',
+    ]);
+    const order = getSorting(input, allowedMaintenanceColumns, [['sent_at', 'DESC']]);
     const result = await AssetMaintenanceRecord.findAndCountAll({
       where,
       limit,
       offset: (page - 1) * limit,
-      order: [['sent_at', 'DESC']],
+      order,
     });
     return { rows: result.rows.map(plain), count: result.count };
   }

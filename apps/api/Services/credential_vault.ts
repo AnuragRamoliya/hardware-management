@@ -12,6 +12,9 @@ import {
   CREDENTIAL_ACCESS_ACTION,
   CREDENTIAL_CHANGE_TYPE,
   COLLECTION_REQUEST_STATUS,
+  REALTIME_EVENTS,
+  REALTIME_ROOMS,
+  NOTIFICATION_CATEGORIES,
 } from '@hm/shared';
 import {
   sequelize,
@@ -30,12 +33,29 @@ import {
 import { buildAAD, encryptSecret, decryptSecret } from '../Utils/vault_crypto';
 import { computeRowHash, GENESIS_HASH, verifyHashChain } from '../Utils/hash_chain';
 import { validatePasswordPolicy } from '../Utils/password_policy';
-import { createActivityLog, getPagination } from '../Utils/helpers';
+import { createActivityLog, getPagination, getSorting } from '../Utils/helpers';
 import type { ListDto, UserInfo } from '../Types/api';
-import { NotificationRecord as notifications } from '../Models/notifications';
+import { createNotification } from './notification';
+import { realtimeService } from './realtime.service';
 
 const record = (model: import('sequelize').Model): RowAttributes =>
   model.get({ plain: true }) as RowAttributes;
+
+async function getEmployeeUserId(
+  employeeId: number | unknown,
+  transaction?: import('sequelize').Transaction,
+): Promise<number | null> {
+  if (!employeeId) return null;
+  const emp = await employees.findByPk(Number(employeeId), { transaction });
+  if (!emp) return null;
+  const userId = emp.get('user_id');
+  if (userId) return Number(userId);
+  const user = await users.findOne({
+    where: { employee_id: Number(employeeId), status: 1 },
+    transaction,
+  });
+  return user ? Number(user.get('id')) : null;
+}
 
 export class CredentialVaultService {
   // ==========================================
@@ -64,11 +84,24 @@ export class CredentialVaultService {
         where.allow_employee_submit = filters.allow_employee_submit;
     }
 
+    const allowedColumns = new Set([
+      'id',
+      'name',
+      'category',
+      'expiry_days',
+      'requires_approval',
+      'require_complexity',
+      'status',
+      'createdAt',
+      'updatedAt',
+    ]);
+    const order = getSorting(input, allowedColumns, [['id', 'DESC']]);
+
     const { count, rows } = await credential_types.findAndCountAll({
       where: where as WhereOptions<RowAttributes>,
       limit,
       offset,
-      order: [['id', 'DESC']],
+      order,
     });
 
     const mappedRows = rows.map(record);
@@ -264,11 +297,28 @@ export class CredentialVaultService {
       }
     }
 
+    const allowedColumns = {
+      id: 'id',
+      label: 'label',
+      username: 'username',
+      employee_id: 'employee_id',
+      employee: 'employee_id',
+      credential_type_id: 'credential_type_id',
+      credential_type: 'credential_type_id',
+      provided_by: 'provided_by',
+      approval_status: 'approval_status',
+      expires_at: 'expires_at',
+      status: 'status',
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
+    };
+    const order = getSorting(input, allowedColumns, [['id', 'DESC']]);
+
     const { count, rows } = await credentials.findAndCountAll({
       where: where as WhereOptions<RowAttributes>,
       limit,
       offset,
-      order: [['id', 'DESC']],
+      order,
       include: [
         {
           model: employees,
@@ -476,6 +526,21 @@ export class CredentialVaultService {
         transaction,
       });
 
+      realtimeService.publish({
+        event: REALTIME_EVENTS.CREDENTIAL_APPROVED,
+        rooms: [REALTIME_ROOMS.queueApprovals()],
+        data: {
+          id: credId,
+          label: String(input.label),
+          credential_type_id: credentialTypeId,
+          employee_id: employeeId,
+          approval_status: CREDENTIAL_APPROVAL_STATUS.APPROVED,
+          status: STATUS.ACTIVE,
+        },
+        actor: { id: actor.id, name: `${actor.first_name} ${actor.last_name || ''}`.trim() },
+        transaction,
+      });
+
       return record(cred);
     });
   }
@@ -485,6 +550,18 @@ export class CredentialVaultService {
     const cred = await credentials.findByPk(id);
     if (!cred || Number(cred.get('status')) === STATUS.DELETED) {
       throw new AppError(404, 'Credential not found.');
+    }
+
+    // Stale-update protection
+    if (input.expected_updated_at && cred.get('updatedAt')) {
+      const expectedTime = new Date(String(input.expected_updated_at)).getTime();
+      const actualTime = new Date(cred.get('updatedAt') as string | Date).getTime();
+      if (!isNaN(expectedTime) && expectedTime !== actualTime) {
+        throw new AppError(
+          409,
+          'STALE_RESOURCE: This credential has been modified by another user.',
+        );
+      }
     }
 
     const updates: Record<string, unknown> = {};
@@ -664,11 +741,26 @@ export class CredentialVaultService {
       ];
     }
 
+    const allowedApprovalColumns = {
+      id: 'id',
+      label: 'label',
+      username: 'username',
+      employee_id: 'employee_id',
+      employee: 'employee_id',
+      credential_type_id: 'credential_type_id',
+      approval_status: 'approval_status',
+      submitted_at: 'submitted_at',
+      status: 'status',
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
+    };
+    const order = getSorting(input, allowedApprovalColumns, [['submitted_at', 'ASC']]);
+
     const { count, rows } = await credentials.findAndCountAll({
       where: where as WhereOptions<RowAttributes>,
       limit,
       offset,
-      order: [['submitted_at', 'ASC']],
+      order,
       include: [
         {
           model: employees,
@@ -729,17 +821,38 @@ export class CredentialVaultService {
         { transaction },
       );
 
-      await notifications.create(
-        {
+      const empUserId = await getEmployeeUserId(cred.get('employee_id'), transaction);
+
+      if (empUserId) {
+        await createNotification({
+          recipient_user_id: empUserId,
+          category: NOTIFICATION_CATEGORIES.CREDENTIAL,
           kind: 'credential_approved',
-          record_type: 'credential',
-          record_id: id,
+          entity_type: 'credential',
+          entity_id: id,
           title: 'Credential Approved',
+          body: `Your credential "${cred.get('label')}" has been reviewed and approved.`,
           message: `Your credential "${cred.get('label')}" has been reviewed and approved.`,
+          transaction,
+        });
+      }
+
+      realtimeService.publish({
+        event: REALTIME_EVENTS.CREDENTIAL_APPROVED,
+        rooms: [
+          REALTIME_ROOMS.queueApprovals(),
+          ...(empUserId ? [REALTIME_ROOMS.user(empUserId)] : []),
+        ],
+        data: {
+          id,
+          label: String(cred.get('label')),
+          approval_status: CREDENTIAL_APPROVAL_STATUS.APPROVED,
           status: 1,
+          updatedAt: new Date().toISOString(),
         },
-        { transaction },
-      );
+        actor: { id: actor.id, name: `${actor.first_name} ${actor.last_name || ''}`.trim() },
+        transaction,
+      });
 
       await createActivityLog({
         module: MODULES.CREDENTIAL,
@@ -786,17 +899,39 @@ export class CredentialVaultService {
         { transaction },
       );
 
-      await notifications.create(
-        {
+      const empUserId = await getEmployeeUserId(cred.get('employee_id'), transaction);
+
+      if (empUserId) {
+        await createNotification({
+          recipient_user_id: empUserId,
+          category: NOTIFICATION_CATEGORIES.CREDENTIAL,
           kind: 'credential_rejected',
-          record_type: 'credential',
-          record_id: id,
+          entity_type: 'credential',
+          entity_id: id,
           title: 'Credential Rejected',
+          body: `Your credential "${cred.get('label')}" was rejected: ${feedback.trim()}`,
           message: `Your credential "${cred.get('label')}" was rejected: ${feedback.trim()}`,
+          transaction,
+        });
+      }
+
+      realtimeService.publish({
+        event: REALTIME_EVENTS.CREDENTIAL_REJECTED,
+        rooms: [
+          REALTIME_ROOMS.queueApprovals(),
+          ...(empUserId ? [REALTIME_ROOMS.user(empUserId)] : []),
+        ],
+        data: {
+          id,
+          label: String(cred.get('label')),
+          approval_status: CREDENTIAL_APPROVAL_STATUS.REJECTED,
+          reason: feedback.trim(),
           status: 1,
+          updatedAt: new Date().toISOString(),
         },
-        { transaction },
-      );
+        actor: { id: actor.id, name: `${actor.first_name} ${actor.last_name || ''}`.trim() },
+        transaction,
+      });
 
       await createActivityLog({
         module: MODULES.CREDENTIAL,
@@ -843,17 +978,39 @@ export class CredentialVaultService {
         { transaction },
       );
 
-      await notifications.create(
-        {
+      const empUserId = await getEmployeeUserId(cred.get('employee_id'), transaction);
+
+      if (empUserId) {
+        await createNotification({
+          recipient_user_id: empUserId,
+          category: NOTIFICATION_CATEGORIES.CREDENTIAL,
           kind: 'credential_needs_change',
-          record_type: 'credential',
-          record_id: id,
+          entity_type: 'credential',
+          entity_id: id,
           title: 'Changes Requested on Credential',
+          body: `Changes requested on "${cred.get('label')}": ${feedback.trim()}`,
           message: `Changes requested on "${cred.get('label')}": ${feedback.trim()}`,
+          transaction,
+        });
+      }
+
+      realtimeService.publish({
+        event: REALTIME_EVENTS.CREDENTIAL_NEEDS_CHANGE,
+        rooms: [
+          REALTIME_ROOMS.queueApprovals(),
+          ...(empUserId ? [REALTIME_ROOMS.user(empUserId)] : []),
+        ],
+        data: {
+          id,
+          label: String(cred.get('label')),
+          approval_status: CREDENTIAL_APPROVAL_STATUS.NEEDS_CHANGE,
+          reason: feedback.trim(),
           status: 1,
+          updatedAt: new Date().toISOString(),
         },
-        { transaction },
-      );
+        actor: { id: actor.id, name: `${actor.first_name} ${actor.last_name || ''}`.trim() },
+        transaction,
+      });
 
       return record(cred);
     });
@@ -909,14 +1066,32 @@ export class CredentialVaultService {
       status: STATUS.ACTIVE,
     });
 
-    await notifications.create({
-      kind: 'credential_collection_request',
-      record_type: 'credential_collection_request',
-      record_id: Number(request.get('id')),
-      title: 'Credential Requested',
-      message: `The company has requested your ${type.get('name')} credentials by ${dueDate}.`,
-      status: 1,
-    });
+    if (employee.get('user_id')) {
+      const empUserId = Number(employee.get('user_id'));
+      await createNotification({
+        recipient_user_id: empUserId,
+        category: NOTIFICATION_CATEGORIES.CREDENTIAL,
+        kind: 'credential_collection_request',
+        entity_type: 'credential_collection_request',
+        entity_id: Number(request.get('id')),
+        title: 'Credential Requested',
+        body: `The company has requested your ${type.get('name')} credentials by ${dueDate}.`,
+        message: `The company has requested your ${type.get('name')} credentials by ${dueDate}.`,
+        link: '/portal/accounts',
+      });
+
+      realtimeService.publish({
+        event: REALTIME_EVENTS.CREDENTIAL_COLLECTION_REQUESTED,
+        rooms: [REALTIME_ROOMS.user(empUserId)],
+        data: {
+          id: Number(request.get('id')),
+          employee_id: employeeId,
+          credential_type_id: credentialTypeId,
+          due_date: dueDate,
+        },
+        actor: { id: actor.id, name: `${actor.first_name} ${actor.last_name || ''}`.trim() },
+      });
+    }
 
     return record(request);
   }
@@ -934,11 +1109,26 @@ export class CredentialVaultService {
       if (filters.request_status) where.request_status = Number(filters.request_status);
     }
 
+    const allowedRequestColumns = {
+      id: 'id',
+      employee_id: 'employee_id',
+      employee: 'employee_id',
+      credential_type_id: 'credential_type_id',
+      credential_type: 'credential_type_id',
+      requested_by: 'requested_by',
+      due_date: 'due_date',
+      request_status: 'request_status',
+      status: 'status',
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
+    };
+    const order = getSorting(input, allowedRequestColumns, [['id', 'DESC']]);
+
     const { count, rows } = await credential_collection_requests.findAndCountAll({
       where: where as WhereOptions<RowAttributes>,
       limit,
       offset,
-      order: [['id', 'DESC']],
+      order,
       include: [
         {
           model: employees,
@@ -1134,14 +1324,19 @@ export class CredentialVaultService {
       const setting = await app_settings.findOne({ where: { key: 'notify_owner_on_reveal' } });
       const notifyOwner = !setting || setting.get('value') !== 'false';
       if (notifyOwner) {
-        await notifications.create({
-          kind: 'credential_revealed',
-          record_type: 'credential',
-          record_id: id,
-          title: 'Credential Accessed by Admin',
-          message: `Your "${cred.get('label')}" credential was revealed by ${actor.first_name} ${actor.last_name} on ${now.toLocaleString()}. Reason: ${reason?.trim()}`,
-          status: 1,
-        });
+        const empUserId = await getEmployeeUserId(cred.get('employee_id'));
+        if (empUserId) {
+          await createNotification({
+            recipient_user_id: empUserId,
+            category: NOTIFICATION_CATEGORIES.CREDENTIAL,
+            kind: 'credential_revealed',
+            entity_type: 'credential',
+            entity_id: id,
+            title: 'Credential Accessed by Admin',
+            body: `Your "${cred.get('label')}" credential was revealed by ${actor.first_name} ${actor.last_name} on ${now.toLocaleString()}. Reason: ${reason?.trim()}`,
+            message: `Your "${cred.get('label')}" credential was revealed by ${actor.first_name} ${actor.last_name} on ${now.toLocaleString()}. Reason: ${reason?.trim()}`,
+          });
+        }
       }
     }
 
@@ -1170,11 +1365,25 @@ export class CredentialVaultService {
       }
     }
 
+    const allowedLogColumns = {
+      id: 'id',
+      credential_id: 'credential_id',
+      credential: 'credential_id',
+      employee_id: 'employee_id',
+      employee: 'employee_id',
+      accessed_by: 'accessed_by',
+      accessor: 'accessed_by',
+      action: 'action',
+      accessed_at: 'accessed_at',
+      createdAt: 'createdAt',
+    };
+    const order = getSorting(input, allowedLogColumns, [['id', 'DESC']]);
+
     const { count, rows } = await credential_access_logs.findAndCountAll({
       where: where as WhereOptions<RowAttributes>,
       limit,
       offset,
-      order: [['id', 'DESC']],
+      order,
       include: [
         {
           model: credentials,
@@ -1296,11 +1505,28 @@ export class CredentialVaultService {
       if (filters.provided_by) where.provided_by = Number(filters.provided_by);
     }
 
+    const allowedColumns = {
+      id: 'id',
+      label: 'label',
+      username: 'username',
+      employee_id: 'employee_id',
+      employee: 'employee_id',
+      credential_type_id: 'credential_type_id',
+      credential_type: 'credential_type_id',
+      provided_by: 'provided_by',
+      approval_status: 'approval_status',
+      expires_at: 'expires_at',
+      status: 'status',
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
+    };
+    const order = getSorting(input, allowedColumns, [['id', 'DESC']]);
+
     const { count, rows } = await credentials.findAndCountAll({
       where: where as WhereOptions<RowAttributes>,
       limit,
       offset,
-      order: [['id', 'DESC']],
+      order,
       include: [
         {
           model: credential_types,

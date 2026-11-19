@@ -8,6 +8,8 @@ import {
 } from '../Models/asset_assignment';
 import { createActivityLog } from '../Utils/helpers';
 import type { UserInfo } from '../Types/api';
+import { REALTIME_EVENTS, REALTIME_ROOMS } from '@hm/shared';
+import { realtimeService } from './realtime.service';
 
 const assetStatus = {
   available: 1,
@@ -149,6 +151,25 @@ export class AssetAssignmentService {
       });
       created.push(plain(assignment));
     }
+
+    const empUser = employee.get('user_id');
+    realtimeService.publish({
+      event: REALTIME_EVENTS.ASSET_ASSIGNED,
+      rooms: [
+        REALTIME_ROOMS.queueDashboard(),
+        `asset:${input.asset_id}`,
+        ...(empUser ? [REALTIME_ROOMS.user(Number(empUser))] : []),
+      ],
+      data: {
+        asset_id: input.asset_id,
+        employee_id: input.employee_id,
+        action: 'assigned',
+        label: `Asset #${input.asset_id} assigned`,
+      },
+      actor: { id: actor.id, name: actorLabel(actor) },
+      transaction,
+    });
+
     return created[0];
   }
 

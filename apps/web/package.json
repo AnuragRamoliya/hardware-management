@@ -16,6 +16,7 @@
     "gen:module": "node scripts/gen-module.mjs"
   },
   "dependencies": {
+    "@hm/shared": "*",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-dialog": "^1.1.14",
@@ -36,17 +37,18 @@
     "react-hook-form": "^7.61.1",
     "react-router-dom": "^6.30.1",
     "recharts": "^2.15.4",
+    "socket.io-client": "^4.8.4",
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.6.0",
-    "zustand": "^5.0.11",
     "yup": "^1.7.1",
-    "@hm/shared": "*"
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
+    "@hm/tsconfig": "*",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.0.0",
-    "@testing-library/dom": "^10.4.1",
     "@types/node": "^22.20.1",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
@@ -57,9 +59,9 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
+    "husky": "^9.1.7",
     "jsdom": "^29.0.0",
     "lint-staged": "^16.1.5",
-    "husky": "^9.1.7",
     "postcss": "^8.5.6",
     "prettier": "^3.9.10",
     "tailwindcss": "^3.4.17",
@@ -67,7 +69,6 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
     "vite": "^6.4.1",
-    "vitest": "^4.1.0",
-    "@hm/tsconfig": "*"
+    "vitest": "^4.1.0"
   }
 }

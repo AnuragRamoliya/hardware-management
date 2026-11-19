@@ -1,14 +1,21 @@
 import { Op } from 'sequelize';
 import { offboarding_checklist_templates } from '../Database/Schema';
 import { AppError } from '../Config/app_error';
-import { createActivityLog, getPagination } from '../Utils/helpers';
+import { createActivityLog, getPagination, getSorting } from '../Utils/helpers';
 import type { UserInfo } from '../Types/api';
 
 const plain = (model: import('sequelize').Model) =>
   model.get({ plain: true }) as Record<string, unknown>;
 
 export class OffboardingTemplateService {
-  async list(filters: any = {}, pagination: { currentPage?: number; itemsPerPage?: number } = {}) {
+  async list(
+    filters: Record<string, unknown> = {},
+    pagination: {
+      currentPage?: number;
+      itemsPerPage?: number;
+      sortBy?: Array<{ id: string; value: 'asc' | 'desc' | 'ASC' | 'DESC' }>;
+    } = {},
+  ) {
     const where: Record<string | symbol, unknown> = { status: 1 };
 
     if (filters.is_active !== undefined) {
@@ -27,7 +34,7 @@ export class OffboardingTemplateService {
           : 0;
     }
 
-    if (filters.search && filters.search.trim()) {
+    if (typeof filters.search === 'string' && filters.search.trim()) {
       const term = `%${filters.search.trim()}%`;
       where[Op.or] = [
         { title: { [Op.like]: term } },
@@ -38,14 +45,28 @@ export class OffboardingTemplateService {
 
     const { limit, offset } = getPagination(pagination);
 
+    const allowedTemplateColumns = new Set([
+      'id',
+      'title',
+      'department',
+      'days_before_lwd',
+      'sort_order',
+      'is_mandatory',
+      'is_active',
+      'status',
+      'createdAt',
+      'updatedAt',
+    ]);
+    const order = getSorting(pagination, allowedTemplateColumns, [
+      ['sort_order', 'ASC'],
+      ['id', 'ASC'],
+    ]);
+
     const { rows, count } = await offboarding_checklist_templates.findAndCountAll({
       where,
       limit,
       offset,
-      order: [
-        ['sort_order', 'ASC'],
-        ['id', 'ASC'],
-      ],
+      order,
     });
 
     return {

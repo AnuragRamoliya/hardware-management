@@ -29,12 +29,17 @@ module.exports = {
     const resignationDate = new Date(now.getTime() - 7 * 86400000).toISOString().split('T')[0];
     const lwdDate = new Date(now.getTime() + 14 * 86400000).toISOString().split('T')[0];
 
+    const [[maxRow]] = await queryInterface.sequelize.query(
+      'SELECT COALESCE(MAX(id), 0) as maxId FROM offboarding_cases',
+    );
+    const baseSeq = Number(maxRow?.maxId || 0);
+
     const empIdsToUpdate = [];
 
     for (let i = 0; i < employees.length; i++) {
       const emp = employees[i];
       empIdsToUpdate.push(emp.id);
-      const caseSeq = String(i + 1).padStart(6, '0');
+      const caseSeq = String(baseSeq + i + 1).padStart(6, '0');
       cases.push({
         case_no: `OFF-${caseSeq}`,
         employee_id: emp.id,

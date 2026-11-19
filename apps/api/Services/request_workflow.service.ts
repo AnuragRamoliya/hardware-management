@@ -6,17 +6,16 @@ import {
   type RequestStatus,
   ACTIVITY_ACTIONS,
   MODULES,
+  REALTIME_EVENTS,
+  REALTIME_ROOMS,
+  NOTIFICATION_CATEGORIES,
 } from '@hm/shared';
 import { AppError } from '../Config/app_error';
-import {
-  sequelize,
-  requests,
-  request_status_history,
-  employees,
-  notifications,
-} from '../Database/Schema';
+import { sequelize, requests, request_status_history, employees } from '../Database/Schema';
 import { createActivityLog } from '../Utils/helpers';
 import type { UserInfo } from '../Types/api';
+import { createNotification } from './notification';
+import { realtimeService } from './realtime.service';
 
 const plain = (val: import('sequelize').Model) =>
   val.get({ plain: true }) as Record<string, unknown>;
@@ -30,6 +29,7 @@ export interface TransitionOptions {
   awaitingStock?: boolean;
   assignedTo?: number | null;
   externalTransaction?: Transaction;
+  expected_updated_at?: string;
 }
 
 export class RequestWorkflowService {
@@ -53,6 +53,18 @@ export class RequestWorkflowService {
 
       if (!req || Number(req.get('status')) !== 1) {
         throw new AppError(404, 'Request not found.');
+      }
+
+      // Stale-update protection
+      if (opts.expected_updated_at && req.get('updatedAt')) {
+        const expectedTime = new Date(opts.expected_updated_at).getTime();
+        const actualTime = new Date(req.get('updatedAt') as string | Date).getTime();
+        if (!isNaN(expectedTime) && expectedTime !== actualTime) {
+          throw new AppError(
+            409,
+            'STALE_RESOURCE: This request has been modified by another user.',
+          );
+        }
       }
 
       const currentStatus = Number(req.get('request_status')) as RequestStatus;
@@ -142,26 +154,50 @@ export class RequestWorkflowService {
         transaction: t,
       });
 
-      // Dispatch notification
+      // Dispatch notification and real-time events
       const emp = await employees.findByPk(Number(req.get('employee_id')), { transaction: t });
+      let empUserId: number | null = null;
       if (emp && emp.get('user_id')) {
-        const empUserId = Number(emp.get('user_id'));
+        empUserId = Number(emp.get('user_id'));
         const title = `Request ${req.get('request_no')} Update`;
         const msg = `Your request status changed to ${REQUEST_STATUS_NAMES[targetStatus]}.`;
-        await notifications.create(
-          {
-            recipient_user_id: empUserId,
-            kind: 'request_status_change',
-            record_type: 'request',
-            record_id: opts.requestId,
-            title,
-            message: opts.feedback ? `${msg} Note: ${opts.feedback}` : msg,
-            status: 1,
-            created_by: opts.actor.id,
-          },
-          { transaction: t },
-        );
+        await createNotification({
+          recipient_user_id: empUserId,
+          category: NOTIFICATION_CATEGORIES.REQUEST,
+          kind: 'request_status_change',
+          entity_type: 'request',
+          entity_id: opts.requestId,
+          title,
+          body: opts.feedback ? `${msg} Note: ${opts.feedback}` : msg,
+          message: opts.feedback ? `${msg} Note: ${opts.feedback}` : msg,
+          link: `/requests/${opts.requestId}`,
+          transaction: t,
+        });
       }
+
+      // Real-time event emitted strictly after commit
+      realtimeService.publish({
+        event: REALTIME_EVENTS.REQUEST_STATUS_CHANGED,
+        rooms: [
+          REALTIME_ROOMS.request(opts.requestId),
+          REALTIME_ROOMS.queueRequests(),
+          ...(empUserId ? [REALTIME_ROOMS.user(empUserId)] : []),
+        ],
+        data: {
+          id: opts.requestId,
+          request_no: String(req.get('request_no')),
+          title: String(req.get('title')),
+          status: targetStatus,
+          prev_status: currentStatus,
+          reason: opts.feedback || opts.cancelledReason || null,
+          updatedAt: new Date().toISOString(),
+        },
+        actor: {
+          id: opts.actor.id,
+          name: `${opts.actor.first_name} ${opts.actor.last_name || ''}`.trim(),
+        },
+        transaction: t,
+      });
 
       return plain(req);
     };

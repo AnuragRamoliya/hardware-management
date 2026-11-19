@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { Op, type Transaction, type WhereOptions } from 'sequelize';
+import { Op, type Order, type Transaction, type WhereOptions } from 'sequelize';
 import { ACTIVITY_ACTIONS, STATUS } from '../Config/constant';
 import { activity_logs, type RowAttributes } from '../Database/Schema';
 import type { ListDto } from '../Types/api';
@@ -8,7 +8,7 @@ export async function createHashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
 }
 
-export async function compareHashPassword(password: string, hash: string): Promise<boolean> {
+export function compareHashPassword(password: string, hash: string): Promise<boolean> {
   return bcrypt.compare(password, hash);
 }
 
@@ -16,6 +16,53 @@ export function getPagination(data: ListDto): { limit: number; offset: number } 
   const currentPage = Math.max(1, Number(data.currentPage ?? 1));
   const itemsPerPage = Math.min(100, Math.max(1, Number(data.itemsPerPage ?? 10)));
   return { limit: itemsPerPage, offset: (currentPage - 1) * itemsPerPage };
+}
+
+export function getSorting(
+  input: ListDto,
+  allowedColumns: string[] | Set<string> | Record<string, string>,
+  defaultOrder: Order = [['id', 'DESC']],
+): Order {
+  if (!input.sortBy || !Array.isArray(input.sortBy) || input.sortBy.length === 0) {
+    return defaultOrder;
+  }
+
+  const order: [string, 'ASC' | 'DESC'][] = [];
+  const isSet = allowedColumns instanceof Set;
+  const isArray = Array.isArray(allowedColumns);
+
+  for (const sort of input.sortBy) {
+    if (!sort || typeof sort.id !== 'string') continue;
+    const direction: 'ASC' | 'DESC' =
+      String(sort.value || '').toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    if (!isSet && !isArray && typeof allowedColumns === 'object') {
+      const target = (allowedColumns as Record<string, string>)[sort.id];
+      if (target) {
+        order.push([target, direction]);
+      } else if (
+        sort.id === 'id' ||
+        sort.id === 'createdAt' ||
+        sort.id === 'updatedAt' ||
+        sort.id === 'status'
+      ) {
+        order.push([sort.id, direction]);
+      }
+    } else {
+      const colSet = isSet ? (allowedColumns as Set<string>) : new Set(allowedColumns as string[]);
+      if (
+        colSet.has(sort.id) ||
+        sort.id === 'id' ||
+        sort.id === 'createdAt' ||
+        sort.id === 'updatedAt' ||
+        sort.id === 'status'
+      ) {
+        order.push([sort.id, direction]);
+      }
+    }
+  }
+
+  return order.length > 0 ? order : defaultOrder;
 }
 
 export function applyMultiFieldSearch(

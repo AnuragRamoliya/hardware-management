@@ -5,6 +5,9 @@ import {
   REQUEST_PRIORITY,
   ACTIVITY_ACTIONS,
   MODULES,
+  REALTIME_EVENTS,
+  REALTIME_ROOMS,
+  NOTIFICATION_CATEGORIES,
 } from '@hm/shared';
 import { AppError } from '../Config/app_error';
 import {
@@ -22,11 +25,12 @@ import {
   asset_assignments,
   software,
   software_licenses,
-  notifications,
   app_settings,
 } from '../Database/Schema';
-import { createActivityLog, getPagination } from '../Utils/helpers';
+import { createActivityLog, getPagination, getSorting } from '../Utils/helpers';
 import type { ListDto, UserInfo } from '../Types/api';
+import { createNotification } from './notification';
+import { realtimeService } from './realtime.service';
 
 const plain = (val: import('sequelize').Model) =>
   val.get({ plain: true }) as Record<string, unknown>;
@@ -86,14 +90,27 @@ export class PortalRequestService {
     const { limit, offset } = getPagination(input);
     const currentPage = Math.max(1, Number(input.currentPage ?? 1));
     const itemsPerPage = Math.min(100, Math.max(1, Number(input.itemsPerPage ?? 10)));
-    const orderColumn = input.sortBy?.[0]?.id || 'createdAt';
-    const orderDirection = input.sortBy?.[0]?.value?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const allowedPortalRequestColumns = {
+      id: 'id',
+      request_no: 'request_no',
+      request_type: 'request_type',
+      category: 'category_id',
+      category_id: 'category_id',
+      title: 'title',
+      priority: 'priority',
+      request_status: 'request_status',
+      needed_by: 'needed_by',
+      status: 'status',
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
+    };
+    const order = getSorting(input, allowedPortalRequestColumns, [['createdAt', 'DESC']]);
 
     const result = await requests.findAndCountAll({
       where,
       limit,
       offset,
-      order: [[orderColumn, orderDirection]],
+      order,
       include: [
         { model: asset_categories, as: 'category', attributes: ['id', 'name'] },
         { model: assets, as: 'current_asset', attributes: ['id', 'asset_tag', 'brand', 'model'] },
@@ -390,20 +407,24 @@ export class PortalRequestService {
         transaction: t,
       });
 
-      // Notify reviewers / hardware team
-      await notifications.create(
-        {
-          recipient_user_id: null, // broadcast to staff
-          kind: 'request_submitted',
-          record_type: 'request',
-          record_id: reqId,
-          title: `New Request: ${requestNo}`,
-          message: `${emp.get('first_name')} ${emp.get('last_name')} submitted a request: "${input.title.trim()}"`,
-          status: 1,
-          created_by: actor.id,
+      // Notify reviewers and publish real-time event
+      realtimeService.publish({
+        event: REALTIME_EVENTS.REQUEST_CREATED,
+        rooms: [REALTIME_ROOMS.queueRequests(), REALTIME_ROOMS.role('hardware_manager')],
+        data: {
+          id: reqId,
+          request_no: requestNo,
+          title: input.title.trim(),
+          priority,
+          request_type: reqType,
+          request_status: initialStatus,
+          employee_id: empId,
+          employee_name: `${emp.get('first_name')} ${emp.get('last_name')}`.trim(),
+          updatedAt: new Date().toISOString(),
         },
-        { transaction: t },
-      );
+        actor: { id: actor.id, name: `${actor.first_name} ${actor.last_name || ''}`.trim() },
+        transaction: t,
+      });
 
       return plain(newReq);
     });
@@ -605,20 +626,57 @@ export class PortalRequestService {
         status: 1,
         created_by: actor.id,
       });
+
+      realtimeService.publish({
+        event: REALTIME_EVENTS.REQUEST_STATUS_CHANGED,
+        rooms: [REALTIME_ROOMS.request(input.request_id), REALTIME_ROOMS.queueRequests()],
+        data: {
+          id: input.request_id,
+          request_no: String(req.get('request_no')),
+          title: String(req.get('title')),
+          status: REQUEST_STATUS.SUBMITTED,
+          prev_status: REQUEST_STATUS.NEED_INFO,
+          reason: 'Employee responded with comment',
+          updatedAt: new Date().toISOString(),
+        },
+        actor: { id: actor.id, name: `${actor.first_name} ${actor.last_name || ''}`.trim() },
+      });
     }
+
+    const commentData = {
+      id: Number(comment.get('id')),
+      request_id: input.request_id,
+      comment: input.comment.trim(),
+      user_id: actor.id,
+      author_name: `${actor.first_name} ${actor.last_name || ''}`.trim(),
+      is_internal: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Public comment: emit to request room and staff room
+    realtimeService.publish({
+      event: REALTIME_EVENTS.REQUEST_COMMENT_ADDED,
+      rooms: [
+        REALTIME_ROOMS.request(input.request_id),
+        REALTIME_ROOMS.requestStaff(input.request_id),
+      ],
+      data: commentData,
+      actor: { id: actor.id, name: commentData.author_name },
+    });
 
     // Notify assigned reviewer or staff
     const assigneeId = req.get('assigned_to');
     if (assigneeId) {
-      await notifications.create({
+      await createNotification({
         recipient_user_id: Number(assigneeId),
+        category: NOTIFICATION_CATEGORIES.REQUEST,
         kind: 'request_comment',
-        record_type: 'request',
-        record_id: input.request_id,
+        entity_type: 'request',
+        entity_id: input.request_id,
         title: `Reply on Request #${req.get('request_no')}`,
+        body: `${actor.first_name} left a comment: "${input.comment.trim().slice(0, 100)}"`,
         message: `${actor.first_name} left a comment: "${input.comment.trim().slice(0, 100)}"`,
-        status: 1,
-        created_by: actor.id,
+        link: `/requests/${input.request_id}`,
       });
     }
 

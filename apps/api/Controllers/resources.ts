@@ -18,7 +18,12 @@ import {
 } from '../Database/Schema';
 import { EmployeeService } from '../Services/employees';
 import { EmployeeImportService } from '../Services/employee_import';
-import { applyMultiFieldSearch, createActivityLog, getPagination } from '../Utils/helpers';
+import {
+  applyMultiFieldSearch,
+  createActivityLog,
+  getPagination,
+  getSorting,
+} from '../Utils/helpers';
 import { ResourceModel, type ResourceDefinition } from '../Models/resource';
 import type { ListDto, UserInfo } from '../Types/api';
 
@@ -476,11 +481,21 @@ export class AuditController {
         };
       }
       const pagination = getPagination(input as ListDto);
+      const allowedAuditColumns = new Set([
+        'id',
+        'module',
+        'module_id',
+        'action',
+        'created_by',
+        'created_by_name',
+        'createdAt',
+      ]);
+      const order = getSorting(input as ListDto, allowedAuditColumns, [['createdAt', 'DESC']]);
       const result = await activity_logs.findAndCountAll({
         where,
         limit: pagination.limit,
         offset: pagination.offset,
-        order: [['createdAt', 'DESC']],
+        order,
       });
       res.handler.success({
         rows: result.rows.map((item) => item.get({ plain: true }) as RowAttributes),
