@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Drawer } from "@/components/common/Drawer";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import FormProvider from "@/components/hook-form/form-provider";
 import {
   FormSection,
@@ -87,88 +88,97 @@ export function AddEditDesignation({
     onOpenChange(false);
   };
 
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+
+  const requestClose = () => {
+    if (isDirty) {
+      setConfirmDiscard(true);
+    } else {
+      onOpenChange(false);
+    }
+  };
+
   return (
-    <Drawer
-      open={open}
-      onOpenChange={(next) => {
-        if (!next && isDirty) {
-          if (window.confirm("You have unsaved changes. Discard them?")) {
-            onOpenChange(false);
-          }
-          return;
+    <>
+      <Drawer
+        open={open}
+        onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}
+        title={
+          isEdit
+            ? `Edit designation: ${designation?.name}`
+            : "Add new designation"
         }
-        onOpenChange(next);
-      }}
-      title={
-        isEdit
-          ? `Edit designation: ${designation?.name}`
-          : "Add new designation"
-      }
-      description={
-        isEdit
-          ? "Update job title, description, and status."
-          : "Define a job title and responsibilities across your organization."
-      }
-    >
-      {loading ? (
-        <div className="space-y-6">
-          <Skeleton className="h-8 w-1/3" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-24 w-full" />
-        </div>
-      ) : (
-        <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+        description={
+          isEdit
+            ? "Update job title, description, and status."
+            : "Define a job title and responsibilities across your organization."
+        }
+      >
+        {loading ? (
           <div className="space-y-6">
-            <FormSection
-              title="Designation Information"
-              description="Basic details for this role title."
-            >
-              <FormGrid>
-                <FormGridItem span={1}>
-                  <RHFTextField
-                    name="name"
-                    label="Designation title"
-                    placeholder="e.g. Senior Software Engineer, Product Manager"
-                    required
-                  />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFSelect
-                    name="status"
-                    label="Status"
-                    options={[...ENUMS.recordStatus]}
-                    required
-                  />
-                </FormGridItem>
-                <FormGridItem span={2}>
-                  <RHFTextArea
-                    name="description"
-                    label="Description"
-                    placeholder="Brief description of the job duties or level"
-                  />
-                </FormGridItem>
-              </FormGrid>
-            </FormSection>
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-24 w-full" />
           </div>
-          <FormActions
-            submitting={
-              isSubmitting ||
-              createMutation.isPending ||
-              updateMutation.isPending
-            }
-            submitLabel={isEdit ? "Save changes" : "Create designation"}
-            onCancel={() => {
-              if (isDirty) {
-                if (window.confirm("You have unsaved changes. Discard them?")) {
-                  onOpenChange(false);
-                }
-                return;
+        ) : (
+          <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+            <div className="space-y-6">
+              <FormSection
+                title="Designation Information"
+                description="Basic details for this role title."
+              >
+                <FormGrid>
+                  <FormGridItem span={1}>
+                    <RHFTextField
+                      name="name"
+                      label="Designation title"
+                      placeholder="e.g. Senior Software Engineer, Product Manager"
+                      required
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFSelect
+                      name="status"
+                      label="Status"
+                      options={[...ENUMS.recordStatus]}
+                      required
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={2}>
+                    <RHFTextArea
+                      name="description"
+                      label="Description"
+                      placeholder="Brief description of the job duties or level"
+                    />
+                  </FormGridItem>
+                </FormGrid>
+              </FormSection>
+            </div>
+            <FormActions
+              submitting={
+                isSubmitting ||
+                createMutation.isPending ||
+                updateMutation.isPending
               }
-              onOpenChange(false);
-            }}
-          />
-        </FormProvider>
-      )}
-    </Drawer>
+              submitLabel={isEdit ? "Save changes" : "Create designation"}
+              onCancel={requestClose}
+            />
+          </FormProvider>
+        )}
+      </Drawer>
+
+      <ConfirmDialog
+        open={confirmDiscard}
+        onOpenChange={setConfirmDiscard}
+        title="Discard unsaved changes?"
+        description="You have unsaved changes in this designation form. If you close now, those changes will be lost."
+        confirmText="Discard changes"
+        variant="destructive"
+        onConfirm={() => {
+          setConfirmDiscard(false);
+          onOpenChange(false);
+        }}
+      />
+    </>
   );
 }

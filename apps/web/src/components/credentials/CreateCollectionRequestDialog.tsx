@@ -1,7 +1,8 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Drawer } from "@/components/common/Drawer";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import FormProvider from "@/components/hook-form/form-provider";
 import {
   FormGrid,
@@ -63,11 +64,21 @@ export function CreateCollectionRequestDialog({
     },
   });
 
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+
   const {
     reset,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, isDirty },
   } = methods;
+
+  const requestClose = () => {
+    if (isDirty) {
+      setConfirmDiscard(true);
+    } else {
+      onOpenChange(false);
+    }
+  };
 
   useEffect(() => {
     if (open) {
@@ -93,58 +104,73 @@ export function CreateCollectionRequestDialog({
   };
 
   return (
-    <Drawer
-      open={open}
-      onOpenChange={onOpenChange}
-      title="Request Employee Credential"
-      description="Dispatch a formal request to an employee to submit their credentials (e.g. laptop BitLocker, GitHub, VPN)."
-    >
-      <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-        <FormGrid>
-          {!defaultEmployeeId && (
-            <FormGridItem span={2}>
-              <RHFAsyncSelect
-                name="employee_id"
-                label="Target Employee"
-                endpoint="employee/options"
+    <>
+      <Drawer
+        open={open}
+        onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}
+        title="Request Employee Credential"
+        description="Dispatch a formal request to an employee to submit their credentials (e.g. laptop BitLocker, GitHub, VPN)."
+      >
+        <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+          <FormGrid>
+            {!defaultEmployeeId && (
+              <FormGridItem span={2}>
+                <RHFAsyncSelect
+                  name="employee_id"
+                  label="Target Employee"
+                  endpoint="employee/options"
+                  required
+                />
+              </FormGridItem>
+            )}
+
+            <FormGridItem span={1}>
+              <RHFSelect
+                name="credential_type_id"
+                label="Requested Account Type"
+                options={typeOptions}
                 required
               />
             </FormGridItem>
-          )}
 
-          <FormGridItem span={1}>
-            <RHFSelect
-              name="credential_type_id"
-              label="Requested Account Type"
-              options={typeOptions}
-              required
-            />
-          </FormGridItem>
+            <FormGridItem span={1}>
+              <RHFDatePicker
+                name="due_date"
+                label="Submission Due Date"
+                required
+              />
+            </FormGridItem>
 
-          <FormGridItem span={1}>
-            <RHFDatePicker
-              name="due_date"
-              label="Submission Due Date"
-              required
-            />
-          </FormGridItem>
+            <FormGridItem span={2}>
+              <RHFTextArea
+                name="message"
+                label="Instructions / Purpose"
+                placeholder="e.g. Please provide your BitLocker recovery key for corporate laptop inventory compliance."
+                rows={3}
+              />
+            </FormGridItem>
+          </FormGrid>
 
-          <FormGridItem span={2}>
-            <RHFTextArea
-              name="message"
-              label="Instructions / Purpose"
-              placeholder="e.g. Please provide your BitLocker recovery key for corporate laptop inventory compliance."
-              rows={3}
-            />
-          </FormGridItem>
-        </FormGrid>
+          <FormActions
+            submitting={isSubmitting || createMutation.isPending}
+            onCancel={requestClose}
+            submitLabel="Send Request"
+          />
+        </FormProvider>
+      </Drawer>
 
-        <FormActions
-          submitting={isSubmitting || createMutation.isPending}
-          onCancel={() => onOpenChange(false)}
-          submitLabel="Send Request"
-        />
-      </FormProvider>
-    </Drawer>
+      <ConfirmDialog
+        open={confirmDiscard}
+        onOpenChange={setConfirmDiscard}
+        title="Discard unsaved changes?"
+        description="You have unsaved changes in this credential request form. If you close now, those changes will be lost."
+        confirmText="Discard changes"
+        variant="destructive"
+        onConfirm={() => {
+          setConfirmDiscard(false);
+          onOpenChange(false);
+        }}
+      />
+    </>
   );
 }

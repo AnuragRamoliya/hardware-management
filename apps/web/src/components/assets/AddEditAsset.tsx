@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Drawer } from "@/components/common/Drawer";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import FormProvider from "@/components/hook-form/form-provider";
 import {
   FormSection,
@@ -148,158 +149,177 @@ export function AddEditAsset({
   };
 
   const specsValue = (watch("specs") ?? []) as KeyValueEntry[];
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+
+  const requestClose = () => {
+    if (isDirty) {
+      setConfirmDiscard(true);
+    } else {
+      onOpenChange(false);
+    }
+  };
 
   return (
-    <Drawer
-      open={open}
-      onOpenChange={(next) => {
-        if (!next && isDirty) {
-          if (window.confirm("You have unsaved changes. Discard them?")) {
-            onOpenChange(false);
-          }
-          return;
+    <>
+      <Drawer
+        open={open}
+        onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}
+        title={
+          isEdit ? `Edit asset: ${asset?.asset_tag}` : "Add new hardware asset"
         }
-        onOpenChange(next);
-      }}
-      title={
-        isEdit ? `Edit asset: ${asset?.asset_tag}` : "Add new hardware asset"
-      }
-      description={
-        isEdit
-          ? "Update equipment specifications, warranty dates, and procurement details."
-          : "Register hardware in inventory with serialized tracking and specs."
-      }
-    >
-      {loading ? (
-        <div className="space-y-6">
-          <Skeleton className="h-8 w-1/3" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-32 w-full" />
-        </div>
-      ) : (
-        <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-8">
-            <FormSection
-              title="Basic Details"
-              description="Primary hardware classification, branding, and serial numbering."
-            >
-              <FormGrid>
-                {isEdit && (
+        description={
+          isEdit
+            ? "Update equipment specifications, warranty dates, and procurement details."
+            : "Register hardware in inventory with serialized tracking and specs."
+        }
+      >
+        {loading ? (
+          <div className="space-y-6">
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+        ) : (
+          <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+            <div className="space-y-8">
+              <FormSection
+                title="Basic Details"
+                description="Primary hardware classification, branding, and serial numbering."
+              >
+                <FormGrid>
+                  {isEdit && (
+                    <RHFTextField
+                      name="asset_tag"
+                      label="Asset Tag"
+                      placeholder="AST-000001"
+                      helperText="System identifier (leave as-is unless re-tagging)."
+                    />
+                  )}
                   <RHFTextField
-                    name="asset_tag"
-                    label="Asset Tag"
-                    placeholder="AST-000001"
-                    helperText="System identifier (leave as-is unless re-tagging)."
-                  />
-                )}
-                <RHFTextField
-                  name="brand"
-                  label="Brand / Manufacturer"
-                  placeholder="e.g. Dell, Apple, Lenovo"
-                  required
-                />
-                <RHFTextField
-                  name="model"
-                  label="Model"
-                  placeholder="e.g. Latitude 5420, MacBook Pro 14"
-                  required
-                />
-                <RHFTextField
-                  name="serial_no"
-                  label="Serial Number (S/N)"
-                  placeholder="Hardware serial number"
-                />
-                <RHFAsyncSelect
-                  name="category_id"
-                  label="Asset Category"
-                  endpoint="asset_category/options"
-                  clearable
-                />
-                <RHFAsyncSelect
-                  name="location_id"
-                  label="Current Location"
-                  endpoint="location/options"
-                  clearable
-                />
-                <FormGridItem span={2}>
-                  <RHFAsyncSelect
-                    name="parent_asset_id"
-                    label="Parent Asset (if accessory)"
-                    endpoint="asset/options"
-                    clearable
-                  />
-                </FormGridItem>
-              </FormGrid>
-            </FormSection>
-
-            <FormSection
-              title="Condition & Procurement"
-              description="Hardware working condition, supplier vendor, and purchase history."
-            >
-              <FormGrid>
-                <FormGridItem span={2}>
-                  <RHFSegmentedControl
-                    name="condition"
-                    label="Working Condition"
-                    options={[...ASSET_CONDITIONS]}
+                    name="brand"
+                    label="Brand / Manufacturer"
+                    placeholder="e.g. Dell, Apple, Lenovo"
                     required
                   />
-                </FormGridItem>
-                <FormGridItem span={2}>
+                  <RHFTextField
+                    name="model"
+                    label="Model"
+                    placeholder="e.g. Latitude 5420, MacBook Pro 14"
+                    required
+                  />
+                  <RHFTextField
+                    name="serial_no"
+                    label="Serial Number (S/N)"
+                    placeholder="Hardware serial number"
+                  />
                   <RHFAsyncSelect
-                    name="vendor_id"
-                    label="Supplier Vendor"
-                    endpoint="vendor/options"
+                    name="category_id"
+                    label="Asset Category"
+                    endpoint="asset_category/options"
                     clearable
                   />
-                </FormGridItem>
-                <RHFDatePicker name="purchase_date" label="Purchase Date" />
-                <RHFCurrencyField name="purchase_cost" label="Purchase Cost" />
-                <RHFDatePicker name="warranty_start" label="Warranty Start" />
-                <RHFDatePicker name="warranty_end" label="Warranty End" />
-              </FormGrid>
-            </FormSection>
+                  <RHFAsyncSelect
+                    name="location_id"
+                    label="Current Location"
+                    endpoint="location/options"
+                    clearable
+                  />
+                  <FormGridItem span={2}>
+                    <RHFAsyncSelect
+                      name="parent_asset_id"
+                      label="Parent Asset (if accessory)"
+                      endpoint="asset/options"
+                      clearable
+                    />
+                  </FormGridItem>
+                </FormGrid>
+              </FormSection>
 
-            <FormSection
-              title="Hardware Specifications"
-              description="Custom properties (RAM, Processor, Storage, Screen Size, OS)."
-            >
-              <KeyValueEditor
-                label="Technical Specs"
-                value={specsValue}
-                onChange={(next) =>
-                  setValue("specs", next, { shouldDirty: true })
-                }
-                keyPlaceholder="Property (e.g. RAM)"
-                valuePlaceholder="Value (e.g. 32GB)"
-              />
-            </FormSection>
+              <FormSection
+                title="Condition & Procurement"
+                description="Hardware working condition, supplier vendor, and purchase history."
+              >
+                <FormGrid>
+                  <FormGridItem span={2}>
+                    <RHFSegmentedControl
+                      name="condition"
+                      label="Working Condition"
+                      options={[...ASSET_CONDITIONS]}
+                      required
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={2}>
+                    <RHFAsyncSelect
+                      name="vendor_id"
+                      label="Supplier Vendor"
+                      endpoint="vendor/options"
+                      clearable
+                    />
+                  </FormGridItem>
+                  <RHFDatePicker name="purchase_date" label="Purchase Date" />
+                  <RHFCurrencyField
+                    name="purchase_cost"
+                    label="Purchase Cost"
+                  />
+                  <RHFDatePicker name="warranty_start" label="Warranty Start" />
+                  <RHFDatePicker name="warranty_end" label="Warranty End" />
+                </FormGrid>
+              </FormSection>
 
-            <FormSection
-              title="Notes & Comments"
-              description="Internal maintenance instructions, accessories list, or history notes."
-            >
-              <RHFTextArea
-                name="notes"
-                label="Notes"
-                placeholder="Optional notes or deployment details..."
-                rows={3}
-              />
-            </FormSection>
-          </div>
+              <FormSection
+                title="Hardware Specifications"
+                description="Custom properties (RAM, Processor, Storage, Screen Size, OS)."
+              >
+                <KeyValueEditor
+                  label="Technical Specs"
+                  value={specsValue}
+                  onChange={(next) =>
+                    setValue("specs", next, { shouldDirty: true })
+                  }
+                  keyPlaceholder="Property (e.g. RAM)"
+                  valuePlaceholder="Value (e.g. 32GB)"
+                />
+              </FormSection>
 
-          <FormActions
-            submitting={
-              isSubmitting ||
-              createMutation.isPending ||
-              updateMutation.isPending
-            }
-            submitLabel={isEdit ? "Update asset" : "Save asset"}
-            onCancel={() => onOpenChange(false)}
-          />
-        </FormProvider>
-      )}
-    </Drawer>
+              <FormSection
+                title="Notes & Comments"
+                description="Internal maintenance instructions, accessories list, or history notes."
+              >
+                <RHFTextArea
+                  name="notes"
+                  label="Notes"
+                  placeholder="Optional notes or deployment details..."
+                  rows={3}
+                />
+              </FormSection>
+            </div>
+
+            <FormActions
+              submitting={
+                isSubmitting ||
+                createMutation.isPending ||
+                updateMutation.isPending
+              }
+              submitLabel={isEdit ? "Update asset" : "Save asset"}
+              onCancel={requestClose}
+            />
+          </FormProvider>
+        )}
+      </Drawer>
+
+      <ConfirmDialog
+        open={confirmDiscard}
+        onOpenChange={setConfirmDiscard}
+        title="Discard unsaved changes?"
+        description="You have unsaved changes in this asset form. If you close now, those changes will be lost."
+        confirmText="Discard changes"
+        variant="destructive"
+        onConfirm={() => {
+          setConfirmDiscard(false);
+          onOpenChange(false);
+        }}
+      />
+    </>
   );
 }

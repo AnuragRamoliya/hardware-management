@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Drawer } from "@/components/common/Drawer";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import FormProvider from "@/components/hook-form/form-provider";
 import {
   FormSection,
@@ -94,102 +95,111 @@ export function AddEditVendor({
     onOpenChange(false);
   };
 
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+
+  const requestClose = () => {
+    if (isDirty) {
+      setConfirmDiscard(true);
+    } else {
+      onOpenChange(false);
+    }
+  };
+
   return (
-    <Drawer
-      open={open}
-      onOpenChange={(next) => {
-        if (!next && isDirty) {
-          if (window.confirm("You have unsaved changes. Discard them?")) {
-            onOpenChange(false);
-          }
-          return;
+    <>
+      <Drawer
+        open={open}
+        onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}
+        title={isEdit ? `Edit vendor: ${vendor?.name}` : "Add new vendor"}
+        description={
+          isEdit
+            ? "Update vendor supplier profile, contact details, and address."
+            : "Register a hardware manufacturer or software license supplier."
         }
-        onOpenChange(next);
-      }}
-      title={isEdit ? `Edit vendor: ${vendor?.name}` : "Add new vendor"}
-      description={
-        isEdit
-          ? "Update vendor supplier profile, contact details, and address."
-          : "Register a hardware manufacturer or software license supplier."
-      }
-    >
-      {loading ? (
-        <div className="space-y-6">
-          <Skeleton className="h-8 w-1/3" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-24 w-full" />
-        </div>
-      ) : (
-        <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+      >
+        {loading ? (
           <div className="space-y-6">
-            <FormSection
-              title="Vendor Information"
-              description="Supplier company name and primary point of contact."
-            >
-              <FormGrid>
-                <FormGridItem span={2}>
-                  <RHFTextField
-                    name="name"
-                    label="Vendor / Supplier name"
-                    placeholder="e.g. Dell Enterprise, Apple India, CDW"
-                    required
-                  />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFTextField
-                    name="contact_name"
-                    label="Contact person"
-                    placeholder="Name of account manager or representative"
-                  />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFTextField
-                    name="email"
-                    label="Contact email"
-                    placeholder="support@vendor.com"
-                  />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFPhoneInput name="phone" label="Contact phone" />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFSelect
-                    name="status"
-                    label="Status"
-                    options={[...ENUMS.recordStatus]}
-                    required
-                  />
-                </FormGridItem>
-                <FormGridItem span={2}>
-                  <RHFTextArea
-                    name="address"
-                    label="Office address"
-                    placeholder="Supplier headquarters or warehouse address"
-                  />
-                </FormGridItem>
-              </FormGrid>
-            </FormSection>
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-24 w-full" />
           </div>
-          <FormActions
-            submitting={
-              isSubmitting ||
-              createMutation.isPending ||
-              updateMutation.isPending
-            }
-            submitLabel={isEdit ? "Save changes" : "Create vendor"}
-            onCancel={() => {
-              if (isDirty) {
-                if (window.confirm("You have unsaved changes. Discard them?")) {
-                  onOpenChange(false);
-                }
-                return;
+        ) : (
+          <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+            <div className="space-y-6">
+              <FormSection
+                title="Vendor Information"
+                description="Supplier company name and primary point of contact."
+              >
+                <FormGrid>
+                  <FormGridItem span={2}>
+                    <RHFTextField
+                      name="name"
+                      label="Vendor / Supplier name"
+                      placeholder="e.g. Dell Enterprise, Apple India, CDW"
+                      required
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFTextField
+                      name="contact_name"
+                      label="Contact person"
+                      placeholder="Name of account manager or representative"
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFTextField
+                      name="email"
+                      label="Contact email"
+                      placeholder="support@vendor.com"
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFPhoneInput name="phone" label="Contact phone" />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFSelect
+                      name="status"
+                      label="Status"
+                      options={[...ENUMS.recordStatus]}
+                      required
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={2}>
+                    <RHFTextArea
+                      name="address"
+                      label="Office address"
+                      placeholder="Supplier headquarters or warehouse address"
+                    />
+                  </FormGridItem>
+                </FormGrid>
+              </FormSection>
+            </div>
+            <FormActions
+              submitting={
+                isSubmitting ||
+                createMutation.isPending ||
+                updateMutation.isPending
               }
-              onOpenChange(false);
-            }}
-          />
-        </FormProvider>
-      )}
-    </Drawer>
+              submitLabel={isEdit ? "Save changes" : "Create vendor"}
+              onCancel={requestClose}
+            />
+          </FormProvider>
+        )}
+      </Drawer>
+
+      <ConfirmDialog
+        open={confirmDiscard}
+        onOpenChange={setConfirmDiscard}
+        title="Discard unsaved changes?"
+        description="You have unsaved changes in this vendor form. If you close now, those changes will be lost."
+        confirmText="Discard changes"
+        variant="destructive"
+        onConfirm={() => {
+          setConfirmDiscard(false);
+          onOpenChange(false);
+        }}
+      />
+    </>
   );
 }

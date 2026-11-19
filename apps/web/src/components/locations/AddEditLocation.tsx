@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Drawer } from "@/components/common/Drawer";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import FormProvider from "@/components/hook-form/form-provider";
 import {
   FormSection,
@@ -84,84 +85,93 @@ export function AddEditLocation({
     onOpenChange(false);
   };
 
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+
+  const requestClose = () => {
+    if (isDirty) {
+      setConfirmDiscard(true);
+    } else {
+      onOpenChange(false);
+    }
+  };
+
   return (
-    <Drawer
-      open={open}
-      onOpenChange={(next) => {
-        if (!next && isDirty) {
-          if (window.confirm("You have unsaved changes. Discard them?")) {
-            onOpenChange(false);
-          }
-          return;
+    <>
+      <Drawer
+        open={open}
+        onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}
+        title={isEdit ? `Edit location: ${location?.name}` : "Add new location"}
+        description={
+          isEdit
+            ? "Update site location name, address, and status."
+            : "Register an office site or branch location for tracking physical assets."
         }
-        onOpenChange(next);
-      }}
-      title={isEdit ? `Edit location: ${location?.name}` : "Add new location"}
-      description={
-        isEdit
-          ? "Update site location name, address, and status."
-          : "Register an office site or branch location for tracking physical assets."
-      }
-    >
-      {loading ? (
-        <div className="space-y-6">
-          <Skeleton className="h-8 w-1/3" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-24 w-full" />
-        </div>
-      ) : (
-        <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+      >
+        {loading ? (
           <div className="space-y-6">
-            <FormSection
-              title="Location Details"
-              description="Office site name and physical street address."
-            >
-              <FormGrid>
-                <FormGridItem span={1}>
-                  <RHFTextField
-                    name="name"
-                    label="Location name"
-                    placeholder="e.g. Headquarters - Floor 3, Mumbai Tech Hub"
-                    required
-                  />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFSelect
-                    name="status"
-                    label="Status"
-                    options={[...ENUMS.recordStatus]}
-                    required
-                  />
-                </FormGridItem>
-                <FormGridItem span={2}>
-                  <RHFTextArea
-                    name="address"
-                    label="Full address"
-                    placeholder="Physical street address, city, and postal code"
-                  />
-                </FormGridItem>
-              </FormGrid>
-            </FormSection>
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-24 w-full" />
           </div>
-          <FormActions
-            submitting={
-              isSubmitting ||
-              createMutation.isPending ||
-              updateMutation.isPending
-            }
-            submitLabel={isEdit ? "Save changes" : "Create location"}
-            onCancel={() => {
-              if (isDirty) {
-                if (window.confirm("You have unsaved changes. Discard them?")) {
-                  onOpenChange(false);
-                }
-                return;
+        ) : (
+          <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+            <div className="space-y-6">
+              <FormSection
+                title="Location Details"
+                description="Office site name and physical street address."
+              >
+                <FormGrid>
+                  <FormGridItem span={1}>
+                    <RHFTextField
+                      name="name"
+                      label="Location name"
+                      placeholder="e.g. Headquarters - Floor 3, Mumbai Tech Hub"
+                      required
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFSelect
+                      name="status"
+                      label="Status"
+                      options={[...ENUMS.recordStatus]}
+                      required
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={2}>
+                    <RHFTextArea
+                      name="address"
+                      label="Full address"
+                      placeholder="Physical street address, city, and postal code"
+                    />
+                  </FormGridItem>
+                </FormGrid>
+              </FormSection>
+            </div>
+            <FormActions
+              submitting={
+                isSubmitting ||
+                createMutation.isPending ||
+                updateMutation.isPending
               }
-              onOpenChange(false);
-            }}
-          />
-        </FormProvider>
-      )}
-    </Drawer>
+              submitLabel={isEdit ? "Save changes" : "Create location"}
+              onCancel={requestClose}
+            />
+          </FormProvider>
+        )}
+      </Drawer>
+
+      <ConfirmDialog
+        open={confirmDiscard}
+        onOpenChange={setConfirmDiscard}
+        title="Discard unsaved changes?"
+        description="You have unsaved changes in this location form. If you close now, those changes will be lost."
+        confirmText="Discard changes"
+        variant="destructive"
+        onConfirm={() => {
+          setConfirmDiscard(false);
+          onOpenChange(false);
+        }}
+      />
+    </>
   );
 }

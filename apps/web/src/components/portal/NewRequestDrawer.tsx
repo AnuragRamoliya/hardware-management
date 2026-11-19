@@ -10,6 +10,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { Drawer } from "@/components/common/Drawer";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { Stepper, type StepItem } from "@/components/common/Stepper";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -167,287 +168,323 @@ export function NewRequestDrawer({
     }
   };
 
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+  const isDirty =
+    step > 0 ||
+    Boolean(
+      title ||
+      reason ||
+      categoryId ||
+      (initialAssetId
+        ? currentAssetId !== String(initialAssetId)
+        : currentAssetId) ||
+      softwareId,
+    );
+
+  const requestClose = () => {
+    if (isDirty) {
+      setConfirmDiscard(true);
+    } else {
+      onOpenChange(false);
+    }
+  };
+
   return (
-    <Drawer
-      open={open}
-      onOpenChange={onOpenChange}
-      title="Raise Request"
-      description="Submit a new hardware or software request for review."
-    >
-      <div className="space-y-6">
-        <Stepper
-          steps={STEPS}
-          activeStep={step}
-          onStepClick={(i) => i < step && setStep(i)}
-        />
+    <>
+      <Drawer
+        open={open}
+        onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}
+        title="Raise Request"
+        description="Submit a new hardware or software request for review."
+      >
+        <div className="space-y-6">
+          <Stepper
+            steps={STEPS}
+            activeStep={step}
+            onStepClick={(i) => i < step && setStep(i)}
+          />
 
-        {error && (
-          <div className="p-3 rounded-lg border border-destructive/20 bg-destructive/10 text-destructive text-xs font-medium">
-            {error}
-          </div>
-        )}
+          {error && (
+            <div className="p-3 rounded-lg border border-destructive/20 bg-destructive/10 text-destructive text-xs font-medium">
+              {error}
+            </div>
+          )}
 
-        {/* Step 1: Type Selection */}
-        {step === 0 && (
-          <div className="space-y-3">
-            <Label className="text-xs font-semibold text-foreground">
-              Select Request Category
-            </Label>
-            <div className="grid grid-cols-1 gap-2.5">
-              {TYPE_OPTIONS.map((item) => {
-                const Icon = item.icon;
-                const isSelected = selectedType === item.type;
-                return (
-                  <div
-                    key={item.type}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => setSelectedType(item.type)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setSelectedType(item.type);
-                      }
-                    }}
-                    className={`flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-                      isSelected
-                        ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm"
-                        : "border-border hover:border-muted-foreground/40 bg-card"
-                    }`}
-                  >
+          {/* Step 1: Type Selection */}
+          {step === 0 && (
+            <div className="space-y-3">
+              <Label className="text-xs font-semibold text-foreground">
+                Select Request Category
+              </Label>
+              <div className="grid grid-cols-1 gap-2.5">
+                {TYPE_OPTIONS.map((item) => {
+                  const Icon = item.icon;
+                  const isSelected = selectedType === item.type;
+                  return (
                     <div
-                      className={`p-2 rounded-lg shrink-0 ${
+                      key={item.type}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setSelectedType(item.type)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setSelectedType(item.type);
+                        }
+                      }}
+                      className={`flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                         isSelected
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground"
+                          ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm"
+                          : "border-border hover:border-muted-foreground/40 bg-card"
                       }`}
                     >
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-foreground">
-                          {item.title}
-                        </span>
-                        {isSelected && (
-                          <Check className="h-4 w-4 text-primary" />
-                        )}
+                      <div
+                        className={`p-2 rounded-lg shrink-0 ${
+                          isSelected
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        <Icon className="h-5 w-5" />
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {item.description}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-semibold text-foreground">
+                            {item.title}
+                          </span>
+                          {isSelected && (
+                            <Check className="h-4 w-4 text-primary" />
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {item.description}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="flex justify-end pt-4">
-              <Button onClick={handleNext} className="gap-1.5">
-                Continue
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Specific Item Selection */}
-        {step === 1 && (
-          <div className="space-y-4">
-            {selectedType === REQUEST_TYPE.NEW_HARDWARE && (
-              <div className="space-y-2">
-                <Label
-                  htmlFor="req-cat"
-                  className="text-xs font-semibold text-foreground"
-                >
-                  Equipment Category
-                </Label>
-                <NativeSelect
-                  id="req-cat"
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  required
-                >
-                  <option value="">Choose category...</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </NativeSelect>
+                  );
+                })}
               </div>
-            )}
 
-            {(selectedType === REQUEST_TYPE.CHANGE_REPLACE_HARDWARE ||
-              selectedType === REQUEST_TYPE.REPAIR ||
-              selectedType === REQUEST_TYPE.RETURN_HARDWARE) && (
-              <div className="space-y-2">
-                <Label
-                  htmlFor="req-asset"
-                  className="text-xs font-semibold text-foreground"
-                >
-                  Select Your Assigned Asset
-                </Label>
-                {myAssets.length === 0 ? (
-                  <p className="text-xs text-destructive p-3 rounded-lg border border-destructive/20 bg-destructive/10">
-                    You currently have no hardware assets assigned to your
-                    account.
-                  </p>
-                ) : (
+              <div className="flex justify-end pt-4">
+                <Button onClick={handleNext} className="gap-1.5">
+                  Continue
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Specific Item Selection */}
+          {step === 1 && (
+            <div className="space-y-4">
+              {selectedType === REQUEST_TYPE.NEW_HARDWARE && (
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="req-cat"
+                    className="text-xs font-semibold text-foreground"
+                  >
+                    Equipment Category
+                  </Label>
                   <NativeSelect
-                    id="req-asset"
-                    value={currentAssetId}
-                    onChange={(e) => setCurrentAssetId(e.target.value)}
+                    id="req-cat"
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
                     required
                   >
-                    <option value="">Select asset...</option>
-                    {myAssets.map((ast) => (
-                      <option key={ast.id} value={ast.id}>
-                        {ast.asset_tag} — {ast.brand} {ast.model} (
-                        {ast.category?.name || "Hardware"})
+                    <option value="">Choose category...</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
                       </option>
                     ))}
                   </NativeSelect>
-                )}
-              </div>
-            )}
+                </div>
+              )}
 
-            {selectedType === REQUEST_TYPE.SOFTWARE_ACCESS && (
-              <div className="space-y-2">
-                <Label
-                  htmlFor="req-sw"
-                  className="text-xs font-semibold text-foreground"
+              {(selectedType === REQUEST_TYPE.CHANGE_REPLACE_HARDWARE ||
+                selectedType === REQUEST_TYPE.REPAIR ||
+                selectedType === REQUEST_TYPE.RETURN_HARDWARE) && (
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="req-asset"
+                    className="text-xs font-semibold text-foreground"
+                  >
+                    Select Your Assigned Asset
+                  </Label>
+                  {myAssets.length === 0 ? (
+                    <p className="text-xs text-destructive p-3 rounded-lg border border-destructive/20 bg-destructive/10">
+                      You currently have no hardware assets assigned to your
+                      account.
+                    </p>
+                  ) : (
+                    <NativeSelect
+                      id="req-asset"
+                      value={currentAssetId}
+                      onChange={(e) => setCurrentAssetId(e.target.value)}
+                      required
+                    >
+                      <option value="">Select asset...</option>
+                      {myAssets.map((ast) => (
+                        <option key={ast.id} value={ast.id}>
+                          {ast.asset_tag} — {ast.brand} {ast.model} (
+                          {ast.category?.name || "Hardware"})
+                        </option>
+                      ))}
+                    </NativeSelect>
+                  )}
+                </div>
+              )}
+
+              {selectedType === REQUEST_TYPE.SOFTWARE_ACCESS && (
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="req-sw"
+                    className="text-xs font-semibold text-foreground"
+                  >
+                    Available Software
+                  </Label>
+                  <NativeSelect
+                    id="req-sw"
+                    value={softwareId}
+                    onChange={(e) => setSoftwareId(e.target.value)}
+                    required
+                  >
+                    <option value="">Select software title...</option>
+                    {softwareList.map((sw) => (
+                      <option key={sw.id} value={sw.id}>
+                        {sw.name} ({sw.category || "Tool"})
+                      </option>
+                    ))}
+                  </NativeSelect>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep(0)}
+                  className="gap-1.5"
                 >
-                  Available Software
-                </Label>
-                <NativeSelect
-                  id="req-sw"
-                  value={softwareId}
-                  onChange={(e) => setSoftwareId(e.target.value)}
-                  required
-                >
-                  <option value="">Select software title...</option>
-                  {softwareList.map((sw) => (
-                    <option key={sw.id} value={sw.id}>
-                      {sw.name} ({sw.category || "Tool"})
-                    </option>
-                  ))}
-                </NativeSelect>
+                  <ChevronLeft className="h-4 w-4" />
+                  Back
+                </Button>
+                <Button onClick={handleNext} className="gap-1.5">
+                  Continue
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
               </div>
-            )}
-
-            <div className="flex items-center justify-between pt-4 border-t">
-              <Button
-                variant="outline"
-                onClick={() => setStep(0)}
-                className="gap-1.5"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Back
-              </Button>
-              <Button onClick={handleNext} className="gap-1.5">
-                Continue
-                <ChevronRight className="h-4 w-4" />
-              </Button>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Step 3: Reason, Priority & Submit */}
-        {step === 2 && (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label
-                htmlFor="req-title"
-                className="text-xs font-semibold text-foreground mb-1 block"
-              >
-                Request Title
-              </Label>
-              <Input
-                id="req-title"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Upgrade laptop for mobile builds"
-                required
-              />
-            </div>
-
-            <div>
-              <Label
-                htmlFor="req-reason"
-                className="text-xs font-semibold text-foreground mb-1 block"
-              >
-                Business Reason & Details
-              </Label>
-              <Textarea
-                id="req-reason"
-                rows={3}
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="Explain why you need this hardware/software..."
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
+          {/* Step 3: Reason, Priority & Submit */}
+          {step === 2 && (
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label
-                  htmlFor="req-priority"
+                  htmlFor="req-title"
                   className="text-xs font-semibold text-foreground mb-1 block"
                 >
-                  Urgency / Priority
-                </Label>
-                <NativeSelect
-                  id="req-priority"
-                  value={priority}
-                  onChange={(e) => setPriority(Number(e.target.value))}
-                >
-                  <option value={REQUEST_PRIORITY.LOW}>Low</option>
-                  <option value={REQUEST_PRIORITY.MEDIUM}>Medium</option>
-                  <option value={REQUEST_PRIORITY.HIGH}>High</option>
-                  <option value={REQUEST_PRIORITY.URGENT}>Urgent</option>
-                </NativeSelect>
-              </div>
-
-              <div>
-                <Label
-                  htmlFor="req-date"
-                  className="text-xs font-semibold text-foreground mb-1 block"
-                >
-                  Needed By Date
+                  Request Title
                 </Label>
                 <Input
-                  id="req-date"
-                  type="date"
-                  value={neededByDate}
-                  min={new Date().toISOString().slice(0, 10)}
-                  onChange={(e) => setNeededByDate(e.target.value)}
+                  id="req-title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Upgrade laptop for mobile builds"
+                  required
                 />
               </div>
-            </div>
 
-            <div className="flex items-center justify-between pt-4 border-t">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setStep(1)}
-                className="gap-1.5"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Back
-              </Button>
-              <Button
-                type="submit"
-                disabled={createMutation.isPending}
-                className="gap-1.5"
-              >
-                Submit Request
-              </Button>
-            </div>
-          </form>
-        )}
-      </div>
-    </Drawer>
+              <div>
+                <Label
+                  htmlFor="req-reason"
+                  className="text-xs font-semibold text-foreground mb-1 block"
+                >
+                  Business Reason & Details
+                </Label>
+                <Textarea
+                  id="req-reason"
+                  rows={3}
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder="Explain why you need this hardware/software..."
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label
+                    htmlFor="req-priority"
+                    className="text-xs font-semibold text-foreground mb-1 block"
+                  >
+                    Urgency / Priority
+                  </Label>
+                  <NativeSelect
+                    id="req-priority"
+                    value={priority}
+                    onChange={(e) => setPriority(Number(e.target.value))}
+                  >
+                    <option value={REQUEST_PRIORITY.LOW}>Low</option>
+                    <option value={REQUEST_PRIORITY.MEDIUM}>Medium</option>
+                    <option value={REQUEST_PRIORITY.HIGH}>High</option>
+                    <option value={REQUEST_PRIORITY.URGENT}>Urgent</option>
+                  </NativeSelect>
+                </div>
+
+                <div>
+                  <Label
+                    htmlFor="req-date"
+                    className="text-xs font-semibold text-foreground mb-1 block"
+                  >
+                    Needed By Date
+                  </Label>
+                  <Input
+                    id="req-date"
+                    type="date"
+                    value={neededByDate}
+                    min={new Date().toISOString().slice(0, 10)}
+                    onChange={(e) => setNeededByDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setStep(1)}
+                  className="gap-1.5"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Back
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={createMutation.isPending}
+                  className="gap-1.5"
+                >
+                  Submit Request
+                </Button>
+              </div>
+            </form>
+          )}
+        </div>
+      </Drawer>
+
+      <ConfirmDialog
+        open={confirmDiscard}
+        onOpenChange={setConfirmDiscard}
+        title="Discard unsaved changes?"
+        description="You have unsaved changes in this request form. If you close now, those changes will be lost."
+        confirmText="Discard changes"
+        variant="destructive"
+        onConfirm={() => {
+          setConfirmDiscard(false);
+          onOpenChange(false);
+        }}
+      />
+    </>
   );
 }

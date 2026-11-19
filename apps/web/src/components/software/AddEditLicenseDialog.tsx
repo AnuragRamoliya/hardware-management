@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "sonner";
 import { Drawer } from "@/components/common/Drawer";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { FormActions } from "@/components/common/FormLayout";
 import FormProvider from "@/components/hook-form/form-provider";
 import {
@@ -37,15 +39,25 @@ export function AddEditLicenseDialog({
     },
   });
 
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+
   const {
     handleSubmit,
     reset,
-    formState: { isSubmitting },
+    formState: { isSubmitting, isDirty },
   } = methods;
 
   const handleClose = () => {
     reset();
     onOpenChange(false);
+  };
+
+  const requestClose = () => {
+    if (isDirty) {
+      setConfirmDiscard(true);
+    } else {
+      handleClose();
+    }
   };
 
   const onSubmit = async (values: LicenseFormValues) => {
@@ -67,43 +79,58 @@ export function AddEditLicenseDialog({
   };
 
   return (
-    <Drawer
-      open={open}
-      onOpenChange={handleClose}
-      title="Add Software License Tier"
-      description={
-        softwareName
-          ? `Register new seats or license keys for ${softwareName}.`
-          : "Register new seats or license keys."
-      }
-    >
-      <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-        <div className="space-y-4">
-          <RHFPasswordField
-            name="license_key"
-            label="License Key / Serial"
-            helperText="Encrypted at rest in the credential vault; never exposed in plain text."
-          />
+    <>
+      <Drawer
+        open={open}
+        onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}
+        title="Add Software License Tier"
+        description={
+          softwareName
+            ? `Register new seats or license keys for ${softwareName}.`
+            : "Register new seats or license keys."
+        }
+      >
+        <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-4">
+            <RHFPasswordField
+              name="license_key"
+              label="License Key / Serial"
+              helperText="Encrypted at rest in the credential vault; never exposed in plain text."
+            />
 
-          <RHFNumberField
-            name="seats_total"
-            label="Total Available Seats"
-            required
-          />
+            <RHFNumberField
+              name="seats_total"
+              label="Total Available Seats"
+              required
+            />
 
-          <div className="grid grid-cols-2 gap-3">
-            <RHFDatePicker name="purchase_date" label="Purchase Date" />
-            <RHFDatePicker name="expiry_date" label="Expiry Date" />
+            <div className="grid grid-cols-2 gap-3">
+              <RHFDatePicker name="purchase_date" label="Purchase Date" />
+              <RHFDatePicker name="expiry_date" label="Expiry Date" />
+            </div>
           </div>
-        </div>
 
-        <FormActions
-          submitting={isSubmitting || createMutation.isPending}
-          submitLabel="Save License"
-          onCancel={handleClose}
-        />
-      </FormProvider>
-    </Drawer>
+          <FormActions
+            submitting={isSubmitting || createMutation.isPending}
+            submitLabel="Save License"
+            onCancel={requestClose}
+          />
+        </FormProvider>
+      </Drawer>
+
+      <ConfirmDialog
+        open={confirmDiscard}
+        onOpenChange={setConfirmDiscard}
+        title="Discard unsaved changes?"
+        description="You have unsaved changes in this license form. If you close now, those changes will be lost."
+        confirmText="Discard changes"
+        variant="destructive"
+        onConfirm={() => {
+          setConfirmDiscard(false);
+          handleClose();
+        }}
+      />
+    </>
   );
 }
 

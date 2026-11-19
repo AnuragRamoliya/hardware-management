@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Drawer } from "@/components/common/Drawer";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import FormProvider from "@/components/hook-form/form-provider";
 import {
   FormSection,
@@ -50,7 +51,7 @@ export function AddEditMaintenance({
   const {
     reset,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, isDirty },
   } = methods;
 
   useEffect(() => {
@@ -74,61 +75,90 @@ export function AddEditMaintenance({
     onOpenChange(false);
   };
 
-  return (
-    <Drawer
-      open={open}
-      onOpenChange={onOpenChange}
-      title="Send hardware to maintenance"
-      description="Record a repair or servicing dispatch. The asset status will update to 'In repair'."
-    >
-      <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-        <div className="space-y-6">
-          <FormSection
-            title="Service Request"
-            description="Identify the faulty asset and describe the malfunction or requested service."
-          >
-            <FormGrid>
-              <FormGridItem span={1}>
-                <RHFAsyncSelect
-                  name="asset_id"
-                  label="Hardware Asset"
-                  endpoint="asset/options"
-                  required
-                />
-              </FormGridItem>
-              <FormGridItem span={1}>
-                <RHFDatePicker name="sent_at" label="Dispatch Date" required />
-              </FormGridItem>
-              <FormGridItem span={1}>
-                <RHFAsyncSelect
-                  name="vendor_id"
-                  label="Servicing Vendor / Shop"
-                  endpoint="vendor/options"
-                  clearable
-                />
-              </FormGridItem>
-              <FormGridItem span={1}>
-                <RHFCurrencyField name="cost" label="Estimated Repair Cost" />
-              </FormGridItem>
-              <FormGridItem span={2}>
-                <RHFTextArea
-                  name="issue"
-                  label="Issue / Problem Description"
-                  placeholder="Describe screen flicker, broken hinge, overheating, RAM failure..."
-                  rows={3}
-                  required
-                />
-              </FormGridItem>
-            </FormGrid>
-          </FormSection>
-        </div>
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
 
-        <FormActions
-          submitting={isSubmitting || createMutation.isPending}
-          submitLabel="Dispatch to maintenance"
-          onCancel={() => onOpenChange(false)}
-        />
-      </FormProvider>
-    </Drawer>
+  const requestClose = () => {
+    if (isDirty) {
+      setConfirmDiscard(true);
+    } else {
+      onOpenChange(false);
+    }
+  };
+
+  return (
+    <>
+      <Drawer
+        open={open}
+        onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}
+        title="Send hardware to maintenance"
+        description="Record a repair or servicing dispatch. The asset status will update to 'In repair'."
+      >
+        <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-6">
+            <FormSection
+              title="Service Request"
+              description="Identify the faulty asset and describe the malfunction or requested service."
+            >
+              <FormGrid>
+                <FormGridItem span={1}>
+                  <RHFAsyncSelect
+                    name="asset_id"
+                    label="Hardware Asset"
+                    endpoint="asset/options"
+                    required
+                  />
+                </FormGridItem>
+                <FormGridItem span={1}>
+                  <RHFDatePicker
+                    name="sent_at"
+                    label="Dispatch Date"
+                    required
+                  />
+                </FormGridItem>
+                <FormGridItem span={1}>
+                  <RHFAsyncSelect
+                    name="vendor_id"
+                    label="Servicing Vendor / Shop"
+                    endpoint="vendor/options"
+                    clearable
+                  />
+                </FormGridItem>
+                <FormGridItem span={1}>
+                  <RHFCurrencyField name="cost" label="Estimated Repair Cost" />
+                </FormGridItem>
+                <FormGridItem span={2}>
+                  <RHFTextArea
+                    name="issue"
+                    label="Issue / Problem Description"
+                    placeholder="Describe screen flicker, broken hinge, overheating, RAM failure..."
+                    rows={3}
+                    required
+                  />
+                </FormGridItem>
+              </FormGrid>
+            </FormSection>
+          </div>
+
+          <FormActions
+            submitting={isSubmitting || createMutation.isPending}
+            submitLabel="Dispatch to maintenance"
+            onCancel={requestClose}
+          />
+        </FormProvider>
+      </Drawer>
+
+      <ConfirmDialog
+        open={confirmDiscard}
+        onOpenChange={setConfirmDiscard}
+        title="Discard unsaved changes?"
+        description="You have unsaved changes in this maintenance form. If you close now, those changes will be lost."
+        confirmText="Discard changes"
+        variant="destructive"
+        onConfirm={() => {
+          setConfirmDiscard(false);
+          onOpenChange(false);
+        }}
+      />
+    </>
   );
 }

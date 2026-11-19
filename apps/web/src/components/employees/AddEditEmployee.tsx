@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Drawer } from "@/components/common/Drawer";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import FormProvider from "@/components/hook-form/form-provider";
 import {
   FormSection,
@@ -125,181 +126,190 @@ export function AddEditEmployee({
     onOpenChange(false);
   };
 
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+
+  const requestClose = () => {
+    if (isDirty) {
+      setConfirmDiscard(true);
+    } else {
+      onOpenChange(false);
+    }
+  };
+
   return (
-    <Drawer
-      open={open}
-      onOpenChange={(next) => {
-        if (!next && isDirty) {
-          if (window.confirm("You have unsaved changes. Discard them?")) {
-            onOpenChange(false);
-          }
-          return;
+    <>
+      <Drawer
+        open={open}
+        onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}
+        title={
+          isEdit
+            ? `Edit employee: ${employee?.first_name} ${employee?.last_name || ""}`
+            : "Add new employee"
         }
-        onOpenChange(next);
-      }}
-      title={
-        isEdit
-          ? `Edit employee: ${employee?.first_name} ${employee?.last_name || ""}`
-          : "Add new employee"
-      }
-      description={
-        isEdit
-          ? "Update personal information, departmental assignment, and status."
-          : "Register a team member into organizational records and IT equipment custody."
-      }
-    >
-      {loading ? (
-        <div className="space-y-6">
-          <Skeleton className="h-8 w-1/3" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-24 w-full" />
-        </div>
-      ) : (
-        <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+        description={
+          isEdit
+            ? "Update personal information, departmental assignment, and status."
+            : "Register a team member into organizational records and IT equipment custody."
+        }
+      >
+        {loading ? (
           <div className="space-y-6">
-            <FormSection
-              title="Personal Details"
-              description="Name, employee identifier, and official corporate email."
-            >
-              <FormGrid>
-                <FormGridItem span={1}>
-                  <RHFTextField
-                    name="employee_code"
-                    label="Employee ID / Code"
-                    placeholder="e.g. EMP-00124"
-                    required
-                  />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFTextField
-                    name="email"
-                    label="Work email"
-                    placeholder="user@company.com"
-                    required
-                  />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFTextField
-                    name="first_name"
-                    label="First name"
-                    placeholder="e.g. Jane"
-                    required
-                  />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFTextField
-                    name="last_name"
-                    label="Last name"
-                    placeholder="e.g. Doe"
-                    required
-                  />
-                </FormGridItem>
-              </FormGrid>
-            </FormSection>
-
-            <FormSection
-              title="Organization & Role"
-              description="Department, title, office site, and reporting structure."
-            >
-              <FormGrid>
-                <FormGridItem span={1}>
-                  <RHFAsyncSelect
-                    name="department_id"
-                    label="Department"
-                    endpoint="department/options"
-                    clearable
-                  />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFAsyncSelect
-                    name="designation_id"
-                    label="Designation"
-                    endpoint="designation/options"
-                    clearable
-                  />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFAsyncSelect
-                    name="location_id"
-                    label="Office Location"
-                    endpoint="location/options"
-                    clearable
-                  />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFAsyncSelect
-                    name="manager_id"
-                    label="Reporting Manager"
-                    endpoint="employee/options"
-                    clearable
-                  />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFSelect
-                    name="employment_status"
-                    label="Employment Status"
-                    options={[...ENUMS.employmentStatus]}
-                    required
-                  />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFSelect
-                    name="status"
-                    label="Record Status"
-                    options={[...ENUMS.recordStatus]}
-                    required
-                  />
-                </FormGridItem>
-              </FormGrid>
-            </FormSection>
-
-            {!isEdit && (
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+        ) : (
+          <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+            <div className="space-y-6">
               <FormSection
-                title="System Login Account"
-                description="Optional portal access credentials for this employee."
+                title="Personal Details"
+                description="Name, employee identifier, and official corporate email."
               >
                 <FormGrid>
                   <FormGridItem span={1}>
-                    <RHFSelect
-                      name="create_login"
-                      label="Create login account"
-                      options={[...ENUMS.createLogin]}
+                    <RHFTextField
+                      name="employee_code"
+                      label="Employee ID / Code"
+                      placeholder="e.g. EMP-00124"
+                      required
                     />
                   </FormGridItem>
-                  {isCreatingLogin && (
-                    <FormGridItem span={1}>
-                      <RHFPasswordField
-                        name="login_password"
-                        label="Password (min 12 characters)"
-                        placeholder="••••••••••••"
-                        required
-                      />
-                    </FormGridItem>
-                  )}
+                  <FormGridItem span={1}>
+                    <RHFTextField
+                      name="email"
+                      label="Work email"
+                      placeholder="user@company.com"
+                      required
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFTextField
+                      name="first_name"
+                      label="First name"
+                      placeholder="e.g. Jane"
+                      required
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFTextField
+                      name="last_name"
+                      label="Last name"
+                      placeholder="e.g. Doe"
+                      required
+                    />
+                  </FormGridItem>
                 </FormGrid>
               </FormSection>
-            )}
-          </div>
-          <FormActions
-            submitting={
-              isSubmitting ||
-              createMutation.isPending ||
-              updateMutation.isPending
-            }
-            submitLabel={isEdit ? "Save changes" : "Create employee"}
-            onCancel={() => {
-              if (isDirty) {
-                if (window.confirm("You have unsaved changes. Discard them?")) {
-                  onOpenChange(false);
-                }
-                return;
+
+              <FormSection
+                title="Organization & Role"
+                description="Department, title, office site, and reporting structure."
+              >
+                <FormGrid>
+                  <FormGridItem span={1}>
+                    <RHFAsyncSelect
+                      name="department_id"
+                      label="Department"
+                      endpoint="department/options"
+                      clearable
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFAsyncSelect
+                      name="designation_id"
+                      label="Designation"
+                      endpoint="designation/options"
+                      clearable
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFAsyncSelect
+                      name="location_id"
+                      label="Office Location"
+                      endpoint="location/options"
+                      clearable
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFAsyncSelect
+                      name="manager_id"
+                      label="Reporting Manager"
+                      endpoint="employee/options"
+                      clearable
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFSelect
+                      name="employment_status"
+                      label="Employment Status"
+                      options={[...ENUMS.employmentStatus]}
+                      required
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={1}>
+                    <RHFSelect
+                      name="status"
+                      label="Record Status"
+                      options={[...ENUMS.recordStatus]}
+                      required
+                    />
+                  </FormGridItem>
+                </FormGrid>
+              </FormSection>
+
+              {!isEdit && (
+                <FormSection
+                  title="System Login Account"
+                  description="Optional portal access credentials for this employee."
+                >
+                  <FormGrid>
+                    <FormGridItem span={1}>
+                      <RHFSelect
+                        name="create_login"
+                        label="Create login account"
+                        options={[...ENUMS.createLogin]}
+                      />
+                    </FormGridItem>
+                    {isCreatingLogin && (
+                      <FormGridItem span={1}>
+                        <RHFPasswordField
+                          name="login_password"
+                          label="Password (min 12 characters)"
+                          placeholder="••••••••••••"
+                          required
+                        />
+                      </FormGridItem>
+                    )}
+                  </FormGrid>
+                </FormSection>
+              )}
+            </div>
+            <FormActions
+              submitting={
+                isSubmitting ||
+                createMutation.isPending ||
+                updateMutation.isPending
               }
-              onOpenChange(false);
-            }}
-          />
-        </FormProvider>
-      )}
-    </Drawer>
+              submitLabel={isEdit ? "Save changes" : "Create employee"}
+              onCancel={requestClose}
+            />
+          </FormProvider>
+        )}
+      </Drawer>
+
+      <ConfirmDialog
+        open={confirmDiscard}
+        onOpenChange={setConfirmDiscard}
+        title="Discard unsaved changes?"
+        description="You have unsaved changes in this employee form. If you close now, those changes will be lost."
+        confirmText="Discard changes"
+        variant="destructive"
+        onConfirm={() => {
+          setConfirmDiscard(false);
+          onOpenChange(false);
+        }}
+      />
+    </>
   );
 }
