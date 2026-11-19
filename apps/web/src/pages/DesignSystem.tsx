@@ -60,6 +60,7 @@ import type {
 import {
   FormActions,
   FormGrid,
+  FormGridItem,
   FormSection,
 } from "@/components/common/FormLayout";
 import { KeyValueList, Timeline } from "@/components/common/DataDisplay";
@@ -253,16 +254,18 @@ export function DesignSystem() {
                     required
                     placeholder="name@company.com"
                   />
-                  <RHFPasswordField
-                    name="password"
-                    label="Password"
-                    required
-                    showStrengthMeter
-                    showGenerator
-                    showCopy
-                    policy={{ minLength: 12, requireComplexity: true }}
-                    placeholder="At least 12 characters"
-                  />
+                  <FormGridItem span={2}>
+                    <RHFPasswordField
+                      name="password"
+                      label="Password"
+                      required
+                      showStrengthMeter
+                      showGenerator
+                      showCopy
+                      policy={{ minLength: 12, requireComplexity: true }}
+                      placeholder="At least 12 characters"
+                    />
+                  </FormGridItem>
                 </FormGrid>
               </FormSection>
               <FormSection

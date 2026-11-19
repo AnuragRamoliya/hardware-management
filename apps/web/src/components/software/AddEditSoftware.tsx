@@ -192,12 +192,14 @@ export function AddEditSoftware({
               description="Supplier vendor, subscription billing cycle, and renewal scheduling."
             >
               <FormGrid>
-                <RHFAsyncSelect
-                  name="vendor_id"
-                  label="Software Vendor / Reseller"
-                  endpoint="vendor/options"
-                  clearable
-                />
+                <FormGridItem span={2}>
+                  <RHFAsyncSelect
+                    name="vendor_id"
+                    label="Software Vendor / Reseller"
+                    endpoint="vendor/options"
+                    clearable
+                  />
+                </FormGridItem>
 
                 <RHFCurrencyField
                   name="cost"
@@ -210,10 +212,12 @@ export function AddEditSoftware({
                   placeholder="e.g. monthly, annual, perpetual"
                 />
 
-                <RHFDatePicker
-                  name="renewal_date"
-                  label="Upcoming Renewal Date"
-                />
+                <FormGridItem span={2}>
+                  <RHFDatePicker
+                    name="renewal_date"
+                    label="Upcoming Renewal Date"
+                  />
+                </FormGridItem>
               </FormGrid>
             </FormSection>
 

@@ -136,7 +136,7 @@ export function AddEditVendor({
                     required
                   />
                 </FormGridItem>
-                <FormGridItem span={2}>
+                <FormGridItem span={1}>
                   <RHFTextField
                     name="contact_name"
                     label="Contact person"
@@ -153,19 +153,19 @@ export function AddEditVendor({
                 <FormGridItem span={1}>
                   <RHFPhoneInput name="phone" label="Contact phone" />
                 </FormGridItem>
-                <FormGridItem span={2}>
-                  <RHFTextArea
-                    name="address"
-                    label="Office address"
-                    placeholder="Supplier headquarters or warehouse address"
-                  />
-                </FormGridItem>
                 <FormGridItem span={1}>
                   <RHFSelect
                     name="status"
                     label="Status"
                     options={[...ENUMS.recordStatus]}
                     required
+                  />
+                </FormGridItem>
+                <FormGridItem span={2}>
+                  <RHFTextArea
+                    name="address"
+                    label="Office address"
+                    placeholder="Supplier headquarters or warehouse address"
                   />
                 </FormGridItem>
               </FormGrid>

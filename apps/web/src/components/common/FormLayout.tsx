@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function FormSection({
   title,
@@ -34,15 +35,20 @@ export function FormSection({
 }
 
 export function FormGrid({
+  cols = 2,
   children,
   className = "",
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: HTMLAttributes<HTMLDivElement> & { cols?: 1 | 2 | 3 }) {
+  const gridCols =
+    cols === 1
+      ? "grid-cols-1"
+      : cols === 3
+        ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
+        : "grid-cols-1 sm:grid-cols-2";
+
   return (
-    <div
-      className={`grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 ${className}`}
-      {...props}
-    >
+    <div className={cn("grid gap-4", gridCols, className)} {...props}>
       {children}
     </div>
   );
@@ -53,17 +59,17 @@ export function FormGridItem({
   children,
   className = "",
 }: {
-  span?: 1 | 2 | 3;
+  span?: 1 | 2 | 3 | "full";
   children: ReactNode;
   className?: string;
 }) {
   const width =
-    span === 3
-      ? "md:col-span-2 xl:col-span-3"
+    span === "full" || span === 3
+      ? "col-span-full"
       : span === 2
-        ? "md:col-span-2 xl:col-span-2"
-        : "";
-  return <div className={`${width} ${className}`}>{children}</div>;
+        ? "col-span-full sm:col-span-2"
+        : "col-span-1";
+  return <div className={cn(width, className)}>{children}</div>;
 }
 
 export function FormActions({

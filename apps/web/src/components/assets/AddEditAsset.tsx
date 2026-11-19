@@ -222,12 +222,14 @@ export function AddEditAsset({
                   endpoint="location/options"
                   clearable
                 />
-                <RHFAsyncSelect
-                  name="parent_asset_id"
-                  label="Parent Asset (if accessory)"
-                  endpoint="asset/options"
-                  clearable
-                />
+                <FormGridItem span={2}>
+                  <RHFAsyncSelect
+                    name="parent_asset_id"
+                    label="Parent Asset (if accessory)"
+                    endpoint="asset/options"
+                    clearable
+                  />
+                </FormGridItem>
               </FormGrid>
             </FormSection>
 
@@ -236,7 +238,7 @@ export function AddEditAsset({
               description="Hardware working condition, supplier vendor, and purchase history."
             >
               <FormGrid>
-                <FormGridItem span={3}>
+                <FormGridItem span={2}>
                   <RHFSegmentedControl
                     name="condition"
                     label="Working Condition"
@@ -244,12 +246,14 @@ export function AddEditAsset({
                     required
                   />
                 </FormGridItem>
-                <RHFAsyncSelect
-                  name="vendor_id"
-                  label="Supplier Vendor"
-                  endpoint="vendor/options"
-                  clearable
-                />
+                <FormGridItem span={2}>
+                  <RHFAsyncSelect
+                    name="vendor_id"
+                    label="Supplier Vendor"
+                    endpoint="vendor/options"
+                    clearable
+                  />
+                </FormGridItem>
                 <RHFDatePicker name="purchase_date" label="Purchase Date" />
                 <RHFCurrencyField name="purchase_cost" label="Purchase Cost" />
                 <RHFDatePicker name="warranty_start" label="Warranty Start" />

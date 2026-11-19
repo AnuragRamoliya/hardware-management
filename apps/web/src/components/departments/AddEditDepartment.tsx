@@ -122,19 +122,12 @@ export function AddEditDepartment({
               description="Basic details for this organizational department."
             >
               <FormGrid>
-                <FormGridItem span={2}>
+                <FormGridItem span={1}>
                   <RHFTextField
                     name="name"
                     label="Department name"
                     placeholder="e.g. Engineering, Sales, Human Resources"
                     required
-                  />
-                </FormGridItem>
-                <FormGridItem span={2}>
-                  <RHFTextArea
-                    name="description"
-                    label="Description"
-                    placeholder="Brief description of the department's role and function"
                   />
                 </FormGridItem>
                 <FormGridItem span={1}>
@@ -143,6 +136,13 @@ export function AddEditDepartment({
                     label="Status"
                     options={[...ENUMS.recordStatus]}
                     required
+                  />
+                </FormGridItem>
+                <FormGridItem span={2}>
+                  <RHFTextArea
+                    name="description"
+                    label="Description"
+                    placeholder="Brief description of the department's role and function"
                   />
                 </FormGridItem>
               </FormGrid>

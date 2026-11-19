@@ -6,6 +6,7 @@ import FormProvider from "@/components/hook-form/form-provider";
 import {
   FormSection,
   FormGrid,
+  FormGridItem,
   FormActions,
 } from "@/components/common/FormLayout";
 import {
@@ -87,30 +88,38 @@ export function AddEditMaintenance({
             description="Identify the faulty asset and describe the malfunction or requested service."
           >
             <FormGrid>
-              <RHFAsyncSelect
-                name="asset_id"
-                label="Hardware Asset"
-                endpoint="asset/options"
-                required
-              />
-              <RHFDatePicker name="sent_at" label="Dispatch Date" required />
-              <RHFAsyncSelect
-                name="vendor_id"
-                label="Servicing Vendor / Shop"
-                endpoint="vendor/options"
-                clearable
-              />
-              <RHFCurrencyField name="cost" label="Estimated Repair Cost" />
+              <FormGridItem span={1}>
+                <RHFAsyncSelect
+                  name="asset_id"
+                  label="Hardware Asset"
+                  endpoint="asset/options"
+                  required
+                />
+              </FormGridItem>
+              <FormGridItem span={1}>
+                <RHFDatePicker name="sent_at" label="Dispatch Date" required />
+              </FormGridItem>
+              <FormGridItem span={1}>
+                <RHFAsyncSelect
+                  name="vendor_id"
+                  label="Servicing Vendor / Shop"
+                  endpoint="vendor/options"
+                  clearable
+                />
+              </FormGridItem>
+              <FormGridItem span={1}>
+                <RHFCurrencyField name="cost" label="Estimated Repair Cost" />
+              </FormGridItem>
+              <FormGridItem span={2}>
+                <RHFTextArea
+                  name="issue"
+                  label="Issue / Problem Description"
+                  placeholder="Describe screen flicker, broken hinge, overheating, RAM failure..."
+                  rows={3}
+                  required
+                />
+              </FormGridItem>
             </FormGrid>
-            <div className="mt-4">
-              <RHFTextArea
-                name="issue"
-                label="Issue / Problem Description"
-                placeholder="Describe screen flicker, broken hinge, overheating, RAM failure..."
-                rows={3}
-                required
-              />
-            </div>
           </FormSection>
         </div>
 

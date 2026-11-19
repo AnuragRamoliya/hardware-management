@@ -199,7 +199,7 @@ export function Profile() {
                 title="Personal Information"
                 description="Update your basic account details and contact information."
               >
-                <FormGrid className="grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2">
+                <FormGrid>
                   <FormGridItem span={1}>
                     <RHFTextField
                       name="first_name"
@@ -246,7 +246,7 @@ export function Profile() {
                   title="Change Password"
                   description="Choose a strong, unique password with at least twelve characters."
                 >
-                  <FormGrid className="grid-cols-1 md:grid-cols-1 xl:grid-cols-1">
+                  <FormGrid cols={1}>
                     <FormGridItem span={1}>
                       <RHFPasswordField
                         name="current_password"

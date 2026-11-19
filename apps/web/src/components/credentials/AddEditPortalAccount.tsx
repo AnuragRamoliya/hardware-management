@@ -150,7 +150,7 @@ export function AddEditPortalAccount({
               description="Basic service and identity information"
             >
               <FormGrid>
-                <FormGridItem span={2}>
+                <FormGridItem span={1}>
                   <RHFSelect
                     name="credential_type_id"
                     label="Account Type"
@@ -159,7 +159,7 @@ export function AddEditPortalAccount({
                   />
                 </FormGridItem>
 
-                <FormGridItem span={2}>
+                <FormGridItem span={1}>
                   <RHFTextField
                     name="label"
                     label="Account / Service Name"

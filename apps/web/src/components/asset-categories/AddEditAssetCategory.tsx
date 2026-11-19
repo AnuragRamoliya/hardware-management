@@ -122,19 +122,12 @@ export function AddEditAssetCategory({
               description="Define the hardware category name and scope."
             >
               <FormGrid>
-                <FormGridItem span={2}>
+                <FormGridItem span={1}>
                   <RHFTextField
                     name="name"
                     label="Category name"
                     placeholder="e.g. Laptops, Monitors, Keyboards, Servers"
                     required
-                  />
-                </FormGridItem>
-                <FormGridItem span={2}>
-                  <RHFTextArea
-                    name="description"
-                    label="Description"
-                    placeholder="Brief description of the equipment types in this category"
                   />
                 </FormGridItem>
                 <FormGridItem span={1}>
@@ -143,6 +136,13 @@ export function AddEditAssetCategory({
                     label="Status"
                     options={[...ENUMS.recordStatus]}
                     required
+                  />
+                </FormGridItem>
+                <FormGridItem span={2}>
+                  <RHFTextArea
+                    name="description"
+                    label="Description"
+                    placeholder="Brief description of the equipment types in this category"
                   />
                 </FormGridItem>
               </FormGrid>

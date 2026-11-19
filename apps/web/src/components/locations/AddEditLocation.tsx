@@ -117,19 +117,12 @@ export function AddEditLocation({
               description="Office site name and physical street address."
             >
               <FormGrid>
-                <FormGridItem span={2}>
+                <FormGridItem span={1}>
                   <RHFTextField
                     name="name"
                     label="Location name"
                     placeholder="e.g. Headquarters - Floor 3, Mumbai Tech Hub"
                     required
-                  />
-                </FormGridItem>
-                <FormGridItem span={2}>
-                  <RHFTextArea
-                    name="address"
-                    label="Full address"
-                    placeholder="Physical street address, city, and postal code"
                   />
                 </FormGridItem>
                 <FormGridItem span={1}>
@@ -138,6 +131,13 @@ export function AddEditLocation({
                     label="Status"
                     options={[...ENUMS.recordStatus]}
                     required
+                  />
+                </FormGridItem>
+                <FormGridItem span={2}>
+                  <RHFTextArea
+                    name="address"
+                    label="Full address"
+                    placeholder="Physical street address, city, and postal code"
                   />
                 </FormGridItem>
               </FormGrid>

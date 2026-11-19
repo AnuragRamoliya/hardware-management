@@ -175,11 +175,19 @@ export function AddEditUser({
               description="Role assignment and sign-in authentication."
             >
               <FormGrid>
-                <FormGridItem span={2}>
+                <FormGridItem span={1}>
                   <RHFAsyncSelect
                     name="role_id"
                     label="Assigned role"
                     endpoint="role/options"
+                    required
+                  />
+                </FormGridItem>
+                <FormGridItem span={1}>
+                  <RHFSelect
+                    name="status"
+                    label="Status"
+                    options={[...ENUMS.recordStatus]}
                     required
                   />
                 </FormGridItem>
@@ -193,14 +201,6 @@ export function AddEditUser({
                     }
                     placeholder="••••••••••••"
                     required={!isEdit}
-                  />
-                </FormGridItem>
-                <FormGridItem span={1}>
-                  <RHFSelect
-                    name="status"
-                    label="Status"
-                    options={[...ENUMS.recordStatus]}
-                    required
                   />
                 </FormGridItem>
               </FormGrid>

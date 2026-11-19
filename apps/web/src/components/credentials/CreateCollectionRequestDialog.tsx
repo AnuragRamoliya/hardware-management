@@ -112,7 +112,7 @@ export function CreateCollectionRequestDialog({
             </FormGridItem>
           )}
 
-          <FormGridItem span={2}>
+          <FormGridItem span={1}>
             <RHFSelect
               name="credential_type_id"
               label="Requested Account Type"
@@ -121,7 +121,7 @@ export function CreateCollectionRequestDialog({
             />
           </FormGridItem>
 
-          <FormGridItem span={2}>
+          <FormGridItem span={1}>
             <RHFDatePicker
               name="due_date"
               label="Submission Due Date"

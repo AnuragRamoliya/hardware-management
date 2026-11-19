@@ -124,19 +124,12 @@ export function AddEditDesignation({
               description="Basic details for this role title."
             >
               <FormGrid>
-                <FormGridItem span={2}>
+                <FormGridItem span={1}>
                   <RHFTextField
                     name="name"
                     label="Designation title"
                     placeholder="e.g. Senior Software Engineer, Product Manager"
                     required
-                  />
-                </FormGridItem>
-                <FormGridItem span={2}>
-                  <RHFTextArea
-                    name="description"
-                    label="Description"
-                    placeholder="Brief description of the job duties or level"
                   />
                 </FormGridItem>
                 <FormGridItem span={1}>
@@ -145,6 +138,13 @@ export function AddEditDesignation({
                     label="Status"
                     options={[...ENUMS.recordStatus]}
                     required
+                  />
+                </FormGridItem>
+                <FormGridItem span={2}>
+                  <RHFTextArea
+                    name="description"
+                    label="Description"
+                    placeholder="Brief description of the job duties or level"
                   />
                 </FormGridItem>
               </FormGrid>
