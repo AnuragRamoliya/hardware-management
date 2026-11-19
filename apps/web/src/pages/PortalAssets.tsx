@@ -1,17 +1,35 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Laptop, Calendar, ShieldCheck, Tag } from "lucide-react";
+import {
+  Laptop,
+  Calendar,
+  ShieldCheck,
+  Tag,
+  RefreshCw,
+  Wrench,
+  PackageMinus,
+} from "lucide-react";
 import { callApi } from "@/api/callApi";
 import { api_methods, endPoints } from "@/api/endpoint";
 import type { AssignmentRecord } from "@/api/assets";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/States";
 import { AssetStatusBadge } from "@/components/assets/AssetStatusBadge";
+import { NewRequestDrawer } from "@/components/portal/NewRequestDrawer";
+import { REQUEST_TYPE } from "@hm/shared";
 import { PATHS } from "@/routes/paths";
 
 export function PortalAssets() {
+  const [requestDrawerState, setRequestDrawerState] = useState<{
+    open: boolean;
+    type?: number;
+    assetId?: number;
+  }>({ open: false });
+
   const query = useQuery({
     queryKey: ["portal-assets"],
     queryFn: async () => {
@@ -144,6 +162,54 @@ export function PortalAssets() {
                     "{assignment.note}"
                   </p>
                 )}
+
+                <div className="mt-4 border-t pt-3 flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs gap-1.5"
+                    onClick={() =>
+                      setRequestDrawerState({
+                        open: true,
+                        type: REQUEST_TYPE.CHANGE_REPLACE_HARDWARE,
+                        assetId: assignment.asset_id,
+                      })
+                    }
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                    Request change
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs gap-1.5"
+                    onClick={() =>
+                      setRequestDrawerState({
+                        open: true,
+                        type: REQUEST_TYPE.REPAIR,
+                        assetId: assignment.asset_id,
+                      })
+                    }
+                  >
+                    <Wrench className="h-3 w-3" />
+                    Repair / Issue
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
+                    onClick={() =>
+                      setRequestDrawerState({
+                        open: true,
+                        type: REQUEST_TYPE.RETURN_HARDWARE,
+                        assetId: assignment.asset_id,
+                      })
+                    }
+                  >
+                    <PackageMinus className="h-3 w-3" />
+                    Return
+                  </Button>
+                </div>
               </Card>
             );
           })}
@@ -156,6 +222,15 @@ export function PortalAssets() {
           />
         </Card>
       )}
+
+      <NewRequestDrawer
+        open={requestDrawerState.open}
+        onOpenChange={(open) =>
+          setRequestDrawerState((prev) => ({ ...prev, open }))
+        }
+        initialType={requestDrawerState.type}
+        initialAssetId={requestDrawerState.assetId}
+      />
     </>
   );
 }

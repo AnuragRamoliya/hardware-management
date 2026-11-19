@@ -12,6 +12,7 @@ import {
   KeyRound,
 } from "lucide-react";
 import { PasswordStrengthMeter } from "@/components/common/PasswordStrengthMeter";
+import { Stepper, type StepItem } from "@/components/common/Stepper";
 import { RevealSecretDialog } from "@/components/credentials/RevealSecretDialog";
 import { RotatePasswordDialog } from "@/components/credentials/RotatePasswordDialog";
 import type { CredentialDto } from "@/api/credentials";
@@ -127,6 +128,13 @@ export function DesignSystem() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [revealOpen, setRevealOpen] = useState(false);
   const [rotateOpen, setRotateOpen] = useState(false);
+  const [stepperStep, setStepperStep] = useState(1);
+
+  const demoSteps: StepItem[] = [
+    { title: "Request Type", description: "Select what you need" },
+    { title: "Item Details", description: "Specify hardware/software" },
+    { title: "Reason & Submit", description: "Provide justification" },
+  ];
   const [selectedTab, setSelectedTab] = useState("Overview");
   const [tableFilters, setTableFilters] = useState<FilterValues>({});
   const methods = useForm({
@@ -826,6 +834,55 @@ export function DesignSystem() {
                 >
                   <RefreshCw className="h-4 w-4 text-primary" />
                   Preview Rotate Password Dialog
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <div>
+              <h2 className="text-sm font-semibold">
+                Multi-Step Wizard & Stepper
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Phase 4 self-service portal wizard primitive with numbered
+                steps, completion checks, responsive layout, and keyboard
+                navigation.
+              </p>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="rounded-lg border p-6 bg-card">
+              <Stepper
+                steps={demoSteps}
+                activeStep={stepperStep}
+                onStepClick={(step) => setStepperStep(step)}
+              />
+              <div className="mt-6 flex items-center justify-between border-t pt-4">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={stepperStep === 0}
+                  onClick={() =>
+                    setStepperStep((prev) => Math.max(0, prev - 1))
+                  }
+                >
+                  Previous Step
+                </Button>
+                <span className="text-xs text-muted-foreground">
+                  Step {stepperStep + 1} of {demoSteps.length}
+                </span>
+                <Button
+                  size="sm"
+                  disabled={stepperStep === demoSteps.length - 1}
+                  onClick={() =>
+                    setStepperStep((prev) =>
+                      Math.min(demoSteps.length - 1, prev + 1),
+                    )
+                  }
+                >
+                  Next Step
                 </Button>
               </div>
             </div>

@@ -30,9 +30,13 @@ export const PATHS = {
   CREDENTIAL_TYPES: "/credentials/types",
   CREDENTIAL_REQUESTS: "/credentials/requests",
   CREDENTIAL_ACCESS_LOGS: "/credentials/access-logs",
+  REQUESTS: "/requests",
+  REQUEST_DETAIL: "/requests/:id",
   AUDIT_LOGS: "/audit-logs",
   NOTIFICATIONS: "/notifications",
   PORTAL: "/portal",
+  PORTAL_REQUESTS: "/portal/requests",
+  PORTAL_REQUEST_DETAIL: "/portal/requests/:id",
   PORTAL_PROFILE: "/portal/profile",
   NOT_FOUND: "*",
 } as const;

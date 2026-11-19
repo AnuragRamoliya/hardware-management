@@ -116,6 +116,9 @@ export const ACTIVITY_ACTIONS = {
   NEEDS_CHANGE: "needs_change",
   REQUESTED: "requested",
   FULFILLED: "fulfilled",
+  ASSIGNED: "assigned",
+  CLOSED: "closed",
+  CANCELLED: "cancelled",
 } as const;
 
 export type ActivityAction =
@@ -533,4 +536,337 @@ export interface AuditVerificationResult {
   activityLogsValid?: boolean;
   totalActivityLogsVerified?: number;
   activityLogsError?: string | null;
+}
+
+// ============================================================================
+// Phase 4: Employee Requests & Review Workflow Enums & Constants
+// ============================================================================
+
+export const REQUEST_TYPE = {
+  NEW_HARDWARE: 1,
+  CHANGE_REPLACE_HARDWARE: 2,
+  REPAIR: 3,
+  SOFTWARE_ACCESS: 4,
+  RETURN_HARDWARE: 5,
+} as const;
+
+export type RequestType = (typeof REQUEST_TYPE)[keyof typeof REQUEST_TYPE];
+
+export const REQUEST_TYPE_NAMES: Record<RequestType, string> = {
+  [REQUEST_TYPE.NEW_HARDWARE]: "new_hardware",
+  [REQUEST_TYPE.CHANGE_REPLACE_HARDWARE]: "change_replace_hardware",
+  [REQUEST_TYPE.REPAIR]: "repair",
+  [REQUEST_TYPE.SOFTWARE_ACCESS]: "software_access",
+  [REQUEST_TYPE.RETURN_HARDWARE]: "return_hardware",
+};
+
+export const REQUEST_TYPE_LABELS: Record<RequestType, string> = {
+  [REQUEST_TYPE.NEW_HARDWARE]: "New Hardware",
+  [REQUEST_TYPE.CHANGE_REPLACE_HARDWARE]: "Change / Replace Hardware",
+  [REQUEST_TYPE.REPAIR]: "Repair",
+  [REQUEST_TYPE.SOFTWARE_ACCESS]: "Software Access",
+  [REQUEST_TYPE.RETURN_HARDWARE]: "Return Hardware",
+};
+
+export const REQUEST_STATUS = {
+  SUBMITTED: 1,
+  UNDER_REVIEW: 2,
+  NEED_INFO: 3,
+  APPROVED: 4,
+  REJECTED: 5,
+  FULFILLED: 6,
+  CLOSED: 7,
+  CANCELLED: 8,
+  PENDING_MANAGER_APPROVAL: 9,
+} as const;
+
+export type RequestStatus =
+  (typeof REQUEST_STATUS)[keyof typeof REQUEST_STATUS];
+
+export const REQUEST_STATUS_NAMES: Record<RequestStatus, string> = {
+  [REQUEST_STATUS.SUBMITTED]: "submitted",
+  [REQUEST_STATUS.UNDER_REVIEW]: "under_review",
+  [REQUEST_STATUS.NEED_INFO]: "need_info",
+  [REQUEST_STATUS.APPROVED]: "approved",
+  [REQUEST_STATUS.REJECTED]: "rejected",
+  [REQUEST_STATUS.FULFILLED]: "fulfilled",
+  [REQUEST_STATUS.CLOSED]: "closed",
+  [REQUEST_STATUS.CANCELLED]: "cancelled",
+  [REQUEST_STATUS.PENDING_MANAGER_APPROVAL]: "pending_manager_approval",
+};
+
+export const REQUEST_STATUS_LABELS: Record<RequestStatus, string> = {
+  [REQUEST_STATUS.SUBMITTED]: "Submitted",
+  [REQUEST_STATUS.UNDER_REVIEW]: "Under Review",
+  [REQUEST_STATUS.NEED_INFO]: "Need Info",
+  [REQUEST_STATUS.APPROVED]: "Approved",
+  [REQUEST_STATUS.REJECTED]: "Rejected",
+  [REQUEST_STATUS.FULFILLED]: "Fulfilled",
+  [REQUEST_STATUS.CLOSED]: "Closed",
+  [REQUEST_STATUS.CANCELLED]: "Cancelled",
+  [REQUEST_STATUS.PENDING_MANAGER_APPROVAL]: "Pending Manager Approval",
+};
+
+export const REQUEST_STATUS_TONES: Record<
+  RequestStatus,
+  "info" | "warning" | "purple" | "success" | "danger" | "muted"
+> = {
+  [REQUEST_STATUS.SUBMITTED]: "info",
+  [REQUEST_STATUS.UNDER_REVIEW]: "warning",
+  [REQUEST_STATUS.NEED_INFO]: "purple",
+  [REQUEST_STATUS.APPROVED]: "success",
+  [REQUEST_STATUS.REJECTED]: "danger",
+  [REQUEST_STATUS.FULFILLED]: "success",
+  [REQUEST_STATUS.CLOSED]: "muted",
+  [REQUEST_STATUS.CANCELLED]: "muted",
+  [REQUEST_STATUS.PENDING_MANAGER_APPROVAL]: "warning",
+};
+
+export const REQUEST_PRIORITY = {
+  LOW: 1,
+  MEDIUM: 2,
+  HIGH: 3,
+  URGENT: 4,
+} as const;
+
+export type RequestPriority =
+  (typeof REQUEST_PRIORITY)[keyof typeof REQUEST_PRIORITY];
+
+export const REQUEST_PRIORITY_NAMES: Record<RequestPriority, string> = {
+  [REQUEST_PRIORITY.LOW]: "low",
+  [REQUEST_PRIORITY.MEDIUM]: "medium",
+  [REQUEST_PRIORITY.HIGH]: "high",
+  [REQUEST_PRIORITY.URGENT]: "urgent",
+};
+
+export const REQUEST_PRIORITY_LABELS: Record<RequestPriority, string> = {
+  [REQUEST_PRIORITY.LOW]: "Low",
+  [REQUEST_PRIORITY.MEDIUM]: "Medium",
+  [REQUEST_PRIORITY.HIGH]: "High",
+  [REQUEST_PRIORITY.URGENT]: "Urgent",
+};
+
+export const REQUEST_PRIORITY_TONES: Record<
+  RequestPriority,
+  "muted" | "info" | "warning" | "danger"
+> = {
+  [REQUEST_PRIORITY.LOW]: "muted",
+  [REQUEST_PRIORITY.MEDIUM]: "info",
+  [REQUEST_PRIORITY.HIGH]: "warning",
+  [REQUEST_PRIORITY.URGENT]: "danger",
+};
+
+/**
+ * Valid state transitions for employee requests
+ * Pure data representation mirrored from Services/request_workflow.service.ts
+ */
+export const REQUEST_TRANSITIONS: Record<RequestStatus, RequestStatus[]> = {
+  [REQUEST_STATUS.SUBMITTED]: [
+    REQUEST_STATUS.UNDER_REVIEW,
+    REQUEST_STATUS.REJECTED,
+    REQUEST_STATUS.CANCELLED,
+  ],
+  [REQUEST_STATUS.UNDER_REVIEW]: [
+    REQUEST_STATUS.APPROVED,
+    REQUEST_STATUS.REJECTED,
+    REQUEST_STATUS.NEED_INFO,
+    REQUEST_STATUS.CANCELLED,
+  ],
+  [REQUEST_STATUS.NEED_INFO]: [
+    REQUEST_STATUS.SUBMITTED,
+    REQUEST_STATUS.CANCELLED,
+  ],
+  [REQUEST_STATUS.APPROVED]: [
+    REQUEST_STATUS.FULFILLED,
+    REQUEST_STATUS.REJECTED,
+    REQUEST_STATUS.CANCELLED,
+  ],
+  [REQUEST_STATUS.FULFILLED]: [REQUEST_STATUS.CLOSED],
+  [REQUEST_STATUS.REJECTED]: [],
+  [REQUEST_STATUS.CLOSED]: [],
+  [REQUEST_STATUS.CANCELLED]: [],
+  [REQUEST_STATUS.PENDING_MANAGER_APPROVAL]: [
+    REQUEST_STATUS.SUBMITTED,
+    REQUEST_STATUS.REJECTED,
+    REQUEST_STATUS.CANCELLED,
+  ],
+};
+
+export interface RequestAttachmentDto {
+  id: number;
+  request_id: number;
+  file_name: string;
+  file_path: string;
+  mime_type: string;
+  size: number;
+  uploaded_by: number;
+  createdAt?: string;
+  updatedAt?: string;
+  uploader?: { id: number; first_name: string; last_name?: string };
+}
+
+export interface RequestCommentDto {
+  id: number;
+  request_id: number;
+  user_id: number;
+  comment: string;
+  is_internal: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  author?: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    email?: string;
+    role?: { id: number; name: string };
+  };
+}
+
+export interface RequestStatusHistoryDto {
+  id: number;
+  request_id: number;
+  from_status: RequestStatus;
+  to_status: RequestStatus;
+  changed_by: number;
+  note?: string | null;
+  created_at?: string;
+  createdAt?: string;
+  changer?: { id: number; first_name: string; last_name?: string };
+  user?: { id: number; first_name: string; last_name?: string };
+}
+
+export interface RequestDto {
+  id: number;
+  request_no: string;
+  employee_id: number;
+  request_type: RequestType;
+  category_id?: number | null;
+  current_asset_id?: number | null;
+  software_id?: number | null;
+  title: string;
+  reason: string;
+  priority: RequestPriority;
+  needed_by_date?: string | null;
+  request_status: RequestStatus;
+  assigned_to?: number | null;
+  reviewed_by?: number | null;
+  reviewed_at?: string | null;
+  decision_feedback?: string | null;
+  awaiting_stock: boolean;
+  assigned_asset_id?: number | null;
+  assigned_license_id?: number | null;
+  fulfilled_at?: string | null;
+  fulfilled_by?: number | null;
+  closed_at?: string | null;
+  sla_due_at?: string | null;
+  sla_breached: boolean;
+  cancelled_reason?: string | null;
+  status: number;
+  createdAt: string;
+  updatedAt: string;
+  employee?: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    email: string;
+    employee_code?: string;
+    department?: { id: number; name: string };
+    designation?: { id: number; name: string };
+    location?: { id: number; name: string };
+  };
+  category?: { id: number; name: string };
+  current_asset?: {
+    id: number;
+    asset_tag: string;
+    brand?: string;
+    model?: string;
+    serial_number?: string;
+    category?: { id: number; name: string };
+  };
+  software?: { id: number; name: string; category?: string };
+  assigned_asset?: {
+    id: number;
+    asset_tag: string;
+    brand?: string;
+    model?: string;
+    serial_number?: string;
+  };
+  assigned_license?: {
+    id: number;
+    software_id: number;
+    license_key?: string;
+    seats_total?: number;
+    seats_used?: number;
+  };
+  reviewer?: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    email?: string;
+  };
+  assignee?: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    email?: string;
+  };
+  fulfiller?: { id: number; first_name: string; last_name?: string };
+  comments?: RequestCommentDto[];
+  attachments?: RequestAttachmentDto[];
+  history?: RequestStatusHistoryDto[];
+}
+
+export interface PortalRequestDto {
+  id: number;
+  request_no: string;
+  request_type: RequestType;
+  category_id?: number | null;
+  current_asset_id?: number | null;
+  software_id?: number | null;
+  title: string;
+  reason: string;
+  priority: RequestPriority;
+  needed_by_date?: string | null;
+  request_status: RequestStatus;
+  decision_feedback?: string | null;
+  awaiting_stock: boolean;
+  assigned_asset_id?: number | null;
+  assigned_license_id?: number | null;
+  fulfilled_at?: string | null;
+  closed_at?: string | null;
+  sla_due_at?: string | null;
+  sla_breached: boolean;
+  cancelled_reason?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  category?: { id: number; name: string };
+  current_asset?: {
+    id: number;
+    asset_tag: string;
+    brand?: string;
+    model?: string;
+    category?: { id: number; name: string };
+  };
+  software?: { id: number; name: string; category?: string };
+  assigned_asset?: {
+    id: number;
+    asset_tag: string;
+    brand?: string;
+    model?: string;
+  };
+  comments?: RequestCommentDto[];
+  attachments?: RequestAttachmentDto[];
+  history?: RequestStatusHistoryDto[];
+}
+
+export interface RequestStatsDto {
+  total: number;
+  by_status: Record<string, number>;
+  by_type: Record<string, number>;
+  sla_breaches: number;
+  awaiting_stock: number;
+  unassigned: number;
+  mine: number;
+  needs_attention: number;
+  avg_turnaround_hours: number;
 }

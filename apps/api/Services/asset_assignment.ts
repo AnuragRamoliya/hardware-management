@@ -24,7 +24,11 @@ export class AssetAssignmentService {
   async assign(
     input: { asset_id: number; employee_id: number; due_return_date?: string; note?: string },
     actor: UserInfo,
+    existingTransaction?: Transaction,
   ) {
+    if (existingTransaction) {
+      return this.assignInTransaction(input, actor, existingTransaction);
+    }
     return sequelize.transaction(async (transaction) =>
       this.assignInTransaction(input, actor, transaction),
     );
@@ -119,7 +123,11 @@ export class AssetAssignmentService {
       to_status?: string;
     },
     actor: UserInfo,
+    existingTransaction?: Transaction,
   ) {
+    if (existingTransaction) {
+      return this.returnInTransaction(input, actor, existingTransaction);
+    }
     return sequelize.transaction(async (transaction) =>
       this.returnInTransaction(input, actor, transaction),
     );

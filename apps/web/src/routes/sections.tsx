@@ -161,6 +161,26 @@ const PortalAccounts = lazy(() =>
     default: module.PortalAccounts,
   })),
 );
+const Requests = lazy(() =>
+  import("@/pages/Requests").then((module) => ({
+    default: module.Requests,
+  })),
+);
+const RequestDetail = lazy(() =>
+  import("@/pages/RequestDetail").then((module) => ({
+    default: module.RequestDetail,
+  })),
+);
+const PortalRequests = lazy(() =>
+  import("@/pages/PortalRequests").then((module) => ({
+    default: module.PortalRequests,
+  })),
+);
+const PortalRequestDetail = lazy(() =>
+  import("@/pages/PortalRequestDetail").then((module) => ({
+    default: module.PortalRequestDetail,
+  })),
+);
 
 function NavigationBridge() {
   const navigate = useNavigate();
@@ -361,6 +381,22 @@ export const routesSection = createBrowserRouter([
                 ),
               },
               {
+                path: PATHS.REQUESTS,
+                element: page(
+                  <Requests />,
+                  ["admin", "hardware", "hr"],
+                  "request",
+                ),
+              },
+              {
+                path: PATHS.REQUEST_DETAIL,
+                element: page(
+                  <RequestDetail />,
+                  ["admin", "hardware", "hr"],
+                  "request",
+                ),
+              },
+              {
                 path: PATHS.AUDIT_LOGS,
                 element: page(<AuditLogs />, ["admin"], "audit_log"),
               },
@@ -380,6 +416,14 @@ export const routesSection = createBrowserRouter([
               {
                 path: PATHS.PORTAL_ACCOUNTS,
                 element: page(<PortalAccounts />, ["employee"]),
+              },
+              {
+                path: PATHS.PORTAL_REQUESTS,
+                element: page(<PortalRequests />, ["employee"]),
+              },
+              {
+                path: PATHS.PORTAL_REQUEST_DETAIL,
+                element: page(<PortalRequestDetail />, ["employee"]),
               },
               {
                 path: PATHS.PORTAL_PROFILE,

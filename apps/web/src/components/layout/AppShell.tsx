@@ -13,6 +13,7 @@ import {
   Building2,
   ChevronDown,
   Command as CommandIcon,
+  Inbox,
   KeyRound,
   LayoutDashboard,
   Laptop,
@@ -90,6 +91,11 @@ const navigation: NavigationItem[] = [
       {
         label: "My accounts",
         path: PATHS.PORTAL_ACCOUNTS,
+        roles: ["employee"],
+      },
+      {
+        label: "My requests",
+        path: PATHS.PORTAL_REQUESTS,
         roles: ["employee"],
       },
     ],
@@ -179,6 +185,13 @@ const navigation: NavigationItem[] = [
         permission: "credential_access_log",
       },
     ],
+  },
+  {
+    label: "Requests",
+    path: PATHS.REQUESTS,
+    icon: Inbox,
+    roles: ["admin", "hardware", "hr"],
+    permission: "request",
   },
   {
     label: "Organization",

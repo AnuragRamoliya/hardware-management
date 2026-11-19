@@ -9,7 +9,9 @@ type BadgeVariant =
   | "destructive"
   | "outline"
   | "info"
-  | "muted";
+  | "muted"
+  | "purple";
+export type { BadgeVariant };
 const styles: Record<BadgeVariant, string> = {
   default: "bg-accent text-accent-foreground",
   success: "bg-success/10 text-success",
@@ -19,6 +21,7 @@ const styles: Record<BadgeVariant, string> = {
   outline: "border border-border text-foreground bg-transparent",
   info: "bg-info/10 text-info",
   muted: "bg-muted text-muted-foreground",
+  purple: "bg-primary/10 text-primary",
 };
 export function Badge({
   className,

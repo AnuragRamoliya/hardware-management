@@ -1,0 +1,28 @@
+import { DataTypes } from 'sequelize';
+
+export const requestsSchema = {
+  request_no: { type: DataTypes.STRING(50), allowNull: false, unique: true },
+  employee_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
+  request_type: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false },
+  category_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
+  current_asset_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
+  software_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
+  title: { type: DataTypes.STRING(255), allowNull: false },
+  reason: { type: DataTypes.TEXT, allowNull: false },
+  priority: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 2 },
+  needed_by_date: { type: DataTypes.DATEONLY, allowNull: true },
+  request_status: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 1 },
+  assigned_to: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
+  reviewed_by: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
+  reviewed_at: { type: DataTypes.DATE, allowNull: true },
+  decision_feedback: { type: DataTypes.TEXT, allowNull: true },
+  awaiting_stock: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
+  assigned_asset_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
+  assigned_license_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
+  fulfilled_at: { type: DataTypes.DATE, allowNull: true },
+  fulfilled_by: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
+  closed_at: { type: DataTypes.DATE, allowNull: true },
+  sla_due_at: { type: DataTypes.DATE, allowNull: true },
+  sla_breached: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
+  cancelled_reason: { type: DataTypes.TEXT, allowNull: true },
+};

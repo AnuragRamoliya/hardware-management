@@ -1,1 +1,1 @@
-export class RequestWorkflowService {}
+export * from './request_workflow.service';

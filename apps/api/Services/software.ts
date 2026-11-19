@@ -204,8 +204,9 @@ export class SoftwareService {
   async assign(
     input: { software_id: number; license_id?: number; employee_id: number; note?: string },
     actor: UserInfo,
+    existingTransaction?: Transaction,
   ) {
-    return sequelize.transaction(async (transaction) => {
+    const run = async (transaction: Transaction) => {
       const target = await software.findByPk(input.software_id, {
         transaction,
         lock: transaction.LOCK.UPDATE,
@@ -287,7 +288,12 @@ export class SoftwareService {
         license_id: license?.get('id'),
       });
       return plain(assignment);
-    });
+    };
+
+    if (existingTransaction) {
+      return run(existingTransaction);
+    }
+    return sequelize.transaction(run);
   }
 
   async revoke(input: { assignment_id: number }, actor: UserInfo) {

@@ -130,4 +130,28 @@ export const endPoints = {
     loginHistory: (id?: string | number) =>
       id ? `user/login-history/${id}` : "user/login-history",
   },
+  request: {
+    list: "request/list",
+    getById: (id: string | number) => `request/get/${id}`,
+    take: "request/take",
+    assign: "request/assign",
+    bulkAssign: "request/bulk/assign",
+    review: "request/review",
+    fulfil: "request/fulfil",
+    close: "request/close",
+    comment: "request/comment",
+    stats: "request/stats",
+    options: "request/options",
+    export: "request/export",
+  },
+  portalRequest: {
+    list: "portal/request/list",
+    getById: (id: string | number) => `portal/request/get/${id}`,
+    add: "portal/request/add",
+    update: "portal/request/update",
+    cancel: "portal/request/cancel",
+    comment: "portal/request/comment",
+    attachment: "portal/request/attachment",
+    options: "portal/request/options",
+  },
 } as const;

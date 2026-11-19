@@ -56,8 +56,12 @@ export class AssetMaintenanceService {
     return { rows: result.rows.map(plain), count: result.count };
   }
 
-  async add(input: Record<string, unknown>, actor: UserInfo) {
-    return sequelize.transaction(async (transaction) => {
+  async add(
+    input: Record<string, unknown>,
+    actor: UserInfo,
+    existingTransaction?: import('sequelize').Transaction,
+  ) {
+    const run = async (transaction: import('sequelize').Transaction) => {
       const asset = await MaintenanceAssetRecord.findByPk(Number(input.asset_id), {
         transaction,
         lock: transaction.LOCK.UPDATE,
@@ -88,7 +92,12 @@ export class AssetMaintenanceService {
         transaction,
       });
       return plain(maintenance);
-    });
+    };
+
+    if (existingTransaction) {
+      return run(existingTransaction);
+    }
+    return sequelize.transaction(run);
   }
 
   async update(input: Record<string, unknown>, actor: UserInfo) {

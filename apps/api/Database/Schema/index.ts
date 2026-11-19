@@ -2,6 +2,7 @@ import { DataTypes, Model, type ModelAttributes, type ModelStatic } from 'sequel
 import { sequelize } from '../../Config/database';
 import { phase2Schemas } from './phase2';
 import { phase3Schemas } from './phase3';
+import { phase4Schemas } from './phase4';
 
 export type RowAttributes = Record<string, unknown>;
 export type EntityModel = ModelStatic<Model<RowAttributes, RowAttributes>>;
@@ -104,6 +105,7 @@ const schemas = {
   },
   ...phase2Schemas,
   ...phase3Schemas,
+  ...phase4Schemas,
   employees: {
     user_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true, unique: true },
     employee_code: { type: DataTypes.STRING(100), allowNull: false, unique: true },
@@ -184,6 +186,12 @@ export const credential_collection_requests = models.credential_collection_reque
 export const credential_access_logs = models.credential_access_logs;
 export const login_history = models.login_history;
 
+// Phase 4 Models
+export const requests = models.requests;
+export const request_comments = models.request_comments;
+export const request_status_history = models.request_status_history;
+export const request_attachments = models.request_attachments;
+
 // Associations
 roles.hasMany(permissions, { foreignKey: 'role_id', as: 'permissions' });
 permissions.belongsTo(roles, { foreignKey: 'role_id' });
@@ -249,3 +257,32 @@ credential_access_logs.belongsTo(employees, { foreignKey: 'employee_id', as: 'em
 credential_access_logs.belongsTo(users, { foreignKey: 'accessed_by', as: 'accessor' });
 
 login_history.belongsTo(users, { foreignKey: 'user_id', as: 'user' });
+
+// Phase 4 Associations
+requests.belongsTo(employees, { foreignKey: 'employee_id', as: 'employee' });
+requests.belongsTo(asset_categories, { foreignKey: 'category_id', as: 'category' });
+requests.belongsTo(assets, { foreignKey: 'current_asset_id', as: 'current_asset' });
+requests.belongsTo(software, { foreignKey: 'software_id', as: 'software' });
+requests.belongsTo(users, { foreignKey: 'assigned_to', as: 'assignee' });
+requests.belongsTo(users, { foreignKey: 'reviewed_by', as: 'reviewer' });
+requests.belongsTo(assets, { foreignKey: 'assigned_asset_id', as: 'assigned_asset' });
+requests.belongsTo(software_licenses, {
+  foreignKey: 'assigned_license_id',
+  as: 'assigned_license',
+});
+requests.belongsTo(users, { foreignKey: 'fulfilled_by', as: 'fulfiller' });
+requests.hasMany(request_comments, { foreignKey: 'request_id', as: 'comments' });
+requests.hasMany(request_status_history, { foreignKey: 'request_id', as: 'history' });
+requests.hasMany(request_attachments, { foreignKey: 'request_id', as: 'attachments' });
+
+request_comments.belongsTo(requests, { foreignKey: 'request_id', as: 'request' });
+request_comments.belongsTo(users, { foreignKey: 'user_id', as: 'author' });
+
+request_status_history.belongsTo(requests, { foreignKey: 'request_id', as: 'request' });
+request_status_history.belongsTo(users, { foreignKey: 'changed_by', as: 'user' });
+
+request_attachments.belongsTo(requests, { foreignKey: 'request_id', as: 'request' });
+request_attachments.belongsTo(users, { foreignKey: 'uploaded_by', as: 'uploader' });
+
+employees.hasMany(requests, { foreignKey: 'employee_id', as: 'requests' });
+assets.hasMany(requests, { foreignKey: 'current_asset_id', as: 'linked_requests' });

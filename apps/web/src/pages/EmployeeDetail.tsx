@@ -48,13 +48,23 @@ import { CredentialHistoryDialog } from "@/components/credentials/CredentialHist
 import { Plus, Send, Eye, RefreshCw, Trash2, History } from "lucide-react";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { RowActionsMenu } from "@/components/common/RowActionsMenu";
-import { CREDENTIAL_APPROVAL_STATUS, PROVIDED_BY } from "@hm/shared";
+import {
+  CREDENTIAL_APPROVAL_STATUS,
+  PROVIDED_BY,
+  REQUEST_TYPE_LABELS,
+  REQUEST_STATUS_LABELS,
+  REQUEST_STATUS_TONES,
+  REQUEST_PRIORITY_LABELS,
+  REQUEST_PRIORITY_TONES,
+} from "@hm/shared";
+import { useRequests } from "@/hooks/queries/requests";
 
 const tabs = [
   "Overview",
   "Hardware",
   "Software",
   "Accounts",
+  "Requests",
   "Activity",
 ] as const;
 type Tab = (typeof tabs)[number];
@@ -80,6 +90,12 @@ export function EmployeeDetail() {
   const [deletingCred, setDeletingCred] = useState<CredentialDto | null>(null);
 
   const credentialsQuery = useCredentialsList({
+    currentPage: 1,
+    itemsPerPage: 50,
+    sortBy: [],
+    filters: { employee_id: Number(id) },
+  });
+  const employeeRequestsQuery = useRequests({
     currentPage: 1,
     itemsPerPage: 50,
     sortBy: [],
@@ -586,6 +602,78 @@ export function EmployeeDetail() {
             <EmptyState
               title="No credentials registered"
               description="No accounts or login secrets are currently associated with this employee."
+            />
+          )}
+        </Card>
+      ) : activeTab === "Requests" ? (
+        <Card className="p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-base font-semibold text-foreground">
+              Hardware & Software Requests
+            </h2>
+            <Link
+              to={PATHS.REQUESTS}
+              className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-card px-3 text-[13px] font-medium hover:bg-muted"
+            >
+              View All Requests
+            </Link>
+          </div>
+          {employeeRequestsQuery.isLoading ? (
+            <p className="text-sm text-muted-foreground">Loading requests…</p>
+          ) : employeeRequestsQuery.data?.list?.length ? (
+            <div className="space-y-3">
+              {employeeRequestsQuery.data.list.map((req) => (
+                <div
+                  key={req.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-lg border bg-card hover:bg-muted/30 transition-colors gap-3"
+                >
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link
+                        to={PATHS.REQUEST_DETAIL.replace(":id", String(req.id))}
+                        className="font-semibold text-primary hover:underline text-sm"
+                      >
+                        {req.request_no}
+                      </Link>
+                      <Badge variant="outline" className="text-xs">
+                        {REQUEST_TYPE_LABELS[req.request_type]}
+                      </Badge>
+                      <Badge
+                        variant={REQUEST_STATUS_TONES[req.request_status]}
+                        className="text-xs font-medium"
+                      >
+                        {REQUEST_STATUS_LABELS[req.request_status]}
+                      </Badge>
+                      <Badge
+                        variant={REQUEST_PRIORITY_TONES[req.priority]}
+                        className="text-xs"
+                      >
+                        {REQUEST_PRIORITY_LABELS[req.priority]}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-foreground font-medium truncate">
+                      {req.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Submitted: {new Date(req.createdAt).toLocaleDateString()}
+                      {req.needed_by_date
+                        ? ` · Needed by: ${new Date(req.needed_by_date).toLocaleDateString()}`
+                        : ""}
+                    </p>
+                  </div>
+                  <Link
+                    to={PATHS.REQUEST_DETAIL.replace(":id", String(req.id))}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted text-foreground transition-colors"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Link>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No requests raised"
+              description="This employee has not submitted any hardware or software requests."
             />
           )}
         </Card>

@@ -20,6 +20,8 @@ import {
   useCredentialRequestsList,
   useCredentialAccessLogsList,
 } from "@/hooks/queries/credentials";
+import { useRequestStats } from "@/hooks/queries/requests";
+import { Inbox, UserCheck, AlertTriangle, PackageX, Clock } from "lucide-react";
 
 type Summary = {
   totalAssets: number;
@@ -67,6 +69,7 @@ export function Dashboard() {
     sortBy: [],
     filters: {},
   });
+  const { data: requestStats } = useRequestStats();
 
   const seatsUsedPercent = summary?.seatsTotal
     ? Math.min(100, (summary.seatsUsed / summary.seatsTotal) * 100)
@@ -228,6 +231,76 @@ export function Dashboard() {
               icon={<ShieldCheck className="h-4 w-4" />}
             />
           </Link>
+        </div>
+      </section>
+
+      {/* Requests & Review Workflow Section */}
+      <section className="mt-6 mb-8">
+        <h2 className="text-base font-semibold mb-3">
+          Employee Requests & Allocations
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <Link
+            to={PATHS.REQUESTS}
+            className="group block transition-opacity hover:opacity-90"
+          >
+            <StatCard
+              label="Open Requests"
+              value={requestStats?.metrics.open_requests ?? 0}
+              icon={<Inbox className="h-4 w-4" />}
+            />
+          </Link>
+
+          <Link
+            to={PATHS.REQUESTS}
+            className="group block transition-opacity hover:opacity-90"
+          >
+            <StatCard
+              label="My Review Queue"
+              value={requestStats?.metrics.my_queue ?? 0}
+              icon={<UserCheck className="h-4 w-4" />}
+            />
+          </Link>
+
+          <Link
+            to={PATHS.REQUESTS}
+            className="group block transition-opacity hover:opacity-90"
+          >
+            <StatCard
+              label="SLA Breached"
+              value={requestStats?.metrics.sla_breached ?? 0}
+              icon={<AlertTriangle className="h-4 w-4 text-destructive" />}
+            />
+          </Link>
+
+          <Link
+            to={PATHS.REQUESTS}
+            className="group block transition-opacity hover:opacity-90"
+          >
+            <StatCard
+              label="Awaiting Stock"
+              value={requestStats?.metrics.awaiting_stock ?? 0}
+              icon={<PackageX className="h-4 w-4 text-warning" />}
+            />
+          </Link>
+
+          <Card className="p-4 flex flex-col justify-between">
+            <div>
+              <span className="text-xs font-medium text-muted-foreground">
+                Avg Turnaround
+              </span>
+              <div className="mt-1 flex items-baseline gap-1.5">
+                <span className="text-2xl font-bold tracking-tight text-foreground">
+                  {requestStats?.metrics.avg_turnaround_hours ?? 0}
+                </span>
+                <span className="text-xs text-muted-foreground">hours</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-[11px] text-muted-foreground mt-2">
+              <Clock className="h-3 w-3" />
+              <span>Creation to fulfilment</span>
+            </div>
+          </Card>
         </div>
       </section>
     </>

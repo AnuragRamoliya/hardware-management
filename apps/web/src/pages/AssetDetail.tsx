@@ -47,6 +47,14 @@ import type { CredentialDto } from "@/api/credentials";
 import { RevealSecretDialog } from "@/components/credentials/RevealSecretDialog";
 import { Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import {
+  REQUEST_TYPE_LABELS,
+  REQUEST_STATUS_LABELS,
+  REQUEST_STATUS_TONES,
+  REQUEST_PRIORITY_LABELS,
+  REQUEST_PRIORITY_TONES,
+} from "@hm/shared";
+import { useRequests } from "@/hooks/queries/requests";
 
 const tabs = [
   "Overview",
@@ -54,6 +62,7 @@ const tabs = [
   "Maintenance",
   "Accessories",
   "Credentials",
+  "Requests",
   "Activity",
 ] as const;
 type Tab = (typeof tabs)[number];
@@ -88,6 +97,12 @@ export function AssetDetail() {
   const query = useAsset(id);
   const historyQuery = useAssetHistory(id, activeTab === "Assignment history");
   const credentialsQuery = useCredentialsList({
+    currentPage: 1,
+    itemsPerPage: 50,
+    sortBy: [],
+    filters: { asset_id: Number(id) },
+  });
+  const assetRequestsQuery = useRequests({
     currentPage: 1,
     itemsPerPage: 50,
     sortBy: [],
@@ -712,6 +727,85 @@ export function AssetDetail() {
             <EmptyState
               title="No credentials linked to this device"
               description="Hardware accounts, recovery keys, and local logins configured for this asset will appear here."
+            />
+          )}
+        </Card>
+      ) : activeTab === "Requests" ? (
+        <Card className="p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">
+                Linked Hardware & Maintenance Requests
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Hardware requests, replacements, or repairs involving this
+                asset.
+              </p>
+            </div>
+            <Link
+              to={PATHS.REQUESTS}
+              className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-card px-3 text-[13px] font-medium hover:bg-muted"
+            >
+              View All Requests
+            </Link>
+          </div>
+
+          {assetRequestsQuery.isLoading ? (
+            <p className="text-sm text-muted-foreground">Loading requests…</p>
+          ) : assetRequestsQuery.data?.list?.length ? (
+            <div className="space-y-3">
+              {assetRequestsQuery.data.list.map((req) => (
+                <div
+                  key={req.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-lg border bg-card hover:bg-muted/30 transition-colors gap-3"
+                >
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link
+                        to={PATHS.REQUEST_DETAIL.replace(":id", String(req.id))}
+                        className="font-semibold text-primary hover:underline text-sm"
+                      >
+                        {req.request_no}
+                      </Link>
+                      <Badge variant="outline" className="text-xs">
+                        {REQUEST_TYPE_LABELS[req.request_type]}
+                      </Badge>
+                      <Badge
+                        variant={REQUEST_STATUS_TONES[req.request_status]}
+                        className="text-xs font-medium"
+                      >
+                        {REQUEST_STATUS_LABELS[req.request_status]}
+                      </Badge>
+                      <Badge
+                        variant={REQUEST_PRIORITY_TONES[req.priority]}
+                        className="text-xs"
+                      >
+                        {REQUEST_PRIORITY_LABELS[req.priority]}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-foreground font-medium truncate">
+                      {req.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Submitted: {new Date(req.createdAt).toLocaleDateString()}
+                      {req.employee
+                        ? ` by ${req.employee.first_name} ${req.employee.last_name}`
+                        : ""}
+                    </p>
+                  </div>
+                  <Link
+                    to={PATHS.REQUEST_DETAIL.replace(":id", String(req.id))}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted text-foreground transition-colors"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Link>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No requests linked to this asset"
+              description="Any change requests, repair tickets, or returns for this hardware will appear here."
             />
           )}
         </Card>

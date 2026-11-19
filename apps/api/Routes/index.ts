@@ -281,3 +281,6 @@ router.use(phase2Router);
 
 import { phase3Router } from './phase3';
 router.use(phase3Router);
+
+import { phase4Router } from './requests';
+router.use(phase4Router);
