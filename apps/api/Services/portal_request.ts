@@ -220,6 +220,22 @@ export class PortalRequestService {
     const reqType = Number(input.request_type);
     const priority = Number(input.priority) || REQUEST_PRIORITY.MEDIUM;
 
+    // Notice period restriction
+    if (Number(emp.get('employment_status')) === 2) {
+      const restrictSetting = await app_settings.findOne({
+        where: { key: 'offboarding_restrict_requests_during_notice', status: 1 },
+      });
+      const isRestricted = restrictSetting ? restrictSetting.get('value') === 'true' : true;
+      if (isRestricted) {
+        if (reqType !== REQUEST_TYPE.REPAIR && reqType !== REQUEST_TYPE.RETURN_HARDWARE) {
+          throw new AppError(
+            422,
+            'Employees in notice period are restricted to submitting hardware repair and return requests only.',
+          );
+        }
+      }
+    }
+
     // Type-specific validations
     if (reqType === REQUEST_TYPE.NEW_HARDWARE) {
       if (!input.category_id) {

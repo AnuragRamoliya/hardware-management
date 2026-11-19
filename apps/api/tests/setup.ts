@@ -5,7 +5,8 @@ process.env.NODE_ENV = 'test';
 if (
   process.env.OPTIONS_DB_INTEGRATION !== '1' &&
   process.env.PHASE2_DB_INTEGRATION !== '1' &&
-  process.env.PHASE4_DB_INTEGRATION !== '1'
+  process.env.PHASE4_DB_INTEGRATION !== '1' &&
+  process.env.PHASE5_DB_INTEGRATION !== '1'
 ) {
   process.env.DB_USERNAME = 'itam_test';
   process.env.DB_PASSWORD = 'itam_test_password';

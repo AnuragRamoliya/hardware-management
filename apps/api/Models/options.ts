@@ -14,7 +14,13 @@ const optionReaders = {
     labelExpr: "TRIM(CONCAT_WS(' ', `first_name`, `last_name`))",
     subLabelField: 'employee_code',
     searchFields: ['search_text', 'employee_code', 'email'],
-    allowedFilters: ['department_id', 'designation_id', 'location_id', 'manager_id'],
+    allowedFilters: [
+      'department_id',
+      'designation_id',
+      'location_id',
+      'manager_id',
+      'employment_status',
+    ],
     defaultOrder: [
       { field: 'label_sort', direction: 'ASC' },
       { field: 'id', direction: 'ASC' },
@@ -85,6 +91,13 @@ const optionReaders = {
     labelExpr: "CONCAT('Role ', `role_id`, ' / Module ', `module_id`)",
     searchFields: ['role_id', 'module_id'],
     allowedFilters: ['role_id', 'module_id'],
+  }),
+  offboarding_template: buildOptions({
+    schema: { table: 'offboarding_checklist_templates' },
+    labelField: 'title',
+    subLabelField: 'default_assignee_role',
+    searchFields: ['title', 'description'],
+    allowedFilters: ['is_mandatory', 'is_active'],
   }),
 };
 

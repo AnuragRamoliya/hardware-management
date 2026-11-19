@@ -76,6 +76,7 @@ export const MODULES = {
   CREDENTIAL_ACCESS_LOG: "credential_access_log",
   REQUEST: "request",
   OFFBOARDING: "offboarding",
+  OFFBOARDING_TEMPLATE: "offboarding_template",
   REPORT: "report",
   AUDIT_LOG: "audit_log",
   SETTING: "setting",
@@ -133,6 +134,23 @@ export const EMPLOYMENT_STATUS = {
 
 export type EmploymentStatus =
   (typeof EMPLOYMENT_STATUS)[keyof typeof EMPLOYMENT_STATUS];
+
+export const EMPLOYMENT_STATUS_LABELS: Record<EmploymentStatus, string> = {
+  [EMPLOYMENT_STATUS.ACTIVE]: "Active",
+  [EMPLOYMENT_STATUS.NOTICE]: "In Notice",
+  [EMPLOYMENT_STATUS.RESIGNED]: "Resigned",
+  [EMPLOYMENT_STATUS.EXITED]: "Exited",
+};
+
+export const EMPLOYMENT_STATUS_TONES: Record<
+  EmploymentStatus,
+  "success" | "warning" | "secondary" | "destructive"
+> = {
+  [EMPLOYMENT_STATUS.ACTIVE]: "success",
+  [EMPLOYMENT_STATUS.NOTICE]: "warning",
+  [EMPLOYMENT_STATUS.RESIGNED]: "secondary",
+  [EMPLOYMENT_STATUS.EXITED]: "destructive",
+};
 
 export const ASSET_STATUS = {
   AVAILABLE: 1,
@@ -869,4 +887,425 @@ export interface RequestStatsDto {
   mine: number;
   needs_attention: number;
   avg_turnaround_hours: number;
+}
+
+// ============================================================================
+// Phase 5: Offboarding & Hardware Handover Enums, Maps & Types
+// ============================================================================
+
+export const OFFBOARDING_CASE_STATUS = {
+  OPEN: 1,
+  IN_PROGRESS: 2,
+  PENDING_CLEARANCE: 3,
+  COMPLETED: 4,
+  CANCELLED: 5,
+} as const;
+
+export type OffboardingCaseStatus =
+  (typeof OFFBOARDING_CASE_STATUS)[keyof typeof OFFBOARDING_CASE_STATUS];
+
+export const OFFBOARDING_TASK_TYPE = {
+  ASSET: 1,
+  SOFTWARE: 2,
+  CREDENTIAL: 3,
+  REQUEST: 4,
+  CHECKLIST: 5,
+} as const;
+
+export type OffboardingTaskType =
+  (typeof OFFBOARDING_TASK_TYPE)[keyof typeof OFFBOARDING_TASK_TYPE];
+
+export const OFFBOARDING_TASK_STATUS = {
+  PENDING: 1,
+  IN_PROGRESS: 2,
+  COMPLETED: 3,
+  WAIVED: 4,
+  EXCEPTION: 5,
+  CANCELLED: 6,
+} as const;
+
+export type OffboardingTaskStatus =
+  (typeof OFFBOARDING_TASK_STATUS)[keyof typeof OFFBOARDING_TASK_STATUS];
+
+export const OFFBOARDING_EXIT_TYPE = {
+  RESIGNATION: 1,
+  TERMINATION: 2,
+  RETIREMENT: 3,
+  CONTRACT_END: 4,
+  OTHER: 5,
+} as const;
+
+export type OffboardingExitType =
+  (typeof OFFBOARDING_EXIT_TYPE)[keyof typeof OFFBOARDING_EXIT_TYPE];
+
+export const OFFBOARDING_RETURN_CONDITION = {
+  GOOD: "good",
+  FAIR: "fair",
+  POOR: "poor",
+  DAMAGED: "damaged",
+  MISSING: "missing",
+} as const;
+
+export type OffboardingReturnCondition =
+  (typeof OFFBOARDING_RETURN_CONDITION)[keyof typeof OFFBOARDING_RETURN_CONDITION];
+
+export const OFFBOARDING_TO_STATUS = {
+  AVAILABLE: "available",
+  IN_REPAIR: "in_repair",
+  RETIRED: "retired",
+  LOST: "lost",
+} as const;
+
+export type OffboardingToStatus =
+  (typeof OFFBOARDING_TO_STATUS)[keyof typeof OFFBOARDING_TO_STATUS];
+
+// Label & Tone Maps
+
+export const CASE_STATUS_LABELS: Record<OffboardingCaseStatus, string> = {
+  [OFFBOARDING_CASE_STATUS.OPEN]: "Open",
+  [OFFBOARDING_CASE_STATUS.IN_PROGRESS]: "In Progress",
+  [OFFBOARDING_CASE_STATUS.PENDING_CLEARANCE]: "Pending Clearance",
+  [OFFBOARDING_CASE_STATUS.COMPLETED]: "Completed",
+  [OFFBOARDING_CASE_STATUS.CANCELLED]: "Cancelled",
+};
+
+export const CASE_STATUS_NAMES: Record<OffboardingCaseStatus, string> = {
+  [OFFBOARDING_CASE_STATUS.OPEN]: "open",
+  [OFFBOARDING_CASE_STATUS.IN_PROGRESS]: "in_progress",
+  [OFFBOARDING_CASE_STATUS.PENDING_CLEARANCE]: "pending_clearance",
+  [OFFBOARDING_CASE_STATUS.COMPLETED]: "completed",
+  [OFFBOARDING_CASE_STATUS.CANCELLED]: "cancelled",
+};
+
+export const CASE_STATUS_TONES: Record<
+  OffboardingCaseStatus,
+  "info" | "warning" | "success" | "secondary" | "destructive"
+> = {
+  [OFFBOARDING_CASE_STATUS.OPEN]: "info",
+  [OFFBOARDING_CASE_STATUS.IN_PROGRESS]: "warning",
+  [OFFBOARDING_CASE_STATUS.PENDING_CLEARANCE]: "warning",
+  [OFFBOARDING_CASE_STATUS.COMPLETED]: "success",
+  [OFFBOARDING_CASE_STATUS.CANCELLED]: "secondary",
+};
+
+export const TASK_TYPE_LABELS: Record<OffboardingTaskType, string> = {
+  [OFFBOARDING_TASK_TYPE.ASSET]: "Hardware Asset",
+  [OFFBOARDING_TASK_TYPE.SOFTWARE]: "Software License",
+  [OFFBOARDING_TASK_TYPE.CREDENTIAL]: "Credential",
+  [OFFBOARDING_TASK_TYPE.REQUEST]: "Open Request",
+  [OFFBOARDING_TASK_TYPE.CHECKLIST]: "Checklist Item",
+};
+
+export const TASK_TYPE_NAMES: Record<OffboardingTaskType, string> = {
+  [OFFBOARDING_TASK_TYPE.ASSET]: "asset",
+  [OFFBOARDING_TASK_TYPE.SOFTWARE]: "software",
+  [OFFBOARDING_TASK_TYPE.CREDENTIAL]: "credential",
+  [OFFBOARDING_TASK_TYPE.REQUEST]: "request",
+  [OFFBOARDING_TASK_TYPE.CHECKLIST]: "checklist",
+};
+
+export const TASK_STATUS_LABELS: Record<OffboardingTaskStatus, string> = {
+  [OFFBOARDING_TASK_STATUS.PENDING]: "Pending",
+  [OFFBOARDING_TASK_STATUS.IN_PROGRESS]: "In Progress",
+  [OFFBOARDING_TASK_STATUS.COMPLETED]: "Completed",
+  [OFFBOARDING_TASK_STATUS.WAIVED]: "Waived",
+  [OFFBOARDING_TASK_STATUS.EXCEPTION]: "Exception",
+  [OFFBOARDING_TASK_STATUS.CANCELLED]: "Cancelled",
+};
+
+export const TASK_STATUS_NAMES: Record<OffboardingTaskStatus, string> = {
+  [OFFBOARDING_TASK_STATUS.PENDING]: "pending",
+  [OFFBOARDING_TASK_STATUS.IN_PROGRESS]: "in_progress",
+  [OFFBOARDING_TASK_STATUS.COMPLETED]: "completed",
+  [OFFBOARDING_TASK_STATUS.WAIVED]: "waived",
+  [OFFBOARDING_TASK_STATUS.EXCEPTION]: "exception",
+  [OFFBOARDING_TASK_STATUS.CANCELLED]: "cancelled",
+};
+
+export const TASK_STATUS_TONES: Record<
+  OffboardingTaskStatus,
+  "secondary" | "info" | "success" | "warning" | "destructive"
+> = {
+  [OFFBOARDING_TASK_STATUS.PENDING]: "secondary",
+  [OFFBOARDING_TASK_STATUS.IN_PROGRESS]: "info",
+  [OFFBOARDING_TASK_STATUS.COMPLETED]: "success",
+  [OFFBOARDING_TASK_STATUS.WAIVED]: "warning",
+  [OFFBOARDING_TASK_STATUS.EXCEPTION]: "destructive",
+  [OFFBOARDING_TASK_STATUS.CANCELLED]: "secondary",
+};
+
+export const EXIT_TYPE_LABELS: Record<OffboardingExitType, string> = {
+  [OFFBOARDING_EXIT_TYPE.RESIGNATION]: "Resignation",
+  [OFFBOARDING_EXIT_TYPE.TERMINATION]: "Termination",
+  [OFFBOARDING_EXIT_TYPE.RETIREMENT]: "Retirement",
+  [OFFBOARDING_EXIT_TYPE.CONTRACT_END]: "Contract End",
+  [OFFBOARDING_EXIT_TYPE.OTHER]: "Other",
+};
+
+export const EXIT_TYPE_NAMES: Record<OffboardingExitType, string> = {
+  [OFFBOARDING_EXIT_TYPE.RESIGNATION]: "resignation",
+  [OFFBOARDING_EXIT_TYPE.TERMINATION]: "termination",
+  [OFFBOARDING_EXIT_TYPE.RETIREMENT]: "retirement",
+  [OFFBOARDING_EXIT_TYPE.CONTRACT_END]: "contract_end",
+  [OFFBOARDING_EXIT_TYPE.OTHER]: "other",
+};
+
+// Transition Rules
+
+export const CASE_TRANSITIONS: Record<
+  OffboardingCaseStatus,
+  OffboardingCaseStatus[]
+> = {
+  [OFFBOARDING_CASE_STATUS.OPEN]: [
+    OFFBOARDING_CASE_STATUS.IN_PROGRESS,
+    OFFBOARDING_CASE_STATUS.PENDING_CLEARANCE,
+    OFFBOARDING_CASE_STATUS.CANCELLED,
+  ],
+  [OFFBOARDING_CASE_STATUS.IN_PROGRESS]: [
+    OFFBOARDING_CASE_STATUS.PENDING_CLEARANCE,
+    OFFBOARDING_CASE_STATUS.CANCELLED,
+  ],
+  [OFFBOARDING_CASE_STATUS.PENDING_CLEARANCE]: [
+    OFFBOARDING_CASE_STATUS.COMPLETED,
+    OFFBOARDING_CASE_STATUS.CANCELLED,
+  ],
+  [OFFBOARDING_CASE_STATUS.COMPLETED]: [],
+  [OFFBOARDING_CASE_STATUS.CANCELLED]: [],
+};
+
+export const TASK_TRANSITIONS: Record<
+  OffboardingTaskStatus,
+  OffboardingTaskStatus[]
+> = {
+  [OFFBOARDING_TASK_STATUS.PENDING]: [
+    OFFBOARDING_TASK_STATUS.IN_PROGRESS,
+    OFFBOARDING_TASK_STATUS.COMPLETED,
+    OFFBOARDING_TASK_STATUS.WAIVED,
+    OFFBOARDING_TASK_STATUS.EXCEPTION,
+    OFFBOARDING_TASK_STATUS.CANCELLED,
+  ],
+  [OFFBOARDING_TASK_STATUS.IN_PROGRESS]: [
+    OFFBOARDING_TASK_STATUS.COMPLETED,
+    OFFBOARDING_TASK_STATUS.WAIVED,
+    OFFBOARDING_TASK_STATUS.EXCEPTION,
+    OFFBOARDING_TASK_STATUS.CANCELLED,
+  ],
+  [OFFBOARDING_TASK_STATUS.COMPLETED]: [],
+  [OFFBOARDING_TASK_STATUS.WAIVED]: [],
+  [OFFBOARDING_TASK_STATUS.EXCEPTION]: [OFFBOARDING_TASK_STATUS.COMPLETED],
+  [OFFBOARDING_TASK_STATUS.CANCELLED]: [],
+};
+
+// Offboarding DTOs
+
+export interface OffboardingTaskDto {
+  id: number;
+  case_id: number;
+  task_type: OffboardingTaskType;
+  ref_id?: number | null;
+  ref_label?: string | null;
+  title: string;
+  assigned_to?: number | null;
+  task_status: OffboardingTaskStatus;
+  is_mandatory: boolean;
+  due_date: string;
+  completed_at?: string | null;
+  completed_by?: number | null;
+  return_condition?: OffboardingReturnCondition | null;
+  to_status?: OffboardingToStatus | null;
+  outcome_notes?: string | null;
+  waived_by?: number | null;
+  waive_reason?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  assignee?: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    email?: string;
+  };
+  completer?: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    email?: string;
+  };
+  waiver?: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    email?: string;
+  };
+}
+
+export interface OffboardingCaseDto {
+  id: number;
+  case_no: string;
+  employee_id: number;
+  exit_type: OffboardingExitType;
+  resignation_date: string;
+  last_working_date: string;
+  reason: string;
+  initiated_by: number;
+  handover_to?: number | null;
+  manager_id?: number | null;
+  case_status: OffboardingCaseStatus;
+  completed_at?: string | null;
+  clearance_number?: string | null;
+  clearance_issued_at?: string | null;
+  clearance_file_path?: string | null;
+  handover_receipt_file_path?: string | null;
+  notes?: string | null;
+  status: number;
+  createdAt: string;
+  updatedAt: string;
+  employee?: {
+    id: number;
+    employee_id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    employment_status: EmploymentStatus;
+    department?: { id: number; name: string };
+    designation?: { id: number; name: string };
+    location?: { id: number; name: string };
+    manager?: { id: number; first_name: string; last_name?: string };
+  };
+  initiator?: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    email?: string;
+  };
+  handover_user?: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    email?: string;
+  };
+  manager?: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    email?: string;
+  };
+  tasks?: OffboardingTaskDto[];
+  progress?: {
+    total: number;
+    completed: number;
+    pending: number;
+    waived: number;
+    exceptions: number;
+    percent: number;
+  };
+}
+
+export interface OffboardingChecklistTemplateDto {
+  id: number;
+  title: string;
+  description?: string | null;
+  default_assignee_role?: string | null;
+  is_mandatory: boolean;
+  sort_order: number;
+  is_active: boolean;
+  status: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OffboardingPreviewDto {
+  employee: {
+    id: number;
+    employee_id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    employment_status: EmploymentStatus;
+    department?: string;
+    designation?: string;
+    manager?: string;
+  };
+  proposed_handover_to?: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    email?: string;
+  } | null;
+  handover_strategy: string;
+  counts: {
+    assets: number;
+    software: number;
+    credentials: number;
+    open_requests: number;
+    checklist_templates: number;
+    total_tasks: number;
+  };
+  items: {
+    assets: Array<{
+      id: number;
+      asset_tag: string;
+      name?: string;
+      serial_number?: string;
+      category?: string;
+    }>;
+    software: Array<{
+      id: number;
+      software_name: string;
+      license_type?: string;
+    }>;
+    credentials: Array<{
+      id: number;
+      account_identifier: string;
+      credential_type?: string;
+    }>;
+    requests: Array<{
+      id: number;
+      request_no: string;
+      title: string;
+      request_type: number;
+    }>;
+    checklist: Array<{ id: number; title: string; is_mandatory: boolean }>;
+  };
+}
+
+export interface OffboardingStatsDto {
+  total_cases: number;
+  in_notice: number;
+  pending_handover: number;
+  overdue_returns: number;
+  pending_clearance: number;
+  completed_cases: number;
+  exits_next_30_days: number;
+}
+
+export interface PortalOffboardingDto {
+  has_case: boolean;
+  case?: {
+    id: number;
+    case_no: string;
+    case_status: OffboardingCaseStatus;
+    last_working_date: string;
+    days_left: number;
+    is_overdue: boolean;
+    handover_contact?: {
+      first_name: string;
+      last_name?: string;
+      email?: string;
+    } | null;
+    instructions: string[];
+    tasks: Array<{
+      id: number;
+      task_type: OffboardingTaskType;
+      title: string;
+      ref_label?: string | null;
+      task_status: OffboardingTaskStatus;
+      is_mandatory: boolean;
+      due_date: string;
+    }>;
+    progress: {
+      total: number;
+      completed: number;
+      percent: number;
+    };
+  } | null;
 }

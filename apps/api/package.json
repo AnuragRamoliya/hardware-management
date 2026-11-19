@@ -10,7 +10,7 @@
     "start": "node dist/server.js",
     "migrate": "sequelize-cli db:migrate",
     "seed": "sequelize-cli db:seed:all",
-    "seed:bulk": "sequelize-cli db:seed --seed 20261117110000-seed-bulk-employees.js && sequelize-cli db:seed --seed 20261117130000-seed-bulk-assets.js && sequelize-cli db:seed --seed 20261118152000-seed-bulk-credentials.js",
+    "seed:bulk": "sequelize-cli db:seed --seed 20261117110000-seed-bulk-employees.js && sequelize-cli db:seed --seed 20261117130000-seed-bulk-assets.js && sequelize-cli db:seed --seed 20261118152000-seed-bulk-credentials.js && sequelize-cli db:seed --seed 20261119152000-seed-bulk-offboarding.js",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
@@ -20,6 +20,7 @@
     "audit:verify": "tsx scripts/audit-verify.ts"
   },
   "dependencies": {
+    "@hm/shared": "*",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "crypto-js": "^4.2.0",
@@ -36,17 +37,18 @@
     "mysql2": "^3.24.4",
     "node-cron": "^4.2.1",
     "nodemailer": "^10.6.0",
+    "pdfkit": "^0.20.2",
     "qrcode": "^1.5.4",
     "sequelize": "^6.37.8",
     "sequelize-cli": "^6.6.5",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "winston": "^3.19.0",
-    "zod": "^4.1.12",
-    "@hm/shared": "*"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@hm/tsconfig": "*",
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/crypto-js": "^4.2.2",
@@ -56,6 +58,7 @@
     "@types/node": "^24.10.0",
     "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^7.0.3",
+    "@types/pdfkit": "^0.17.7",
     "@types/qrcode": "^1.5.6",
     "@types/supertest": "^6.0.3",
     "@types/swagger-jsdoc": "^6.0.4",
@@ -70,7 +73,6 @@
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vitest": "^4.0.8",
-    "@hm/tsconfig": "*"
+    "vitest": "^4.0.8"
   }
 }

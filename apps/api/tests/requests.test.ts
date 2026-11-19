@@ -251,9 +251,9 @@ describe('Phase 4: Employee Requests & Review Workflow Tests', () => {
     const fulfilment = new RequestFulfilmentService();
 
     dbTest('fulfils new hardware request and assigns available asset', async () => {
-      // Find an available asset
+      // Find an available asset without active assignments
       const [availAssets] = await sequelize.query(
-        'SELECT id, category_id FROM assets WHERE asset_status = 1 AND status = 1 LIMIT 1',
+        'SELECT a.id, a.category_id FROM assets a WHERE a.asset_status = 1 AND a.status = 1 AND NOT EXISTS (SELECT 1 FROM asset_assignments aa WHERE aa.asset_id = a.id AND aa.returned_at IS NULL) LIMIT 1',
       );
       const [empList] = await sequelize.query('SELECT id FROM employees WHERE status = 1 LIMIT 1');
 
@@ -295,7 +295,7 @@ describe('Phase 4: Employee Requests & Review Workflow Tests', () => {
       'concurrency test: second reviewer fulfilling with same asset fails cleanly',
       async () => {
         const [availAssets] = await sequelize.query(
-          'SELECT id, category_id FROM assets WHERE asset_status = 1 AND status = 1 LIMIT 1',
+          'SELECT a.id, a.category_id FROM assets a WHERE a.asset_status = 1 AND a.status = 1 AND NOT EXISTS (SELECT 1 FROM asset_assignments aa WHERE aa.asset_id = a.id AND aa.returned_at IS NULL) LIMIT 1',
         );
         const [empList] = await sequelize.query(
           'SELECT id FROM employees WHERE status = 1 LIMIT 1',

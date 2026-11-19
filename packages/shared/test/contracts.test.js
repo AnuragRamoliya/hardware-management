@@ -8,6 +8,12 @@ import {
   ROLES,
   ASSET_STATUS,
   EMPLOYMENT_STATUS,
+  OFFBOARDING_CASE_STATUS,
+  OFFBOARDING_TASK_TYPE,
+  OFFBOARDING_TASK_STATUS,
+  OFFBOARDING_EXIT_TYPE,
+  CASE_TRANSITIONS,
+  TASK_TRANSITIONS,
 } from "../dist/index.js";
 
 describe("@hm/shared contracts and enums", () => {
@@ -49,6 +55,46 @@ describe("@hm/shared contracts and enums", () => {
     assert.strictEqual(ASSET_STATUS.AVAILABLE, 1);
     assert.strictEqual(ASSET_STATUS.ASSIGNED, 2);
     assert.strictEqual(ASSET_STATUS.PENDING_RETURN, 3);
+  });
+
+  it("exports Phase 5 offboarding enums and state transitions", () => {
+    assert.strictEqual(OFFBOARDING_CASE_STATUS.OPEN, 1);
+    assert.strictEqual(OFFBOARDING_CASE_STATUS.IN_PROGRESS, 2);
+    assert.strictEqual(OFFBOARDING_CASE_STATUS.PENDING_CLEARANCE, 3);
+    assert.strictEqual(OFFBOARDING_CASE_STATUS.COMPLETED, 4);
+    assert.strictEqual(OFFBOARDING_CASE_STATUS.CANCELLED, 5);
+
+    assert.strictEqual(OFFBOARDING_TASK_TYPE.ASSET, 1);
+    assert.strictEqual(OFFBOARDING_TASK_TYPE.SOFTWARE, 2);
+    assert.strictEqual(OFFBOARDING_TASK_TYPE.CREDENTIAL, 3);
+    assert.strictEqual(OFFBOARDING_TASK_TYPE.REQUEST, 4);
+    assert.strictEqual(OFFBOARDING_TASK_TYPE.CHECKLIST, 5);
+
+    assert.strictEqual(OFFBOARDING_TASK_STATUS.PENDING, 1);
+    assert.strictEqual(OFFBOARDING_TASK_STATUS.IN_PROGRESS, 2);
+    assert.strictEqual(OFFBOARDING_TASK_STATUS.COMPLETED, 3);
+    assert.strictEqual(OFFBOARDING_TASK_STATUS.WAIVED, 4);
+    assert.strictEqual(OFFBOARDING_TASK_STATUS.EXCEPTION, 5);
+    assert.strictEqual(OFFBOARDING_TASK_STATUS.CANCELLED, 6);
+
+    assert.strictEqual(OFFBOARDING_EXIT_TYPE.RESIGNATION, 1);
+    assert.strictEqual(OFFBOARDING_EXIT_TYPE.TERMINATION, 2);
+
+    // Verify valid transition paths
+    assert.ok(
+      CASE_TRANSITIONS[OFFBOARDING_CASE_STATUS.OPEN].includes(
+        OFFBOARDING_CASE_STATUS.PENDING_CLEARANCE,
+      ),
+    );
+    assert.strictEqual(
+      CASE_TRANSITIONS[OFFBOARDING_CASE_STATUS.COMPLETED].length,
+      0,
+    );
+    assert.ok(
+      TASK_TRANSITIONS[OFFBOARDING_TASK_STATUS.PENDING].includes(
+        OFFBOARDING_TASK_STATUS.COMPLETED,
+      ),
+    );
   });
 
   it("validates sample API response shape against contract", () => {

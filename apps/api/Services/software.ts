@@ -1,6 +1,6 @@
 import { Op, type Transaction } from 'sequelize';
 import { AppError } from '../Config/app_error';
-import { type RowAttributes, sequelize } from '../Database/Schema';
+import { type RowAttributes, sequelize, app_settings } from '../Database/Schema';
 import {
   SoftwareAssignmentRecord as software_assignments,
   SoftwareEmployeeRecord as employees,
@@ -202,7 +202,13 @@ export class SoftwareService {
   }
 
   async assign(
-    input: { software_id: number; license_id?: number; employee_id: number; note?: string },
+    input: {
+      software_id: number;
+      license_id?: number;
+      employee_id: number;
+      note?: string;
+      override_reason?: string;
+    },
     actor: UserInfo,
     existingTransaction?: Transaction,
   ) {
@@ -223,6 +229,32 @@ export class SoftwareService {
         Number(employee.get('employment_status')) >= 3
       )
         throw new AppError(422, 'Employee is inactive or exited.');
+
+      if (Number(employee.get('employment_status')) === 2) {
+        const blockSetting = await app_settings.findOne({
+          where: { key: 'offboarding_block_assign_during_notice', status: 1 },
+          transaction,
+        });
+        const isBlocked = blockSetting ? blockSetting.get('value') === 'true' : true;
+        if (isBlocked) {
+          const canApprove = actor.role_id === 1;
+          if (!canApprove || !input.override_reason || input.override_reason.trim().length < 5) {
+            throw new AppError(
+              422,
+              'New software assignment is blocked during notice period. Approval permission and reason are required to override.',
+            );
+          }
+          await createActivityLog({
+            module: 'software',
+            moduleId: input.software_id,
+            action: 'notice_assignment_override',
+            description: `Software assignment override granted during notice period for employee ${employee.get('first_name')}: "${input.override_reason}"`,
+            createdBy: actor.id,
+            createdByName: `${actor.first_name} ${actor.last_name || ''}`,
+            transaction,
+          });
+        }
+      }
       const duplicate = await software_assignments.findOne({
         where: { software_id: input.software_id, employee_id: input.employee_id, revoked_at: null },
         transaction,

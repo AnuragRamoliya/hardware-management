@@ -284,3 +284,9 @@ router.use(phase3Router);
 
 import { phase4Router } from './requests';
 router.use(phase4Router);
+
+import { offboardingRouter, portalOffboardingRouter } from './offboarding';
+import { offboardingTemplateRouter } from './offboarding_template';
+router.use('/offboarding/template', offboardingTemplateRouter);
+router.use('/offboarding', offboardingRouter);
+router.use('/portal', portalOffboardingRouter);

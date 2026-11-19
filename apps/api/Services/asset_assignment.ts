@@ -1,6 +1,6 @@
 import { Op, type Transaction } from 'sequelize';
 import { AppError } from '../Config/app_error';
-import { type RowAttributes, sequelize } from '../Database/Schema';
+import { type RowAttributes, sequelize, app_settings } from '../Database/Schema';
 import {
   AssetAssignmentRecord as asset_assignments,
   AssignedAssetRecord as assets,
@@ -22,7 +22,13 @@ const plain = (value: import('sequelize').Model) => value.get({ plain: true }) a
 
 export class AssetAssignmentService {
   async assign(
-    input: { asset_id: number; employee_id: number; due_return_date?: string; note?: string },
+    input: {
+      asset_id: number;
+      employee_id: number;
+      due_return_date?: string;
+      note?: string;
+      override_reason?: string;
+    },
     actor: UserInfo,
     existingTransaction?: Transaction,
   ) {
@@ -35,7 +41,13 @@ export class AssetAssignmentService {
   }
 
   private async assignInTransaction(
-    input: { asset_id: number; employee_id: number; due_return_date?: string; note?: string },
+    input: {
+      asset_id: number;
+      employee_id: number;
+      due_return_date?: string;
+      note?: string;
+      override_reason?: string;
+    },
     actor: UserInfo,
     transaction: Transaction,
   ) {
@@ -49,6 +61,32 @@ export class AssetAssignmentService {
       Number(employee.get('employment_status')) >= 3
     )
       throw new AppError(422, 'Employee is inactive or exited.');
+
+    if (Number(employee.get('employment_status')) === 2) {
+      const blockSetting = await app_settings.findOne({
+        where: { key: 'offboarding_block_assign_during_notice', status: 1 },
+        transaction,
+      });
+      const isBlocked = blockSetting ? blockSetting.get('value') === 'true' : true;
+      if (isBlocked) {
+        const canApprove = actor.role_id === 1;
+        if (!canApprove || !input.override_reason || input.override_reason.trim().length < 5) {
+          throw new AppError(
+            422,
+            'New asset assignment is blocked during notice period. Approval permission and reason are required to override.',
+          );
+        }
+        await createActivityLog({
+          module: 'asset_assignment',
+          moduleId: input.asset_id,
+          action: 'notice_assignment_override',
+          description: `Assignment override granted during notice period for employee ${employee.get('first_name')}: "${input.override_reason}"`,
+          createdBy: actor.id,
+          createdByName: `${actor.first_name} ${actor.last_name || ''}`,
+          transaction,
+        });
+      }
+    }
     const root = await assets.findByPk(input.asset_id, {
       transaction,
       lock: transaction.LOCK.UPDATE,

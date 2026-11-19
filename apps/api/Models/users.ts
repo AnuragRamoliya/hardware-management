@@ -5,7 +5,14 @@ import { AppError } from '../Config/app_error';
 import { env } from '../Config/env';
 import { ACTIVITY_ACTIONS, MODULES, STATUS, STATUS_MESSAGES } from '../Config/constant';
 import { sequelize } from '../Config/database';
-import { roles, user_tokens, users, login_history, type RowAttributes } from '../Database/Schema';
+import {
+  roles,
+  user_tokens,
+  users,
+  employees,
+  login_history,
+  type RowAttributes,
+} from '../Database/Schema';
 import { compareHashPassword, createActivityLog, createHashPassword } from '../Utils/helpers';
 import { hashToken } from '../Utils/encryption';
 import { CredentialVaultService } from '../Services/credential_vault';
@@ -71,6 +78,22 @@ export class UserModel extends ResourceModel {
     }
 
     const userData = row(user);
+
+    // Exited employee login guard
+    const linkedEmp = await employees.findOne({
+      where: { user_id: Number(userData.id), status: 1 },
+    });
+    if (linkedEmp && Number(linkedEmp.get('employment_status')) === 4) {
+      await login_history.create({
+        user_id: Number(userData.id),
+        email_attempted: email,
+        success: 0,
+        ip_address: meta?.ipAddress || null,
+        user_agent: meta?.userAgent || null,
+        failure_reason: 'Employee has exited the company',
+      });
+      throw new AppError(403, 'Your account has been deactivated due to offboarding clearance.');
+    }
 
     // Lockout check
     if (userData.locked_until && new Date(String(userData.locked_until)) > new Date()) {

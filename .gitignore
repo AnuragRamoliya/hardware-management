@@ -36,6 +36,7 @@ test-results/
 uploads/
 temp/
 tmp/
+storage/
 
 # IDE & OS Files
 .idea/

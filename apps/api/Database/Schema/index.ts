@@ -3,6 +3,7 @@ import { sequelize } from '../../Config/database';
 import { phase2Schemas } from './phase2';
 import { phase3Schemas } from './phase3';
 import { phase4Schemas } from './phase4';
+import { phase5Schemas } from './phase5';
 
 export type RowAttributes = Record<string, unknown>;
 export type EntityModel = ModelStatic<Model<RowAttributes, RowAttributes>>;
@@ -106,6 +107,7 @@ const schemas = {
   ...phase2Schemas,
   ...phase3Schemas,
   ...phase4Schemas,
+  ...phase5Schemas,
   employees: {
     user_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true, unique: true },
     employee_code: { type: DataTypes.STRING(100), allowNull: false, unique: true },
@@ -191,6 +193,11 @@ export const requests = models.requests;
 export const request_comments = models.request_comments;
 export const request_status_history = models.request_status_history;
 export const request_attachments = models.request_attachments;
+
+// Phase 5 Models
+export const offboarding_checklist_templates = models.offboarding_checklist_templates;
+export const offboarding_cases = models.offboarding_cases;
+export const offboarding_tasks = models.offboarding_tasks;
 
 // Associations
 roles.hasMany(permissions, { foreignKey: 'role_id', as: 'permissions' });
@@ -286,3 +293,19 @@ request_attachments.belongsTo(users, { foreignKey: 'uploaded_by', as: 'uploader'
 
 employees.hasMany(requests, { foreignKey: 'employee_id', as: 'requests' });
 assets.hasMany(requests, { foreignKey: 'current_asset_id', as: 'linked_requests' });
+
+// Phase 5 Associations
+offboarding_cases.belongsTo(employees, { foreignKey: 'employee_id', as: 'employee' });
+offboarding_cases.belongsTo(users, { foreignKey: 'initiated_by', as: 'initiator' });
+offboarding_cases.belongsTo(users, { foreignKey: 'handover_to', as: 'handover_user' });
+offboarding_cases.belongsTo(employees, { foreignKey: 'manager_id', as: 'manager' });
+offboarding_cases.hasMany(offboarding_tasks, { foreignKey: 'case_id', as: 'tasks' });
+
+offboarding_tasks.belongsTo(offboarding_cases, { foreignKey: 'case_id', as: 'case' });
+offboarding_tasks.belongsTo(users, { foreignKey: 'assigned_to', as: 'assignee' });
+offboarding_tasks.belongsTo(users, { foreignKey: 'completed_by', as: 'completer' });
+offboarding_tasks.belongsTo(users, { foreignKey: 'waived_by', as: 'waiver' });
+
+employees.hasMany(offboarding_cases, { foreignKey: 'employee_id', as: 'offboarding_cases' });
+users.hasMany(offboarding_cases, { foreignKey: 'handover_to', as: 'assigned_offboarding_cases' });
+users.hasMany(offboarding_tasks, { foreignKey: 'assigned_to', as: 'assigned_offboarding_tasks' });

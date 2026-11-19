@@ -2,7 +2,14 @@ import { Op } from 'sequelize';
 import { AppError } from '../Config/app_error';
 import { ACTIVITY_ACTIONS, MODULES, STATUS } from '../Config/constant';
 import { sequelize } from '../Config/database';
-import { employees, roles, user_tokens, users, type RowAttributes } from '../Database/Schema';
+import {
+  employees,
+  roles,
+  user_tokens,
+  users,
+  offboarding_cases,
+  type RowAttributes,
+} from '../Database/Schema';
 import { ResourceModel, type ResourceDefinition } from '../Models/resource';
 import { createActivityLog, createHashPassword } from '../Utils/helpers';
 import type { UserInfo } from '../Types/api';
@@ -140,7 +147,20 @@ export class EmployeeService {
   }
 
   async get(id: number): Promise<RowAttributes> {
-    return this.resource.get(id);
+    const data = await this.resource.get(id);
+    const activeCase = await offboarding_cases.findOne({
+      where: { employee_id: id, status: 1 },
+      order: [['id', 'DESC']],
+    });
+    if (activeCase) {
+      data.offboarding = {
+        id: Number(activeCase.get('id')),
+        case_no: String(activeCase.get('case_no')),
+        case_status: Number(activeCase.get('case_status')),
+        last_working_date: String(activeCase.get('last_working_date')),
+      };
+    }
+    return data;
   }
 
   async list(
@@ -162,6 +182,19 @@ export class EmployeeService {
         lock: transaction.LOCK.UPDATE,
       });
       if (!employee) throw new AppError(404, 'Employee not found.');
+
+      // Block delete if an open offboarding case exists
+      const openCase = await offboarding_cases.findOne({
+        where: {
+          employee_id: id,
+          case_status: { [Op.in]: [1, 2, 3] },
+          status: 1,
+        },
+        transaction,
+      });
+      if (openCase) {
+        throw new AppError(422, 'Cannot delete employee with an active offboarding case.');
+      }
       const data = plain(employee);
       await employee.update({ status: STATUS.DELETED, updated_by: actor.id }, { transaction });
       if (data.user_id) {
