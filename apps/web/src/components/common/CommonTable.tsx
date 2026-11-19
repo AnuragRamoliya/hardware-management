@@ -150,7 +150,7 @@ export function CommonTable<T extends { id: string | number }>({
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2"
+                className="h-10 rounded-md border px-3 text-sm font-normal hover:bg-muted"
                 aria-label="Table display options"
               >
                 <SlidersHorizontal className="h-4 w-4" />
