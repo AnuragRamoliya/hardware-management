@@ -134,7 +134,12 @@ export function getEmployeeColumns(
           });
         }
         return (
-          <RowActionsMenu label="Employee actions" actions={menuActions} />
+          <div
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
+          >
+            <RowActionsMenu label="Employee actions" actions={menuActions} />
+          </div>
         );
       },
     },

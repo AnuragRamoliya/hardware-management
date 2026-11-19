@@ -104,6 +104,12 @@ export function RowActionsMenu({
       type="button"
       aria-label={label}
       disabled={allDisabled}
+      onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.stopPropagation();
+        }
+      }}
       className={cn(
         "relative inline-flex h-9 w-9 min-h-[36px] min-w-[36px] items-center justify-center rounded-md border border-transparent text-muted-foreground transition-colors",
         "hover:bg-muted hover:text-foreground active:bg-muted/80",
@@ -124,13 +130,20 @@ export function RowActionsMenu({
   if (isMobile) {
     return (
       <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
-        <DialogPrimitive.Trigger asChild>
-          {triggerButton}
-        </DialogPrimitive.Trigger>
+        <div
+          className="inline-flex"
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
+          <DialogPrimitive.Trigger asChild>
+            {triggerButton}
+          </DialogPrimitive.Trigger>
+        </div>
         <DialogPrimitive.Portal>
           <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-[hsl(var(--overlay)/.45)] backdrop-blur-[2px] animate-in fade-in-0 duration-200" />
           <DialogPrimitive.Content
             aria-describedby={undefined}
+            onClick={(e) => e.stopPropagation()}
             className={cn(
               "fixed inset-x-0 bottom-0 z-50 max-h-[85vh] overflow-y-auto rounded-t-2xl border-t border-border bg-card p-4 pb-6 shadow-2xl focus:outline-none",
               "animate-in slide-in-from-bottom duration-200 motion-reduce:animate-none",
@@ -160,7 +173,8 @@ export function RowActionsMenu({
                       type="button"
                       disabled={action.disabled}
                       title={action.disabledReason}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setOpen(false);
                         action.onSelect();
                       }}
@@ -201,13 +215,20 @@ export function RowActionsMenu({
   // Desktop / Tablet Radix DropdownMenu variant (>= md)
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>{triggerButton}</DropdownMenuTrigger>
+      <div
+        className="inline-flex"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+      >
+        <DropdownMenuTrigger asChild>{triggerButton}</DropdownMenuTrigger>
+      </div>
       <DropdownMenuContent
         side={side}
         align={align}
         sideOffset={4}
         collisionPadding={8}
         avoidCollisions={true}
+        onClick={(e) => e.stopPropagation()}
         className="z-50 min-w-[200px] max-w-[280px]"
       >
         {visibleActions.map((action, index) => {
@@ -227,6 +248,9 @@ export function RowActionsMenu({
                 title={action.disabledReason}
                 onSelect={() => {
                   action.onSelect();
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
                 }}
                 className={cn(
                   "gap-2.5",

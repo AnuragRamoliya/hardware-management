@@ -283,6 +283,11 @@ export function CommonTable<T extends { id: string | number }>({
                           <td
                             key={column.id}
                             className={`px-4 ${compact ? "py-2" : "py-3"}`}
+                            onClick={(event) => {
+                              if (column.id === "actions") {
+                                event.stopPropagation();
+                              }
+                            }}
                           >
                             {column.render
                               ? column.render(row)
@@ -326,11 +331,23 @@ export function CommonTable<T extends { id: string | number }>({
                       <div
                         key={column.id}
                         className={`flex min-w-0 justify-between gap-3 ${index === 0 ? "font-semibold" : "text-sm"}`}
+                        onClick={(event) => {
+                          if (column.id === "actions") {
+                            event.stopPropagation();
+                          }
+                        }}
                       >
                         <span className="shrink-0 text-muted-foreground">
                           {column.label}
                         </span>
-                        <span className="min-w-0 max-w-[65%] break-words text-right">
+                        <span
+                          className="min-w-0 max-w-[65%] break-words text-right"
+                          onClick={(event) => {
+                            if (column.id === "actions") {
+                              event.stopPropagation();
+                            }
+                          }}
+                        >
                           {column.render
                             ? column.render(row)
                             : String(
