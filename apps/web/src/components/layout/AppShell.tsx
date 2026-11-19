@@ -22,7 +22,6 @@ import {
   Search,
   ShieldCheck,
   Sun,
-  UserRound,
   Users,
   UsersRound,
   X,
@@ -65,40 +64,37 @@ const navigation: NavigationItem[] = [
     label: "Overview",
     path: PATHS.ROOT,
     icon: LayoutDashboard,
-    roles: ["admin", "hardware", "hr", "employee"],
+    roles: ["admin", "hardware", "hr"],
   },
   {
-    label: "My portal",
+    label: "Overview",
     path: PATHS.PORTAL,
-    icon: UserRound,
+    icon: LayoutDashboard,
     roles: ["employee"],
-    children: [
-      {
-        label: "Overview",
-        path: PATHS.PORTAL,
-        roles: ["employee"],
-      },
-      {
-        label: "My assets",
-        path: PATHS.PORTAL_ASSETS,
-        roles: ["employee"],
-      },
-      {
-        label: "My software",
-        path: PATHS.PORTAL_SOFTWARE,
-        roles: ["employee"],
-      },
-      {
-        label: "My accounts",
-        path: PATHS.PORTAL_ACCOUNTS,
-        roles: ["employee"],
-      },
-      {
-        label: "My requests",
-        path: PATHS.PORTAL_REQUESTS,
-        roles: ["employee"],
-      },
-    ],
+  },
+  {
+    label: "My assets",
+    path: PATHS.PORTAL_ASSETS,
+    icon: Laptop,
+    roles: ["employee"],
+  },
+  {
+    label: "My software",
+    path: PATHS.PORTAL_SOFTWARE,
+    icon: CommandIcon,
+    roles: ["employee"],
+  },
+  {
+    label: "My accounts",
+    path: PATHS.PORTAL_ACCOUNTS,
+    icon: KeyRound,
+    roles: ["employee"],
+  },
+  {
+    label: "My requests",
+    path: PATHS.PORTAL_REQUESTS,
+    icon: Inbox,
+    roles: ["employee"],
   },
   {
     label: "Employees",
@@ -387,6 +383,14 @@ export function AppShell() {
       }
       if (item.path === location.pathname) return item.label;
     }
+    if (location.pathname.startsWith(PATHS.PORTAL_REQUESTS))
+      return "My requests";
+    if (location.pathname.startsWith(PATHS.PORTAL_ASSETS)) return "My assets";
+    if (location.pathname.startsWith(PATHS.PORTAL_SOFTWARE))
+      return "My software";
+    if (location.pathname.startsWith(PATHS.PORTAL_ACCOUNTS))
+      return "My accounts";
+    if (location.pathname.startsWith(PATHS.PORTAL)) return "Overview";
     return "Employee";
   }, [location.pathname]);
   const handleLogout = async () => {
@@ -423,7 +427,7 @@ export function AppShell() {
         {/* Header */}
         <div className="flex h-[68px] shrink-0 items-center justify-between border-b px-5">
           <Link
-            to={PATHS.ROOT}
+            to={role === "employee" ? PATHS.PORTAL : PATHS.ROOT}
             onClick={onNavigate}
             className="flex items-center gap-2.5 font-semibold tracking-tight"
           >
@@ -705,7 +709,7 @@ export function AppShell() {
               <Menu className="h-5 w-5" />
             </button>
             <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
-              <span>Workspace</span>
+              <span>{role === "employee" ? "Portal" : "Workspace"}</span>
               <span>/</span>
               <span className="font-medium text-foreground">
                 {currentLabel}

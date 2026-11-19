@@ -16,6 +16,8 @@ import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { Spinner } from "@/components/common/States";
 import { setRouterNavigate } from "@/routes/navigation";
 import { PATHS } from "@/routes/paths";
+import useAuthStore from "@/zustand/user-store";
+import { getUserRole } from "@/lib/roles";
 
 const Dashboard = lazy(() =>
   import("@/pages/Dashboard").then((module) => ({ default: module.Dashboard })),
@@ -231,6 +233,15 @@ function page(
   );
 }
 
+function RootRoute() {
+  const user = useAuthStore((state) => state.user);
+  const role = getUserRole(user);
+  if (role === "employee") {
+    return <Navigate to={PATHS.PORTAL} replace />;
+  }
+  return <Dashboard />;
+}
+
 // Route objects intentionally share a file; this export is the router entry, not a component.
 // eslint-disable-next-line react-refresh/only-export-components
 export const routesSection = createBrowserRouter([
@@ -252,8 +263,11 @@ export const routesSection = createBrowserRouter([
           {
             element: <AppShell />,
             children: [
-              { path: PATHS.ROOT, element: page(<Dashboard />) },
-              { path: PATHS.DASHBOARD, element: page(<Dashboard />) },
+              { path: PATHS.ROOT, element: page(<RootRoute />) },
+              {
+                path: PATHS.DASHBOARD,
+                element: page(<Dashboard />, ["admin", "hardware", "hr"]),
+              },
               { path: PATHS.PROFILE, element: page(<Profile />) },
               { path: PATHS.NOTIFICATIONS, element: page(<Notifications />) },
               {

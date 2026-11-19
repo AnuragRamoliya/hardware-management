@@ -8,6 +8,7 @@ import FormProvider from "@/components/hook-form/form-provider";
 import { FormSection } from "@/components/common/FormLayout";
 import { loginApi } from "@/api/auth";
 import useAuthStore from "@/zustand/user-store";
+import { getUserRole } from "@/lib/roles";
 import { PATHS } from "@/routes/paths";
 import { loginSchema, type LoginFormValues } from "@/pages/Login.schema";
 
@@ -33,7 +34,12 @@ export function Login() {
       return;
     }
     setSession(token, payload.refresh_token ?? null, user);
-    navigate(PATHS.ROOT, { replace: true });
+    const role = getUserRole(user);
+    if (role === "employee") {
+      navigate(PATHS.PORTAL, { replace: true });
+    } else {
+      navigate(PATHS.ROOT, { replace: true });
+    }
   });
   return (
     <main className="grid min-h-screen lg:grid-cols-[1fr_1fr]">

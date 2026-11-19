@@ -19,10 +19,11 @@ export function RoleGuard({
   children: React.ReactNode;
 }) {
   const role = useAuthStore((state) => getUserRole(state.user));
+  const fallback = role === "employee" ? PATHS.PORTAL : PATHS.ROOT;
   return allow.includes(role) ? (
     <>{children}</>
   ) : (
-    <Navigate to={PATHS.ROOT} replace />
+    <Navigate to={fallback} replace />
   );
 }
 
@@ -42,9 +43,10 @@ export function PermissionGuard({
   );
   if (role === "admin") return <>{children}</>;
   if (!permissionsLoaded) return <Spinner label="Checking permissions" />;
+  const fallback = role === "employee" ? PATHS.PORTAL : PATHS.ROOT;
   return permission?.read_access ? (
     <>{children}</>
   ) : (
-    <Navigate to={PATHS.ROOT} replace />
+    <Navigate to={fallback} replace />
   );
 }
