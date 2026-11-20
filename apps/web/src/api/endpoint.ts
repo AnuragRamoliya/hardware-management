@@ -154,4 +154,31 @@ export const endPoints = {
     attachment: "portal/request/attachment",
     options: "portal/request/options",
   },
+  offboarding: {
+    cases: "offboarding/cases",
+    caseGet: (id: string | number) => `offboarding/cases/${id}`,
+    preview: "offboarding/preview",
+    initiate: "offboarding/initiate",
+    cancel: (id: string | number) => `offboarding/cancel/${id}`,
+    tasks: "offboarding/tasks",
+    taskUpdate: (id: string | number) => `offboarding/tasks/${id}`,
+    taskComplete: (id: string | number) => `offboarding/tasks/${id}/complete`,
+    taskWaive: (id: string | number) => `offboarding/tasks/${id}/waive`,
+    taskException: (id: string | number) => `offboarding/tasks/${id}/exception`,
+    receiveByTag: "offboarding/receive-by-tag",
+    clearancePdf: (id: string | number) =>
+      `offboarding/cases/${id}/clearance-pdf`,
+    verifyDocument: "offboarding/verify-document",
+    templates: "offboarding/template/list",
+    templateAdd: "offboarding/template/add",
+    templateUpdate: "offboarding/template/update",
+    templateDelete: (id: string | number) =>
+      `offboarding/template/delete/${id}`,
+    templateOptions: "offboarding/template/options",
+    portalSummary: "portal/offboarding",
+  },
+  notificationPreferences: {
+    get: "notifications/preferences/get",
+    update: "notifications/preferences/update",
+  },
 } as const;

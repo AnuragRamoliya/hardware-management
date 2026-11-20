@@ -2,7 +2,7 @@ import type { Socket } from 'socket.io';
 import { user_tokens, users, roles, employees } from '../Database/Schema';
 import { logger } from '../Config/logger';
 import { env } from '../Config/env';
-import { REALTIME_ROOMS } from '@hm/shared';
+import { REALTIME_ROOMS, REALTIME_EVENTS } from '@hm/shared';
 
 export interface AuthenticatedSocketUser {
   id: number;
@@ -46,7 +46,7 @@ export function registerUserSocket(userId: number, socketId: string, socket: Soc
       const server = socket.nsp;
       const oldestSocket = server.sockets.get(oldestSocketId);
       if (oldestSocket) {
-        oldestSocket.emit('session.revoked', { reason: 'EVICTED_OLDEST_CONNECTION' });
+        oldestSocket.emit(REALTIME_EVENTS.SESSION_REVOKED, { reason: 'EVICTED_OLDEST_CONNECTION' });
         oldestSocket.disconnect(true);
         logger.info(
           `Evicted oldest socket ${oldestSocketId} for user ${userId} (limit: ${maxSockets})`,
@@ -77,10 +77,15 @@ export async function socketAuthMiddleware(
   next: (err?: Error) => void,
 ): Promise<void> {
   try {
-    const authHeader =
-      socket.handshake.auth?.token ||
-      socket.handshake.headers?.authorization ||
-      socket.handshake.query?.token;
+    if (socket.handshake.query?.token) {
+      return next(
+        new Error(
+          'Tokens passed via query parameters are forbidden. Use handshake auth or headers.',
+        ),
+      );
+    }
+
+    const authHeader = socket.handshake.auth?.token || socket.handshake.headers?.authorization;
 
     if (!authHeader) {
       return next(new Error('Authentication token required'));

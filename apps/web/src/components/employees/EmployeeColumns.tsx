@@ -7,9 +7,13 @@ import {
 } from "@/components/common/RowActionsMenu";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { ReferenceLabel } from "@/components/common/ReferenceLabel";
-import { Badge } from "@/components/ui/badge";
-import { ENUMS } from "@/utils/constants";
 import { PATHS } from "@/routes/paths";
+import {
+  EMPLOYMENT_STATUS,
+  EMPLOYMENT_STATUS_LABELS,
+  EMPLOYMENT_STATUS_TONES,
+  type EmploymentStatus,
+} from "@hm/shared";
 import type { EmployeeRecord } from "@/hooks/queries/employee";
 
 export interface EmployeeColumnActions {
@@ -86,14 +90,11 @@ export function getEmployeeColumns(
       label: "Employment",
       sortable: true,
       render: (row) => {
-        const option = ENUMS.employmentStatus.find(
-          (o) => String(o.value) === String(row.employment_status ?? 1),
-        );
-        return (
-          <Badge variant={option?.tone === "success" ? "success" : "muted"}>
-            {option?.label ?? "Active"}
-          </Badge>
-        );
+        const val = (row.employment_status ??
+          EMPLOYMENT_STATUS.ACTIVE) as EmploymentStatus;
+        const label = EMPLOYMENT_STATUS_LABELS[val] ?? "Active";
+        const tone = EMPLOYMENT_STATUS_TONES[val] ?? "muted";
+        return <StatusBadge status={val} label={label} tone={tone} />;
       },
     },
     {

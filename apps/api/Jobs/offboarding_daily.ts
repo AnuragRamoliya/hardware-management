@@ -21,6 +21,15 @@ import {
 } from '../Database/Schema';
 import { createActivityLog } from '../Utils/helpers';
 import { ClearancePdfService } from '../Services/clearance_pdf.service';
+import { RealtimeGateway } from '../Realtime/gateway';
+
+async function getTodayStr(now: Date = new Date()): Promise<string> {
+  const tzSetting = await app_settings.findOne({
+    where: { key: { [Op.in]: ['app.timezone', 'system.timezone', 'app_timezone'] }, status: 1 },
+  });
+  const tz = (tzSetting?.get('value') as string) || process.env.APP_TIMEZONE || 'Asia/Kolkata';
+  return new Intl.DateTimeFormat('en-CA', { timeZone: tz }).format(now);
+}
 
 /**
  * 1. Reminders on reminder_days before LWD to employee, manager and hardware owner
@@ -54,7 +63,7 @@ export async function runOffboardingReminders(now: Date = new Date()): Promise<n
   });
 
   let remindersSent = 0;
-  const todayStr: string = now.toISOString().split('T')[0] ?? '';
+  const todayStr = await getTodayStr(now);
 
   for (const c of openCases) {
     const lwd = new Date(String(c.get('last_working_date')));
@@ -131,17 +140,26 @@ export async function runLwdProcessing(now: Date = new Date()): Promise<{
   credentialsDisabled: number;
   loginsDisabled: number;
 }> {
-  const todayStr: string = now.toISOString().split('T')[0] ?? '';
+  const todayStr = await getTodayStr(now);
 
   // Fetch settings
   const revokeSwSetting = await app_settings.findOne({
-    where: { key: 'offboarding_auto_revoke_software', status: 1 },
+    where: {
+      key: { [Op.in]: ['offboarding.auto_revoke_software', 'offboarding_auto_revoke_software'] },
+      status: 1,
+    },
   });
   const disableCredSetting = await app_settings.findOne({
-    where: { key: 'offboarding_disable_credentials', status: 1 },
+    where: {
+      key: { [Op.in]: ['offboarding.auto_disable_credentials', 'offboarding_disable_credentials'] },
+      status: 1,
+    },
   });
   const disableLoginSetting = await app_settings.findOne({
-    where: { key: 'offboarding_disable_login_on_lwd', status: 1 },
+    where: {
+      key: { [Op.in]: ['offboarding.disable_login_on_lwd', 'offboarding_disable_login_on_lwd'] },
+      status: 1,
+    },
   });
 
   const autoRevokeSw = revokeSwSetting ? revokeSwSetting.get('value') === 'true' : true;
@@ -181,8 +199,10 @@ export async function runLwdProcessing(now: Date = new Date()): Promise<{
 
     // 2. Disable user login & revoke tokens
     if (autoDisableLogin && emp.user_id) {
-      await users.update({ status: 0 }, { where: { id: Number(emp.user_id) } });
-      await user_tokens.update({ is_revoked: 1 }, { where: { user_id: Number(emp.user_id) } });
+      const uId = Number(emp.user_id);
+      await users.update({ status: 0 }, { where: { id: uId } });
+      await user_tokens.update({ is_revoked: 1 }, { where: { user_id: uId } });
+      RealtimeGateway.getInstance().disconnectUser(uId, 'Employee reached last working date');
       loginsDisabled++;
     }
 
@@ -260,7 +280,7 @@ export async function runLwdProcessing(now: Date = new Date()): Promise<{
  * 3. After LWD: overdue asset tasks flagged, daily escalation to HR + super_admin
  */
 export async function runOverdueCheck(now: Date = new Date()): Promise<number> {
-  const todayStr: string = now.toISOString().split('T')[0] ?? '';
+  const todayStr = await getTodayStr(now);
 
   const overdueTasks = await offboarding_tasks.findAll({
     where: {
@@ -268,7 +288,7 @@ export async function runOverdueCheck(now: Date = new Date()): Promise<number> {
       task_status: {
         [Op.in]: [OFFBOARDING_TASK_STATUS.PENDING, OFFBOARDING_TASK_STATUS.IN_PROGRESS],
       },
-      due_date: { [Op.lt]: todayStr },
+      due_date: { [Op.lte]: todayStr },
       status: 1,
     },
     include: [
@@ -282,13 +302,13 @@ export async function runOverdueCheck(now: Date = new Date()): Promise<number> {
 
   if (overdueTasks.length === 0) return 0;
 
-  // Send escalation to HR and super_admin
-  const hrAndAdminUsers = await users.findAll({
-    where: { status: 1 },
-    include: [{ model: employees, as: 'role' }], // or roles join
-  });
-
   for (const t of overdueTasks) {
+    // Flag unreturned hardware tasks past LWD as exception
+    await t.update({
+      task_status: OFFBOARDING_TASK_STATUS.EXCEPTION,
+      outcome_notes: 'Unreturned hardware asset flagged as exception past LWD',
+    });
+
     const c = (t as any).case;
     const emp = c?.employee;
 
@@ -322,7 +342,7 @@ export async function runOverdueCheck(now: Date = new Date()): Promise<number> {
  * 4. When all mandatory tasks are done and LWD has passed: case -> pending_clearance + notify HR
  */
 export async function runPendingClearanceCheck(now: Date = new Date()): Promise<number> {
-  const todayStr: string = now.toISOString().split('T')[0] ?? '';
+  const todayStr = await getTodayStr(now);
 
   const autoIssueSetting = await app_settings.findOne({
     where: { key: 'offboarding_auto_issue_clearance', status: 1 },
@@ -347,7 +367,7 @@ export async function runPendingClearanceCheck(now: Date = new Date()): Promise<
     const tasks = ((c as any).tasks || []) as any[];
     const mandatoryTasks = tasks.filter((t) => Number(t.is_mandatory) === 1);
     const allDone = mandatoryTasks.every((t) => {
-      const s = Number(t.task_status);
+      const s = String(t.task_status);
       return s === OFFBOARDING_TASK_STATUS.COMPLETED || s === OFFBOARDING_TASK_STATUS.WAIVED;
     });
 
@@ -407,4 +427,12 @@ export async function runPendingClearanceCheck(now: Date = new Date()): Promise<
   }
 
   return clearedCount;
+}
+
+export async function runOffboardingDaily(now: Date = new Date()) {
+  const reminders = await runOffboardingReminders(now);
+  const lwd = await runLwdProcessing(now);
+  const overdue = await runOverdueCheck(now);
+  const pending = await runPendingClearanceCheck(now);
+  return { reminders, lwd, overdue, pending };
 }

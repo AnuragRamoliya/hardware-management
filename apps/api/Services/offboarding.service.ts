@@ -4,7 +4,9 @@ import {
   OFFBOARDING_CASE_STATUS,
   OFFBOARDING_TASK_TYPE,
   OFFBOARDING_TASK_STATUS,
+  TASK_PRIORITY,
   REQUEST_STATUS,
+  NUMERIC_TO_CASE_STATUS,
   type OffboardingCaseStatus,
   type OffboardingExitType,
 } from '@hm/shared';
@@ -258,10 +260,19 @@ export class OffboardingService {
         handoverUserId = chosen ? Number(chosen.get('id')) : actor.id;
       }
 
-      // 2. Set employee employment_status to NOTICE (2)
+      // 2. Set employee employment_status: if last_working_date < todayStr -> RESIGNED else NOTICE
+      const tzSetting = await app_settings.findOne({
+        where: { key: { [Op.in]: ['app.timezone', 'system.timezone', 'app_timezone'] }, status: 1 },
+        transaction,
+      });
+      const tz = (tzSetting?.get('value') as string) || process.env.APP_TIMEZONE || 'Asia/Kolkata';
+      const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: tz }).format(new Date());
+      const newStatus =
+        input.last_working_date < todayStr ? EMPLOYMENT_STATUS.RESIGNED : EMPLOYMENT_STATUS.NOTICE;
+
       await emp.update(
         {
-          employment_status: EMPLOYMENT_STATUS.NOTICE,
+          employment_status: newStatus,
           last_working_date: input.last_working_date,
           updated_by: actor.id,
         },
@@ -320,6 +331,7 @@ export class OffboardingService {
             title: `Return Hardware: ${assetTag}`,
             assigned_to: handoverUserId,
             task_status: OFFBOARDING_TASK_STATUS.PENDING,
+            priority: TASK_PRIORITY.HIGH,
             is_mandatory: 1,
             due_date: input.last_working_date,
             status: 1,
@@ -533,9 +545,14 @@ export class OffboardingService {
     const empWhere: Record<string | symbol, unknown> = { status: 1 };
 
     if (filters.case_status) {
+      const normalizeStatus = (val: unknown) =>
+        typeof val === 'number' && val in NUMERIC_TO_CASE_STATUS
+          ? NUMERIC_TO_CASE_STATUS[val as keyof typeof NUMERIC_TO_CASE_STATUS]
+          : String(val);
+
       where.case_status = Array.isArray(filters.case_status)
-        ? { [Op.in]: filters.case_status.map(Number) }
-        : Number(filters.case_status);
+        ? { [Op.in]: filters.case_status.map(normalizeStatus) }
+        : normalizeStatus(filters.case_status);
     }
 
     if (filters.employee_id) {
@@ -792,7 +809,7 @@ export class OffboardingService {
         throw new AppError(404, 'Offboarding case not found.');
       }
 
-      const caseStatus = Number(c.get('case_status'));
+      const caseStatus = String(c.get('case_status'));
       if (
         caseStatus === OFFBOARDING_CASE_STATUS.COMPLETED ||
         caseStatus === OFFBOARDING_CASE_STATUS.CANCELLED
@@ -897,7 +914,7 @@ export class OffboardingService {
         throw new AppError(404, 'Offboarding case not found.');
       }
 
-      if (Number(c.get('case_status')) === OFFBOARDING_CASE_STATUS.COMPLETED) {
+      if (String(c.get('case_status')) === OFFBOARDING_CASE_STATUS.COMPLETED) {
         throw new AppError(
           422,
           'Cannot withdraw an offboarding case that has already completed clearance.',
@@ -974,7 +991,7 @@ export class OffboardingService {
     });
   }
 
-  async complete(input: { id: number; clearance_notes?: string }, actor: UserInfo) {
+  async complete(input: { id: number; clearance_notes?: string; now?: Date }, actor: UserInfo) {
     return sequelize.transaction(async (transaction: Transaction) => {
       const c = await offboarding_cases.findByPk(input.id, {
         transaction,
@@ -996,7 +1013,7 @@ export class OffboardingService {
         throw new AppError(404, 'Offboarding case not found.');
       }
 
-      const caseStatus = Number(c.get('case_status'));
+      const caseStatus = String(c.get('case_status'));
       if (caseStatus === OFFBOARDING_CASE_STATUS.COMPLETED) {
         throw new AppError(409, 'Clearance certificate has already been issued for this case.');
       }
@@ -1005,7 +1022,7 @@ export class OffboardingService {
       const taskList = ((c as any).tasks || []) as any[];
       const unfulfilledMandatory = taskList.filter((t) => {
         const isMandatory = Number(t.is_mandatory) === 1;
-        const s = Number(t.task_status);
+        const s = String(t.task_status);
         return (
           isMandatory &&
           s !== OFFBOARDING_TASK_STATUS.COMPLETED &&
@@ -1022,10 +1039,10 @@ export class OffboardingService {
       }
 
       // Check LWD has passed
+      const now = input.now || new Date();
       const lwd = new Date(String(c.get('last_working_date')));
-      const today = new Date();
       // Allow completion on or after last working day
-      if (today < new Date(lwd.getFullYear(), lwd.getMonth(), lwd.getDate())) {
+      if (now < new Date(lwd.getFullYear(), lwd.getMonth(), lwd.getDate())) {
         throw new AppError(
           422,
           `Cannot issue clearance before the Last Working Day (${c.get('last_working_date')}).`,
@@ -1041,7 +1058,6 @@ export class OffboardingService {
 
       // Generate clearance number
       const clearanceNumber = `CLR-${c.get('case_no')}`;
-      const now = new Date();
 
       // Generate clearance and handover receipt PDFs
       const clearanceResult = await this.pdfService.generateClearancePdf(
@@ -1069,6 +1085,8 @@ export class OffboardingService {
           clearance_issued_at: now,
           clearance_file_path: clearanceResult.filePath,
           handover_receipt_file_path: handoverReceiptResult.filePath,
+          verification_code: clearanceResult.verificationCode,
+          verification_hash: clearanceResult.hash,
           notes: input.clearance_notes ? input.clearance_notes.trim() : c.get('notes'),
           updated_by: actor.id,
         },
@@ -1110,6 +1128,17 @@ export class OffboardingService {
 
       return plain(c);
     });
+  }
+
+  async issueClearance(
+    id: number,
+    actor: UserInfo,
+    options?: { clearance_notes?: string; now?: Date },
+  ) {
+    return this.complete(
+      { id, clearance_notes: options?.clearance_notes, now: options?.now },
+      actor,
+    );
   }
 
   async getClearancePdf(id: number, actor: UserInfo) {
@@ -1248,7 +1277,7 @@ export class OffboardingService {
       case: {
         id: Number(item.id),
         case_no: String(item.case_no),
-        case_status: Number(item.case_status),
+        case_status: String(item.case_status),
         last_working_date: String(item.last_working_date),
         days_left: Math.max(0, daysLeft),
         is_overdue: daysLeft < 0,
@@ -1278,18 +1307,28 @@ export class OffboardingService {
     };
   }
 
+  async verifyDocument(code: string) {
+    return this.pdfService.verifyDocument(code);
+  }
+
   private async selectHandoverUser(
     transaction?: Transaction,
   ): Promise<import('sequelize').Model | null> {
     const strategySetting = await app_settings.findOne({
-      where: { key: 'offboarding_handover_strategy', status: 1 },
+      where: {
+        key: { [Op.in]: ['offboarding.assignment_strategy', 'offboarding_handover_strategy'] },
+        status: 1,
+      },
       transaction,
     });
     const strategy = strategySetting ? String(strategySetting.get('value')) : 'least_loaded';
 
     if (strategy === 'fixed') {
       const fixedSetting = await app_settings.findOne({
-        where: { key: 'offboarding_fixed_handover_user_id', status: 1 },
+        where: {
+          key: { [Op.in]: ['offboarding.fixed_assignee_id', 'offboarding_fixed_handover_user_id'] },
+          status: 1,
+        },
         transaction,
       });
       if (fixedSetting && fixedSetting.get('value')) {
@@ -1298,19 +1337,25 @@ export class OffboardingService {
       }
     }
 
-    // Find all active hardware managers
-    const hwRole = await roles.findOne({ where: { type: 'hardware_manager' }, transaction });
-    if (!hwRole) {
-      const [[admin]] = await sequelize.query('SELECT * FROM users WHERE status = 1 LIMIT 1', {
-        transaction,
-      });
-      return admin ? users.build(admin as any, { isNewRecord: false }) : null;
-    }
-
-    const hwUsers = await users.findAll({
-      where: { role_id: Number(hwRole.get('id')), status: 1 },
+    // Find all active hardware managers or IT staff
+    const hwRoles = await roles.findAll({
+      where: {
+        [Op.or]: [
+          { type: { [Op.in]: ['hardware_manager', 'hardware', 'admin'] } },
+          { name: { [Op.in]: ['Hardware Manager', 'Hardware', 'Admin', 'Super Admin'] } },
+        ],
+      },
       transaction,
     });
+    const roleIds = hwRoles.map((r) => Number(r.get('id')));
+
+    const hwUsers =
+      roleIds.length > 0
+        ? await users.findAll({
+            where: { role_id: { [Op.in]: roleIds }, status: 1 },
+            transaction,
+          })
+        : [];
 
     if (hwUsers.length === 0) {
       const [[admin]] = await sequelize.query('SELECT * FROM users WHERE status = 1 LIMIT 1', {

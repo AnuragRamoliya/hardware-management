@@ -81,3 +81,9 @@ offboardingTemplateRouter.post(
   userAuth,
   routeHandler(() => controller.options()),
 );
+
+offboardingTemplateRouter.get(
+  '/options',
+  userAuth,
+  routeHandler(() => controller.options()),
+);

@@ -3,6 +3,10 @@ import {
   OFFBOARDING_TASK_TYPE,
   OFFBOARDING_TASK_STATUS,
   OFFBOARDING_CASE_STATUS,
+  REALTIME_EVENTS,
+  REALTIME_ROOMS,
+  NUMERIC_TO_TASK_TYPE,
+  NUMERIC_TO_TASK_STATUS,
 } from '@hm/shared';
 import { AppError } from '../Config/app_error';
 import {
@@ -17,6 +21,7 @@ import {
 import { createActivityLog, getPagination, getSorting } from '../Utils/helpers';
 import type { UserInfo } from '../Types/api';
 import { AssetAssignmentService } from './asset_assignment';
+import { realtimeService } from './realtime.service';
 
 const plain = (model: import('sequelize').Model) =>
   model.get({ plain: true }) as Record<string, unknown>;
@@ -47,11 +52,17 @@ export class OffboardingTasksService {
     }
 
     if (filters.task_type) {
-      where.task_type = Number(filters.task_type);
+      where.task_type =
+        typeof filters.task_type === 'number'
+          ? (NUMERIC_TO_TASK_TYPE as any)[filters.task_type] || filters.task_type
+          : filters.task_type;
     }
 
     if (filters.task_status) {
-      where.task_status = Number(filters.task_status);
+      where.task_status =
+        typeof filters.task_status === 'number'
+          ? (NUMERIC_TO_TASK_STATUS as any)[filters.task_status] || filters.task_status
+          : filters.task_status;
     }
 
     if (filters.case_id) {
@@ -157,20 +168,28 @@ export class OffboardingTasksService {
         throw new AppError(404, 'Offboarding task not found.');
       }
 
-      if (Number(task.get('task_type')) !== OFFBOARDING_TASK_TYPE.ASSET) {
+      const taskType = task.get('task_type');
+      if (
+        taskType !== OFFBOARDING_TASK_TYPE.ASSET &&
+        taskType !== 'asset' &&
+        Number(taskType) !== 1
+      ) {
         throw new AppError(422, 'Only hardware asset tasks can be received via this action.');
       }
 
-      const currentStatus = Number(task.get('task_status'));
+      const currentStatus = task.get('task_status');
       if (
         currentStatus === OFFBOARDING_TASK_STATUS.COMPLETED ||
         currentStatus === OFFBOARDING_TASK_STATUS.WAIVED ||
-        currentStatus === OFFBOARDING_TASK_STATUS.CANCELLED
+        currentStatus === OFFBOARDING_TASK_STATUS.CANCELLED ||
+        currentStatus === 'completed' ||
+        currentStatus === 'waived' ||
+        currentStatus === 'cancelled' ||
+        Number(currentStatus) === 3 ||
+        Number(currentStatus) === 4 ||
+        Number(currentStatus) === 6
       ) {
-        throw new AppError(
-          409,
-          `Task is already ${currentStatus === OFFBOARDING_TASK_STATUS.COMPLETED ? 'completed' : 'closed'}.`,
-        );
+        throw new AppError(409, 'Task is already closed.');
       }
 
       const assignmentId = task.get('ref_id');
@@ -215,8 +234,120 @@ export class OffboardingTasksService {
         transaction,
       });
 
+      realtimeService.publish({
+        event: REALTIME_EVENTS.OFFBOARDING_TASK_UPDATED,
+        rooms: [REALTIME_ROOMS.queueHandover(), REALTIME_ROOMS.offboarding(caseId)],
+        data: plain(task),
+        actor: { id: actor.id, name: `${actor.first_name} ${actor.last_name || ''}`.trim() },
+        transaction,
+      });
+
       return plain(task);
     });
+  }
+
+  async receiveByTag(
+    input: { asset_tag: string; condition?: string; notes?: string },
+    actor: UserInfo,
+  ) {
+    if (!input.asset_tag || !input.asset_tag.trim()) {
+      throw new AppError(422, 'Asset tag is required.');
+    }
+    const tag = input.asset_tag.trim();
+    const asset = await assets.findOne({
+      where: { asset_tag: tag, status: 1 },
+    });
+    if (!asset) {
+      throw new AppError(404, `Asset with tag "${tag}" not found.`);
+    }
+
+    const assignment = await asset_assignments.findOne({
+      where: { asset_id: Number(asset.get('id')), returned_at: null, status: 1 },
+    });
+    if (!assignment) {
+      throw new AppError(422, `Asset "${tag}" has no active assignment.`);
+    }
+
+    const task = await offboarding_tasks.findOne({
+      where: {
+        task_type: {
+          [Op.in]: [OFFBOARDING_TASK_TYPE.ASSET, 'asset', 1],
+        },
+        ref_id: Number(assignment.get('id')),
+        task_status: {
+          [Op.in]: [
+            OFFBOARDING_TASK_STATUS.PENDING,
+            OFFBOARDING_TASK_STATUS.IN_PROGRESS,
+            OFFBOARDING_TASK_STATUS.EXCEPTION,
+            'pending',
+            'in_progress',
+            'exception',
+            1,
+            2,
+            5,
+          ],
+        },
+        status: 1,
+      },
+      include: [
+        {
+          model: offboarding_cases,
+          as: 'case',
+          include: [{ model: employees, as: 'employee' }],
+        },
+      ],
+    });
+
+    if (!task) {
+      throw new AppError(404, `No pending offboarding return task found for asset tag "${tag}".`);
+    }
+
+    const condition = input.condition?.toLowerCase() || 'good';
+    const isDamaged = ['damaged', 'poor', 'broken', 'repair'].includes(condition);
+    const toStatus = isDamaged ? 'in_repair' : 'available';
+
+    const receivedTask = await this.receive(
+      {
+        task_id: Number(task.get('id')),
+        return_condition: input.condition || 'good',
+        to_status: toStatus,
+        notes: input.notes || `Received via scan return (Condition: ${condition})`,
+      },
+      actor,
+    );
+
+    const caseId = Number(task.get('case_id'));
+    const remainingTasksCount = await offboarding_tasks.count({
+      where: {
+        case_id: caseId,
+        task_status: {
+          [Op.in]: [
+            OFFBOARDING_TASK_STATUS.PENDING,
+            OFFBOARDING_TASK_STATUS.IN_PROGRESS,
+            OFFBOARDING_TASK_STATUS.EXCEPTION,
+            'pending',
+            'in_progress',
+            'exception',
+            1,
+            2,
+            5,
+          ],
+        },
+        status: 1,
+      },
+    });
+
+    const updatedCase = await offboarding_cases.findByPk(caseId, {
+      include: [{ model: employees, as: 'employee' }],
+    });
+
+    return {
+      success: true,
+      task: receivedTask,
+      case: plain(updatedCase!),
+      asset: plain(asset),
+      remaining_tasks_count: remainingTasksCount,
+    };
   }
 
   async bulkReceive(
@@ -257,7 +388,7 @@ export class OffboardingTasksService {
         throw new AppError(404, 'Offboarding task not found.');
       }
 
-      const currentStatus = Number(task.get('task_status'));
+      const currentStatus = String(task.get('task_status'));
       if (
         currentStatus === OFFBOARDING_TASK_STATUS.COMPLETED ||
         currentStatus === OFFBOARDING_TASK_STATUS.CANCELLED
@@ -309,7 +440,7 @@ export class OffboardingTasksService {
         throw new AppError(404, 'Offboarding task not found.');
       }
 
-      const currentStatus = Number(task.get('task_status'));
+      const currentStatus = String(task.get('task_status'));
       if (currentStatus === OFFBOARDING_TASK_STATUS.CANCELLED) {
         throw new AppError(409, 'Cancelled task cannot be waived.');
       }
@@ -358,7 +489,7 @@ export class OffboardingTasksService {
         throw new AppError(404, 'Offboarding task not found.');
       }
 
-      const taskType = Number(task.get('task_type'));
+      const taskType = String(task.get('task_type'));
       const toStatus = input.to_status || 'lost';
 
       if (taskType === OFFBOARDING_TASK_TYPE.ASSET && task.get('ref_id')) {
@@ -537,7 +668,7 @@ export class OffboardingTasksService {
     });
     if (!c) return;
 
-    const currentCaseStatus = Number(c.get('case_status'));
+    const currentCaseStatus = String(c.get('case_status'));
 
     // Move to IN_PROGRESS on first task touch
     if (currentCaseStatus === OFFBOARDING_CASE_STATUS.OPEN) {
@@ -552,7 +683,7 @@ export class OffboardingTasksService {
 
     const mandatoryTasks = allTasks.filter((t) => Number(t.get('is_mandatory')) === 1);
     const allMandatoryDone = mandatoryTasks.every((t) => {
-      const s = Number(t.get('task_status'));
+      const s = String(t.get('task_status'));
       return s === OFFBOARDING_TASK_STATUS.COMPLETED || s === OFFBOARDING_TASK_STATUS.WAIVED;
     });
 

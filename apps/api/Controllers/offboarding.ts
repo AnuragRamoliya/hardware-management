@@ -101,6 +101,14 @@ export class OffboardingController {
     return tasksService.scan(String(req.body.asset_tag));
   }
 
+  async receiveByTag(req: Request) {
+    return tasksService.receiveByTag(req.body, getActor(req));
+  }
+
+  async verifyDocument(req: Request) {
+    return offboardingService.verifyDocument(String(req.body.code));
+  }
+
   // PDF Streams
   async downloadClearance(req: Request, res: Response) {
     const filePath = await offboardingService.getClearancePdf(Number(req.params.id), getActor(req));

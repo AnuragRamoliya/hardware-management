@@ -6,6 +6,7 @@ import { endPoints } from "@/api/endpoint";
 interface ApiOptions<TBody = unknown> {
   url: string;
   body?: TBody;
+  data?: TBody;
   headers?: Record<string, string>;
   params?: Record<string, string | number | boolean>;
   method: Method;
@@ -52,7 +53,7 @@ export async function callApi<T, TBody = unknown>(
   const config: AxiosRequestConfig<TBody> = {
     url: `${API_URL}${options.url}`,
     method: options.method,
-    data: options.body,
+    data: options.data ?? options.body,
     params: options.params,
     timeout: 120000,
     signal: options.signal,

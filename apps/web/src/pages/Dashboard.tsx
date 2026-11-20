@@ -21,7 +21,17 @@ import {
   useCredentialAccessLogsList,
 } from "@/hooks/queries/credentials";
 import { useRequestStats } from "@/hooks/queries/requests";
-import { Inbox, UserCheck, AlertTriangle, PackageX, Clock } from "lucide-react";
+import { useOffboardingCases } from "@/hooks/queries/offboarding";
+import {
+  Inbox,
+  UserCheck,
+  AlertTriangle,
+  PackageX,
+  Clock,
+  UserX,
+  QrCode,
+  FileCheck,
+} from "lucide-react";
 
 type Summary = {
   totalAssets: number;
@@ -70,6 +80,12 @@ export function Dashboard() {
     filters: {},
   });
   const { data: requestStats } = useRequestStats();
+  const offboardingCasesQuery = useOffboardingCases({
+    currentPage: 1,
+    itemsPerPage: 1,
+    sortBy: [],
+    filters: {},
+  });
 
   const seatsUsedPercent = summary?.seatsTotal
     ? Math.min(100, (summary.seatsUsed / summary.seatsTotal) * 100)
@@ -301,6 +317,53 @@ export function Dashboard() {
               <span>Creation to fulfilment</span>
             </div>
           </Card>
+        </div>
+      </section>
+
+      {/* Offboarding Lifecycle Section */}
+      <section className="mt-6 mb-8">
+        <h2 className="text-base font-semibold mb-3 flex items-center justify-between">
+          <span>Offboarding & Returns Lifecycle</span>
+          <Link
+            to={PATHS.OFFBOARDING_CASES}
+            className="text-xs font-normal text-primary hover:underline"
+          >
+            View all cases →
+          </Link>
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Link
+            to={PATHS.OFFBOARDING_CASES}
+            className="group block transition-opacity hover:opacity-90"
+          >
+            <StatCard
+              label="Active Offboarding Cases"
+              value={offboardingCasesQuery.data?.pagination?.totalItems ?? 0}
+              icon={<UserX className="h-4 w-4 text-warning" />}
+            />
+          </Link>
+
+          <Link
+            to={PATHS.OFFBOARDING_SCAN_RETURNS}
+            className="group block transition-opacity hover:opacity-90"
+          >
+            <StatCard
+              label="Hardware Scan Check-In"
+              value="Station Ready"
+              icon={<QrCode className="h-4 w-4 text-primary" />}
+            />
+          </Link>
+
+          <Link
+            to={PATHS.OFFBOARDING_TEMPLATES}
+            className="group block transition-opacity hover:opacity-90"
+          >
+            <StatCard
+              label="Checklist Templates"
+              value="Configured"
+              icon={<FileCheck className="h-4 w-4 text-success" />}
+            />
+          </Link>
         </div>
       </section>
     </>

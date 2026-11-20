@@ -38,5 +38,12 @@ export const PATHS = {
   PORTAL_REQUESTS: "/portal/requests",
   PORTAL_REQUEST_DETAIL: "/portal/requests/:id",
   PORTAL_PROFILE: "/portal/profile",
+  PORTAL_OFFBOARDING: "/portal/offboarding",
+  OFFBOARDING_CASES: "/offboarding/cases",
+  OFFBOARDING_CASE_DETAIL: "/offboarding/cases/:id",
+  OFFBOARDING_SCAN_RETURNS: "/offboarding/scan-returns",
+  OFFBOARDING_TEMPLATES: "/offboarding/templates",
+  VERIFY_DOCUMENT: "/verify-document",
+  NOTIFICATION_PREFERENCES: "/notifications/preferences",
   NOT_FOUND: "*",
 } as const;

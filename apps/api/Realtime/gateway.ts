@@ -21,15 +21,24 @@ import {
 import { authorizeRoomJoin } from './rooms';
 
 export class RealtimeGateway {
+  private static instance: RealtimeGateway | null = null;
   private io: SocketIOServer | null = null;
   private redisPubClient: Redis | null = null;
   private redisSubClient: Redis | null = null;
   private roomPresenceMap = new Map<string, Map<number, PresenceUser>>();
   private typingTimers = new Map<string, NodeJS.Timeout>();
+  private userTypingLastSent = new Map<string, number>();
   private eventCounter = 0;
   private lastMinuteReset = Date.now();
   private eventsPerMinute = 0;
   private startedAt = Date.now();
+
+  public static getInstance(): RealtimeGateway {
+    if (!RealtimeGateway.instance) {
+      RealtimeGateway.instance = realtimeGateway;
+    }
+    return RealtimeGateway.instance;
+  }
 
   /**
    * Initializes Socket.IO on the provided HTTP server.
@@ -106,7 +115,8 @@ export class RealtimeGateway {
           logger.warn(
             `Room join denied for user ${user.id} to room "${room}": ${authResult.reason}`,
           );
-          if (callback) callback({ ok: false, error: authResult.reason || 'Unauthorized' });
+          if (callback) callback({ ok: false, error: authResult.reason || 'UNAUTHORIZED_ROOM' });
+          socket.emit('error', { error: 'UNAUTHORIZED_ROOM', room, reason: authResult.reason });
           return;
         }
 
@@ -147,6 +157,15 @@ export class RealtimeGateway {
       if (!room || typeof room !== 'string') return;
       if (!socket.rooms.has(room)) return; // Socket must be in the room
 
+      // Rate limit typing events: max 1 event per 2s per user/room
+      const now = Date.now();
+      const typingKey = `${room}:${user.id}`;
+      const lastSent = this.userTypingLastSent.get(typingKey) || 0;
+      if (now - lastSent < 2000) {
+        return;
+      }
+      this.userTypingLastSent.set(typingKey, now);
+
       const typingPayload: TypingPayload = {
         room,
         userId: user.id,
@@ -164,7 +183,7 @@ export class RealtimeGateway {
         data: typingPayload,
       });
 
-      // Auto-expire typing status after 5 seconds if client didn't send stop
+      // Auto-expire typing status after 3 seconds if client didn't send stop
       const timerKey = `${room}:${user.id}`;
       const existingTimer = this.typingTimers.get(timerKey);
       if (existingTimer) clearTimeout(existingTimer);
@@ -180,7 +199,7 @@ export class RealtimeGateway {
             ts: Date.now(),
             data: { ...typingPayload, isTyping: false },
           });
-        }, 5000),
+        }, 3000),
       );
     });
 
@@ -334,7 +353,7 @@ export class RealtimeGateway {
     for (const socketId of socketIds) {
       const socket = this.io.sockets.sockets.get(socketId);
       if (socket) {
-        socket.emit('session.revoked', { reason });
+        socket.emit(REALTIME_EVENTS.SESSION_REVOKED, { reason });
         socket.disconnect(true);
       }
     }
@@ -348,7 +367,7 @@ export class RealtimeGateway {
     if (!this.io) return;
     for (const [, socket] of this.io.sockets.sockets) {
       if (socket.data?.user?.token === token) {
-        socket.emit('session.revoked', { reason });
+        socket.emit(REALTIME_EVENTS.SESSION_REVOKED, { reason });
         socket.disconnect(true);
       }
     }

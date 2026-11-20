@@ -57,7 +57,15 @@ router.get('/notification/preferences', userAuth, (req, res) =>
   controller.getPreferences(req, res),
 );
 
+router.post('/notifications/preferences/get', userAuth, (req, res) =>
+  controller.getPreferences(req, res),
+);
+
 router.put('/notification/preferences', decryptPayload, userAuth, (req, res) =>
+  controller.updatePreferences(req, res),
+);
+
+router.post('/notifications/preferences/update', decryptPayload, userAuth, (req, res) =>
   controller.updatePreferences(req, res),
 );
 

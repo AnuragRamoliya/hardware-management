@@ -24,6 +24,7 @@ import {
   Sun,
   Users,
   UsersRound,
+  UserX,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -94,6 +95,12 @@ const navigation: NavigationItem[] = [
     label: "My requests",
     path: PATHS.PORTAL_REQUESTS,
     icon: Inbox,
+    roles: ["employee"],
+  },
+  {
+    label: "My offboarding",
+    path: PATHS.PORTAL_OFFBOARDING,
+    icon: UserX,
     roles: ["employee"],
   },
   {
@@ -188,6 +195,33 @@ const navigation: NavigationItem[] = [
     icon: Inbox,
     roles: ["admin", "hardware", "hr"],
     permission: "request",
+  },
+  {
+    label: "Offboarding",
+    path: PATHS.OFFBOARDING_CASES,
+    icon: UserX,
+    roles: ["admin", "hardware", "hr"],
+    permission: "offboarding_case",
+    children: [
+      {
+        label: "Offboarding cases",
+        path: PATHS.OFFBOARDING_CASES,
+        roles: ["admin", "hardware", "hr"],
+        permission: "offboarding_case",
+      },
+      {
+        label: "Scan returns",
+        path: PATHS.OFFBOARDING_SCAN_RETURNS,
+        roles: ["admin", "hardware"],
+        permission: "offboarding_task",
+      },
+      {
+        label: "Checklist templates",
+        path: PATHS.OFFBOARDING_TEMPLATES,
+        roles: ["admin", "hr"],
+        permission: "offboarding_template",
+      },
+    ],
   },
   {
     label: "Organization",
@@ -466,7 +500,7 @@ export function AppShell() {
         <div className="flex-1 overflow-y-auto px-3 py-4">
           {!isCollapsed && (
             <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[.14em] text-muted-foreground/80">
-              Workspace
+              {role === "employee" ? "Portal" : "Workspace"}
             </p>
           )}
           <nav aria-label="Main navigation" className="space-y-1">
@@ -777,6 +811,13 @@ export function AppShell() {
                     onClick={() => setProfileOpen(false)}
                   >
                     Profile settings
+                  </Link>
+                  <Link
+                    to={PATHS.NOTIFICATION_PREFERENCES}
+                    className="block rounded px-3 py-2 text-sm hover:bg-muted"
+                    onClick={() => setProfileOpen(false)}
+                  >
+                    Notification preferences
                   </Link>
                   <button
                     className="w-full rounded px-3 py-2 text-left text-sm text-danger hover:bg-muted"

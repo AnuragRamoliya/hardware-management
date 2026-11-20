@@ -2,6 +2,9 @@ import PDFDocument from 'pdfkit';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { offboarding_cases, employees, users, departments, designations } from '../Database/Schema';
+import { AppError } from '../Config/app_error';
+import { OFFBOARDING_TASK_TYPE, OFFBOARDING_TASK_STATUS } from '@hm/shared';
 
 export class ClearancePdfService {
   private ensureStorageDir(): string {
@@ -15,7 +18,7 @@ export class ClearancePdfService {
   async generateClearancePdf(
     caseRecord: any,
     settings: Record<string, string>,
-  ): Promise<{ filePath: string; fileName: string; hash: string }> {
+  ): Promise<{ filePath: string; fileName: string; hash: string; verificationCode: string }> {
     const storageDir = this.ensureStorageDir();
     const fileName = `Clearance_${caseRecord.case_no}_${Date.now()}.pdf`;
     const fullPath = path.join(storageDir, fileName);
@@ -82,7 +85,35 @@ export class ClearancePdfService {
 
     // Section 1: Hardware Assets Handover
     const tasks = caseRecord.tasks || [];
-    const assetTasks = tasks.filter((t: any) => t.task_type === 1);
+    const isAsset = (t: any) =>
+      t.task_type === OFFBOARDING_TASK_TYPE.ASSET || t.task_type === 1 || t.task_type === 'asset';
+    const isSoftware = (t: any) =>
+      t.task_type === OFFBOARDING_TASK_TYPE.SOFTWARE ||
+      t.task_type === 2 ||
+      t.task_type === 'software';
+    const isCred = (t: any) =>
+      t.task_type === OFFBOARDING_TASK_TYPE.CREDENTIAL ||
+      t.task_type === 3 ||
+      t.task_type === 'credential';
+    const isReq = (t: any) =>
+      t.task_type === OFFBOARDING_TASK_TYPE.REQUEST ||
+      t.task_type === 4 ||
+      t.task_type === 'request';
+    const isChecklist = (t: any) =>
+      t.task_type === OFFBOARDING_TASK_TYPE.CHECKLIST ||
+      t.task_type === 5 ||
+      t.task_type === 'checklist';
+
+    const isWaived = (t: any) =>
+      t.task_status === OFFBOARDING_TASK_STATUS.WAIVED ||
+      t.task_status === 4 ||
+      t.task_status === 'waived';
+    const isException = (t: any) =>
+      t.task_status === OFFBOARDING_TASK_STATUS.EXCEPTION ||
+      t.task_status === 5 ||
+      t.task_status === 'exception';
+
+    const assetTasks = tasks.filter(isAsset);
     doc
       .fontSize(11)
       .font('Helvetica-Bold')
@@ -97,8 +128,7 @@ export class ClearancePdfService {
         .text('No company hardware assets were assigned to this employee.');
     } else {
       assetTasks.forEach((t: any) => {
-        const statusText =
-          t.task_status === 4 ? '[WAIVED]' : t.task_status === 5 ? '[EXCEPTION]' : '[RETURNED]';
+        const statusText = isWaived(t) ? '[WAIVED]' : isException(t) ? '[EXCEPTION]' : '[RETURNED]';
         const cond = t.return_condition ? `(Condition: ${t.return_condition})` : '';
         const notes = t.outcome_notes ? ` - ${t.outcome_notes}` : '';
         doc
@@ -111,7 +141,7 @@ export class ClearancePdfService {
     doc.moveDown(0.6);
 
     // Section 2: Software Licenses
-    const softwareTasks = tasks.filter((t: any) => t.task_type === 2);
+    const softwareTasks = tasks.filter(isSoftware);
     doc
       .fontSize(11)
       .font('Helvetica-Bold')
@@ -126,7 +156,7 @@ export class ClearancePdfService {
         .text('No licensed software seats were allocated to this employee.');
     } else {
       softwareTasks.forEach((t: any) => {
-        const statusText = t.task_status === 4 ? '[WAIVED]' : '[REVOKED]';
+        const statusText = isWaived(t) ? '[WAIVED]' : '[REVOKED]';
         doc
           .fontSize(8.5)
           .font('Helvetica')
@@ -137,7 +167,7 @@ export class ClearancePdfService {
     doc.moveDown(0.6);
 
     // Section 3: Credentials & Access
-    const credTasks = tasks.filter((t: any) => t.task_type === 3);
+    const credTasks = tasks.filter(isCred);
     doc
       .fontSize(11)
       .font('Helvetica-Bold')
@@ -152,7 +182,7 @@ export class ClearancePdfService {
         .text('No company login credentials were registered for this employee.');
     } else {
       credTasks.forEach((t: any) => {
-        const statusText = t.task_status === 4 ? '[WAIVED]' : '[DISABLED]';
+        const statusText = isWaived(t) ? '[WAIVED]' : '[DISABLED]';
         doc
           .fontSize(8.5)
           .font('Helvetica')
@@ -163,7 +193,7 @@ export class ClearancePdfService {
     doc.moveDown(0.6);
 
     // Section 4: Open Requests Cancelled
-    const reqTasks = tasks.filter((t: any) => t.task_type === 4);
+    const reqTasks = tasks.filter(isReq);
     if (reqTasks.length > 0) {
       doc
         .fontSize(11)
@@ -182,7 +212,7 @@ export class ClearancePdfService {
     }
 
     // Section 5: Checklist Items
-    const checklistTasks = tasks.filter((t: any) => t.task_type === 5);
+    const checklistTasks = tasks.filter(isChecklist);
     if (checklistTasks.length > 0) {
       doc
         .fontSize(11)
@@ -191,8 +221,11 @@ export class ClearancePdfService {
         .text(`5. Offboarding Checklist Items (${checklistTasks.length})`);
       doc.moveDown(0.3);
       checklistTasks.forEach((t: any) => {
-        const statusText =
-          t.task_status === 4 ? '[WAIVED]' : t.task_status === 3 ? '[COMPLETED]' : '[PENDING]';
+        const statusText = isWaived(t)
+          ? '[WAIVED]'
+          : t.task_status === 3 || t.task_status === 'completed'
+            ? '[COMPLETED]'
+            : '[PENDING]';
         const notes = t.waive_reason
           ? ` (Reason: ${t.waive_reason})`
           : t.outcome_notes
@@ -235,17 +268,31 @@ export class ClearancePdfService {
       .text('IT & Infrastructure Department', 375, signY + 18);
 
     // Verification Hash & Footer
+    const year = new Date().getFullYear();
+    const caseId = Number(caseRecord.id);
+    const randomHex = crypto.randomBytes(3).toString('hex').toUpperCase();
+    const verificationCode = caseRecord.verification_code || `CLR-${year}-${caseId}-${randomHex}`;
+    const portalUrl = settings.portal_url || process.env.APP_URL || 'http://localhost:5173';
+
     const hash = crypto
       .createHash('sha256')
-      .update(`${caseRecord.case_no}_${caseRecord.employee_id}_${Date.now()}`)
+      .update(
+        `${caseRecord.case_no}_${emp.employee_code || ''}_${caseRecord.last_working_date}_${verificationCode}`,
+      )
       .digest('hex');
+
     doc
       .fontSize(7)
       .font('Helvetica')
-      .fillColor('#9ca3af')
-      .text(`Verification Hash: ${hash} | Generated at: ${new Date().toISOString()}`, 40, 760, {
-        align: 'center',
-      });
+      .fillColor('#6b7280')
+      .text(
+        `Document Verification Code: ${verificationCode} | Verify at: ${portalUrl}/verify-document | SHA-256: ${hash}`,
+        40,
+        760,
+        {
+          align: 'center',
+        },
+      );
 
     doc.end();
 
@@ -254,7 +301,7 @@ export class ClearancePdfService {
       writeStream.on('error', reject);
     });
 
-    return { filePath: fullPath, fileName, hash };
+    return { filePath: fullPath, fileName, hash, verificationCode };
   }
 
   async generateHandoverReceiptPdf(
@@ -392,5 +439,51 @@ export class ClearancePdfService {
     });
 
     return { filePath: fullPath, fileName, hash };
+  }
+
+  async verifyDocument(code: string) {
+    if (!code || !code.trim()) {
+      throw new AppError(422, 'Verification code is required.');
+    }
+    const cleanCode = code.trim();
+    const caseRecord = await offboarding_cases.findOne({
+      where: { verification_code: cleanCode, status: 1 },
+      include: [
+        {
+          model: employees,
+          as: 'employee',
+          include: [
+            { model: departments, as: 'department' },
+            { model: designations, as: 'designation' },
+          ],
+        },
+        { model: users, as: 'handover_user' },
+      ],
+    });
+
+    if (!caseRecord) {
+      throw new AppError(404, 'Invalid verification code or clearance certificate not found.');
+    }
+
+    const emp = (caseRecord as any).employee;
+    return {
+      valid: true,
+      verified: true,
+      verification_code: cleanCode,
+      verification_hash: caseRecord.get('verification_hash'),
+      hash: caseRecord.get('verification_hash'),
+      case_no: caseRecord.get('case_no'),
+      case_status: caseRecord.get('case_status'),
+      clearance_number: caseRecord.get('clearance_number') || `CLR-${caseRecord.get('case_no')}`,
+      clearance_issued_at: caseRecord.get('clearance_issued_at'),
+      last_working_date: caseRecord.get('last_working_date'),
+      employee: {
+        name: emp ? `${emp.first_name} ${emp.last_name || ''}`.trim() : 'Unknown',
+        employee_code: emp?.employee_code || '—',
+        department: emp?.department?.name || '—',
+        designation: emp?.designation?.name || '—',
+      },
+      employee_name: emp ? `${emp.first_name} ${emp.last_name || ''}`.trim() : 'Unknown',
+    };
   }
 }

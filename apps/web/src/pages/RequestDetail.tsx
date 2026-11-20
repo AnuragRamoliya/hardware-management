@@ -36,6 +36,7 @@ import {
   useTakeRequest,
   useAddRequestComment,
 } from "@/hooks/queries/requests";
+import { useRealtimeRoom, useTypingIndicator } from "@/lib/realtime";
 import {
   ReviewRequestDialog,
   FulfilRequestDialog,
@@ -61,6 +62,9 @@ export function RequestDetail() {
   // Comment state
   const [newComment, setNewComment] = useState("");
   const [isInternal, setIsInternal] = useState(false);
+  const requestRoom = id ? `request:${id}` : undefined;
+  useRealtimeRoom(requestRoom);
+  const { typingUsers, emitTyping } = useTypingIndicator(requestRoom);
 
   // Dialog states
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -462,6 +466,15 @@ export function RequestDetail() {
                   </div>
                 ))
               )}
+
+              {typingUsers.length > 0 && (
+                <div className="flex items-center gap-2 rounded-md bg-muted/40 p-2 text-xs italic text-muted-foreground animate-pulse">
+                  <span>
+                    {typingUsers.join(", ")}{" "}
+                    {typingUsers.length === 1 ? "is" : "are"} typing...
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Post comment form */}
@@ -492,7 +505,10 @@ export function RequestDetail() {
               <Textarea
                 rows={3}
                 value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
+                onChange={(e) => {
+                  setNewComment(e.target.value);
+                  emitTyping(Boolean(e.target.value.trim()));
+                }}
                 placeholder={
                   isInternal
                     ? "Write staff-only internal note..."

@@ -163,6 +163,41 @@ const PortalAccounts = lazy(() =>
     default: module.PortalAccounts,
   })),
 );
+const OffboardingCases = lazy(() =>
+  import("@/pages/OffboardingCases").then((module) => ({
+    default: module.OffboardingCases,
+  })),
+);
+const OffboardingCaseDetail = lazy(() =>
+  import("@/pages/OffboardingCaseDetail").then((module) => ({
+    default: module.OffboardingCaseDetail,
+  })),
+);
+const ScanReturns = lazy(() =>
+  import("@/pages/ScanReturns").then((module) => ({
+    default: module.ScanReturns,
+  })),
+);
+const OffboardingTemplates = lazy(() =>
+  import("@/pages/OffboardingTemplates").then((module) => ({
+    default: module.OffboardingTemplates,
+  })),
+);
+const PortalOffboarding = lazy(() =>
+  import("@/pages/PortalOffboarding").then((module) => ({
+    default: module.PortalOffboarding,
+  })),
+);
+const VerifyDocument = lazy(() =>
+  import("@/pages/VerifyDocument").then((module) => ({
+    default: module.VerifyDocument,
+  })),
+);
+const NotificationPreferences = lazy(() =>
+  import("@/pages/NotificationPreferences").then((module) => ({
+    default: module.NotificationPreferences,
+  })),
+);
 const Requests = lazy(() =>
   import("@/pages/Requests").then((module) => ({
     default: module.Requests,
@@ -442,6 +477,54 @@ export const routesSection = createBrowserRouter([
               {
                 path: PATHS.PORTAL_PROFILE,
                 element: page(<Profile />, ["employee"]),
+              },
+              {
+                path: PATHS.OFFBOARDING_CASES,
+                element: page(
+                  <OffboardingCases />,
+                  ["admin", "hardware", "hr"],
+                  "offboarding_case",
+                ),
+              },
+              {
+                path: PATHS.OFFBOARDING_CASE_DETAIL,
+                element: page(
+                  <OffboardingCaseDetail />,
+                  ["admin", "hardware", "hr"],
+                  "offboarding_case",
+                ),
+              },
+              {
+                path: PATHS.OFFBOARDING_SCAN_RETURNS,
+                element: page(
+                  <ScanReturns />,
+                  ["admin", "hardware"],
+                  "offboarding_task",
+                ),
+              },
+              {
+                path: PATHS.OFFBOARDING_TEMPLATES,
+                element: page(
+                  <OffboardingTemplates />,
+                  ["admin", "hr"],
+                  "offboarding_template",
+                ),
+              },
+              {
+                path: PATHS.PORTAL_OFFBOARDING,
+                element: page(<PortalOffboarding />, ["employee"]),
+              },
+              {
+                path: PATHS.NOTIFICATION_PREFERENCES,
+                element: page(<NotificationPreferences />),
+              },
+              {
+                path: PATHS.VERIFY_DOCUMENT,
+                element: (
+                  <Suspense fallback={<RouteLoading />}>
+                    <VerifyDocument />
+                  </Suspense>
+                ),
               },
             ],
           },

@@ -78,6 +78,24 @@ offboardingRouter.put(
 );
 
 offboardingRouter.put(
+  ['/update/:id', '/cases/:id'],
+  decryptPayload,
+  userAuth,
+  offboardingWrite,
+  validate([
+    param('id').isInt({ min: 1 }).toInt(),
+    body('last_working_date').optional().isDate(),
+    body('handover_to').optional().isInt({ min: 1 }).toInt(),
+    body('notes').optional().isString(),
+    body('reason').optional().isString(),
+  ]),
+  routeHandler((req) => {
+    req.body.id = Number(req.params.id);
+    return controller.update(req);
+  }),
+);
+
+offboardingRouter.put(
   '/cancel',
   decryptPayload,
   userAuth,
@@ -206,6 +224,37 @@ offboardingRouter.post(
     body('assigned_to').optional().isInt({ min: 1 }).toInt(),
   ]),
   routeHandler((req) => controller.addTask(req)),
+);
+
+offboardingRouter.post(
+  '/receive-by-tag',
+  decryptPayload,
+  userAuth,
+  offboardingWrite,
+  validate([
+    body('asset_tag').isString().trim().notEmpty(),
+    body('condition').optional().isString(),
+    body('notes').optional().isString(),
+  ]),
+  routeHandler((req) => controller.receiveByTag(req)),
+);
+
+offboardingRouter.post(
+  '/verify-document',
+  validate([body('code').isString().trim().notEmpty()]),
+  routeHandler((req) => controller.verifyDocument(req)),
+);
+
+offboardingRouter.put(
+  ['/task/update/:id', '/tasks/:id'],
+  decryptPayload,
+  userAuth,
+  offboardingWrite,
+  validate([param('id').isInt({ min: 1 }).toInt()]),
+  routeHandler((req) => {
+    req.body.task_id = Number(req.params.id);
+    return controller.completeTask(req);
+  }),
 );
 
 offboardingRouter.post(

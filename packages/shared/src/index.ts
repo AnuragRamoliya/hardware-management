@@ -894,38 +894,111 @@ export interface RequestStatsDto {
 // ============================================================================
 
 export const OFFBOARDING_CASE_STATUS = {
-  OPEN: 1,
-  IN_PROGRESS: 2,
-  PENDING_CLEARANCE: 3,
-  COMPLETED: 4,
-  CANCELLED: 5,
+  OPEN: "open",
+  IN_PROGRESS: "in_progress",
+  PENDING_CLEARANCE: "pending_clearance",
+  COMPLETED: "completed",
+  CANCELLED: "cancelled",
 } as const;
 
 export type OffboardingCaseStatus =
   (typeof OFFBOARDING_CASE_STATUS)[keyof typeof OFFBOARDING_CASE_STATUS];
 
 export const OFFBOARDING_TASK_TYPE = {
-  ASSET: 1,
-  SOFTWARE: 2,
-  CREDENTIAL: 3,
-  REQUEST: 4,
-  CHECKLIST: 5,
+  ASSET: "asset",
+  SOFTWARE: "software",
+  CREDENTIAL: "credential",
+  REQUEST: "request",
+  CHECKLIST: "checklist",
 } as const;
 
 export type OffboardingTaskType =
   (typeof OFFBOARDING_TASK_TYPE)[keyof typeof OFFBOARDING_TASK_TYPE];
 
 export const OFFBOARDING_TASK_STATUS = {
-  PENDING: 1,
-  IN_PROGRESS: 2,
-  COMPLETED: 3,
-  WAIVED: 4,
-  EXCEPTION: 5,
-  CANCELLED: 6,
+  PENDING: "pending",
+  IN_PROGRESS: "in_progress",
+  COMPLETED: "completed",
+  WAIVED: "waived",
+  EXCEPTION: "exception",
+  CANCELLED: "cancelled",
 } as const;
 
 export type OffboardingTaskStatus =
   (typeof OFFBOARDING_TASK_STATUS)[keyof typeof OFFBOARDING_TASK_STATUS];
+
+export const TASK_PRIORITY = {
+  LOW: "low",
+  STANDARD: "standard",
+  HIGH: "high",
+  URGENT: "urgent",
+} as const;
+
+export type TaskPriority = (typeof TASK_PRIORITY)[keyof typeof TASK_PRIORITY];
+
+export const NUMERIC_TO_CASE_STATUS: Record<number, OffboardingCaseStatus> = {
+  1: OFFBOARDING_CASE_STATUS.OPEN,
+  2: OFFBOARDING_CASE_STATUS.IN_PROGRESS,
+  3: OFFBOARDING_CASE_STATUS.PENDING_CLEARANCE,
+  4: OFFBOARDING_CASE_STATUS.COMPLETED,
+  5: OFFBOARDING_CASE_STATUS.CANCELLED,
+};
+
+export const CASE_STATUS_TO_NUMERIC: Record<OffboardingCaseStatus, number> = {
+  [OFFBOARDING_CASE_STATUS.OPEN]: 1,
+  [OFFBOARDING_CASE_STATUS.IN_PROGRESS]: 2,
+  [OFFBOARDING_CASE_STATUS.PENDING_CLEARANCE]: 3,
+  [OFFBOARDING_CASE_STATUS.COMPLETED]: 4,
+  [OFFBOARDING_CASE_STATUS.CANCELLED]: 5,
+};
+
+export const NUMERIC_TO_TASK_TYPE: Record<number, OffboardingTaskType> = {
+  1: OFFBOARDING_TASK_TYPE.ASSET,
+  2: OFFBOARDING_TASK_TYPE.SOFTWARE,
+  3: OFFBOARDING_TASK_TYPE.CREDENTIAL,
+  4: OFFBOARDING_TASK_TYPE.REQUEST,
+  5: OFFBOARDING_TASK_TYPE.CHECKLIST,
+};
+
+export const TASK_TYPE_TO_NUMERIC: Record<OffboardingTaskType, number> = {
+  [OFFBOARDING_TASK_TYPE.ASSET]: 1,
+  [OFFBOARDING_TASK_TYPE.SOFTWARE]: 2,
+  [OFFBOARDING_TASK_TYPE.CREDENTIAL]: 3,
+  [OFFBOARDING_TASK_TYPE.REQUEST]: 4,
+  [OFFBOARDING_TASK_TYPE.CHECKLIST]: 5,
+};
+
+export const NUMERIC_TO_TASK_STATUS: Record<number, OffboardingTaskStatus> = {
+  1: OFFBOARDING_TASK_STATUS.PENDING,
+  2: OFFBOARDING_TASK_STATUS.IN_PROGRESS,
+  3: OFFBOARDING_TASK_STATUS.COMPLETED,
+  4: OFFBOARDING_TASK_STATUS.WAIVED,
+  5: OFFBOARDING_TASK_STATUS.EXCEPTION,
+  6: OFFBOARDING_TASK_STATUS.CANCELLED,
+};
+
+export const TASK_STATUS_TO_NUMERIC: Record<OffboardingTaskStatus, number> = {
+  [OFFBOARDING_TASK_STATUS.PENDING]: 1,
+  [OFFBOARDING_TASK_STATUS.IN_PROGRESS]: 2,
+  [OFFBOARDING_TASK_STATUS.COMPLETED]: 3,
+  [OFFBOARDING_TASK_STATUS.WAIVED]: 4,
+  [OFFBOARDING_TASK_STATUS.EXCEPTION]: 5,
+  [OFFBOARDING_TASK_STATUS.CANCELLED]: 6,
+};
+
+export const NUMERIC_TO_PRIORITY: Record<number, TaskPriority> = {
+  1: TASK_PRIORITY.LOW,
+  2: TASK_PRIORITY.STANDARD,
+  3: TASK_PRIORITY.HIGH,
+  4: TASK_PRIORITY.URGENT,
+};
+
+export const PRIORITY_TO_NUMERIC: Record<TaskPriority, number> = {
+  [TASK_PRIORITY.LOW]: 1,
+  [TASK_PRIORITY.STANDARD]: 2,
+  [TASK_PRIORITY.HIGH]: 3,
+  [TASK_PRIORITY.URGENT]: 4,
+};
 
 export const OFFBOARDING_EXIT_TYPE = {
   RESIGNATION: 1,
@@ -1033,6 +1106,12 @@ export const TASK_STATUS_TONES: Record<
   [OFFBOARDING_TASK_STATUS.EXCEPTION]: "destructive",
   [OFFBOARDING_TASK_STATUS.CANCELLED]: "secondary",
 };
+
+export const OFFBOARDING_TASK_STATUS_LABELS = TASK_STATUS_LABELS;
+export const OFFBOARDING_TASK_STATUS_TONES = TASK_STATUS_TONES;
+export const OFFBOARDING_CASE_STATUS_LABELS = CASE_STATUS_LABELS;
+export const OFFBOARDING_CASE_STATUS_TONES = CASE_STATUS_TONES;
+export const OFFBOARDING_TASK_TYPE_LABELS = TASK_TYPE_LABELS;
 
 export const EXIT_TYPE_LABELS: Record<OffboardingExitType, string> = {
   [OFFBOARDING_EXIT_TYPE.RESIGNATION]: "Resignation",
@@ -1329,35 +1408,36 @@ export const REALTIME_EVENTS = {
   REQUEST_COMMENT_ADDED: "request.comment_added",
 
   // Credentials
-  CREDENTIAL_SUBMITTED: "credential.submitted",
-  CREDENTIAL_APPROVED: "credential.approved",
-  CREDENTIAL_REJECTED: "credential.rejected",
-  CREDENTIAL_NEEDS_CHANGE: "credential.needs_change",
-  CREDENTIAL_COLLECTION_REQUESTED: "credential.collection_requested",
+  CREDENTIAL_SUBMITTED: "credential:submitted",
+  CREDENTIAL_APPROVAL_CHANGED: "credential:approval_changed",
+  CREDENTIAL_REVEALED: "credential:revealed",
+  CREDENTIAL_REJECTED: "credential:rejected",
+  CREDENTIAL_NEEDS_CHANGE: "credential:needs_change",
+  CREDENTIAL_COLLECTION_REQUESTED: "credential:collection_requested",
 
   // Assets & Software
-  ASSET_ASSIGNED: "asset.assigned",
-  ASSET_RETURNED: "asset.returned",
-  ASSET_STATUS_CHANGED: "asset.status_changed",
-  SOFTWARE_ASSIGNED: "software.assigned",
-  SOFTWARE_REVOKED: "software.revoked",
+  ASSET_ASSIGNED: "asset:assigned",
+  ASSET_RETURNED: "asset:returned",
+  ASSET_STATUS_CHANGED: "asset:status_changed",
+  SOFTWARE_ASSIGNED: "software:assigned",
+  SOFTWARE_REVOKED: "software:revoked",
 
   // Offboarding
-  OFFBOARDING_INITIATED: "offboarding.initiated",
-  OFFBOARDING_CASE_UPDATED: "offboarding.case_updated",
-  OFFBOARDING_TASK_UPDATED: "offboarding.task_updated",
-  EMPLOYEE_STATUS_CHANGED: "employee.status_changed",
+  OFFBOARDING_INITIATED: "offboarding:initiated",
+  OFFBOARDING_CASE_UPDATED: "offboarding:case_updated",
+  OFFBOARDING_TASK_UPDATED: "offboarding:task_updated",
+  EMPLOYEE_STATUS_CHANGED: "employee:status_changed",
 
   // System, Stats & Security
-  PERMISSIONS_CHANGED: "permissions.changed",
-  SESSION_REVOKED: "session.revoked",
-  ACCOUNT_LOCKED: "account.locked",
-  STATS_UPDATED: "stats.updated",
-  SYSTEM_BROADCAST: "system.broadcast",
+  PERMISSIONS_CHANGED: "permissions:changed",
+  SESSION_REVOKED: "session:revoked",
+  ACCOUNT_LOCKED: "account:locked",
+  STATS_UPDATED: "stats:updated",
+  SYSTEM_BROADCAST: "system:broadcast",
 
   // Presence & Typing (Ephemerals)
-  PRESENCE_UPDATED: "presence.updated",
-  TYPING_UPDATED: "typing.updated",
+  PRESENCE_UPDATED: "presence:updated",
+  TYPING_UPDATED: "typing:updated",
 } as const;
 
 export type RealtimeEventName =
@@ -1373,6 +1453,13 @@ export const REALTIME_ROOMS = {
   queueApprovals: () => "queue:approvals",
   queueHandover: () => "queue:handover",
   queueDashboard: () => "queue:dashboard",
+} as const;
+
+export const REALTIME_ROLE_ROOMS = {
+  SUPER_ADMIN: `role:${ROLES.SUPER_ADMIN}`,
+  HARDWARE_MANAGER: `role:${ROLES.HARDWARE_MANAGER}`,
+  HR: `role:${ROLES.HR}`,
+  EMPLOYEE: `role:${ROLES.EMPLOYEE}`,
 } as const;
 
 export const NOTIFICATION_CATEGORIES = {

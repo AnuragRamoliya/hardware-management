@@ -1,6 +1,6 @@
 import type { FilterField } from "@/components/common/TableFilters/types";
 import { RECORD_STATUS_FILTER } from "@/components/common/TableSelectFilter";
-import { ENUMS } from "@/utils/constants";
+import { EMPLOYMENT_STATUS_LABELS } from "@hm/shared";
 
 export const employeeFilters: FilterField[] = [
   {
@@ -35,7 +35,10 @@ export const employeeFilters: FilterField[] = [
     key: "employment_status",
     label: "Employment status",
     type: "select",
-    options: [...ENUMS.employmentStatus],
+    options: Object.entries(EMPLOYMENT_STATUS_LABELS).map(([value, label]) => ({
+      value: String(value),
+      label,
+    })),
   },
   { key: "join_date", label: "Join date", type: "daterange" },
   RECORD_STATUS_FILTER,

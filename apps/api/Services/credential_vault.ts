@@ -527,7 +527,7 @@ export class CredentialVaultService {
       });
 
       realtimeService.publish({
-        event: REALTIME_EVENTS.CREDENTIAL_APPROVED,
+        event: REALTIME_EVENTS.CREDENTIAL_APPROVAL_CHANGED,
         rooms: [REALTIME_ROOMS.queueApprovals()],
         data: {
           id: credId,
@@ -838,7 +838,24 @@ export class CredentialVaultService {
       }
 
       realtimeService.publish({
-        event: REALTIME_EVENTS.CREDENTIAL_APPROVED,
+        event: REALTIME_EVENTS.CREDENTIAL_APPROVAL_CHANGED,
+        rooms: [
+          REALTIME_ROOMS.queueApprovals(),
+          ...(empUserId ? [REALTIME_ROOMS.user(empUserId)] : []),
+        ],
+        data: {
+          id,
+          label: String(cred.get('label')),
+          approval_status: CREDENTIAL_APPROVAL_STATUS.APPROVED,
+          status: 1,
+          updatedAt: new Date().toISOString(),
+        },
+        actor: { id: actor.id, name: `${actor.first_name} ${actor.last_name || ''}`.trim() },
+        transaction,
+      });
+
+      realtimeService.publish({
+        event: REALTIME_EVENTS.CREDENTIAL_APPROVAL_CHANGED,
         rooms: [
           REALTIME_ROOMS.queueApprovals(),
           ...(empUserId ? [REALTIME_ROOMS.user(empUserId)] : []),
@@ -917,6 +934,24 @@ export class CredentialVaultService {
 
       realtimeService.publish({
         event: REALTIME_EVENTS.CREDENTIAL_REJECTED,
+        rooms: [
+          REALTIME_ROOMS.queueApprovals(),
+          ...(empUserId ? [REALTIME_ROOMS.user(empUserId)] : []),
+        ],
+        data: {
+          id,
+          label: String(cred.get('label')),
+          approval_status: CREDENTIAL_APPROVAL_STATUS.REJECTED,
+          reason: feedback.trim(),
+          status: 1,
+          updatedAt: new Date().toISOString(),
+        },
+        actor: { id: actor.id, name: `${actor.first_name} ${actor.last_name || ''}`.trim() },
+        transaction,
+      });
+
+      realtimeService.publish({
+        event: REALTIME_EVENTS.CREDENTIAL_APPROVAL_CHANGED,
         rooms: [
           REALTIME_ROOMS.queueApprovals(),
           ...(empUserId ? [REALTIME_ROOMS.user(empUserId)] : []),
@@ -1339,6 +1374,19 @@ export class CredentialVaultService {
         }
       }
     }
+
+    const empUserId = await getEmployeeUserId(cred.get('employee_id'));
+    realtimeService.publish({
+      event: REALTIME_EVENTS.CREDENTIAL_REVEALED,
+      rooms: [REALTIME_ROOMS.role('admin'), ...(empUserId ? [REALTIME_ROOMS.user(empUserId)] : [])],
+      data: {
+        credential_id: id,
+        accessed_by: actor.id,
+        actor_name: `${actor.first_name} ${actor.last_name || ''}`.trim(),
+        revealed_at: now.toISOString(),
+      },
+      actor: { id: actor.id, name: `${actor.first_name} ${actor.last_name || ''}`.trim() },
+    });
 
     return { password: plaintext };
   }

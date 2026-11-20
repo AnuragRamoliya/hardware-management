@@ -74,28 +74,31 @@ export function FormGridItem({
 
 export function FormActions({
   submitting = false,
+  isSubmitting,
   submitLabel = "Save changes",
   cancelLabel = "Cancel",
   onCancel,
   disabled = false,
 }: {
   submitting?: boolean;
+  isSubmitting?: boolean;
   submitLabel?: string;
   cancelLabel?: string;
   onCancel: () => void;
   disabled?: boolean;
 }) {
+  const isPending = isSubmitting ?? submitting;
   return (
     <footer className="sticky bottom-0 z-10 -mx-6 mt-6 flex justify-end gap-2 border-t bg-card/95 px-6 py-4 backdrop-blur">
       <Button
         type="button"
         variant="outline"
         onClick={onCancel}
-        disabled={submitting}
+        disabled={isPending}
       >
         {cancelLabel}
       </Button>
-      <Button type="submit" loading={submitting} disabled={disabled}>
+      <Button type="submit" loading={isPending} disabled={disabled}>
         {submitLabel}
       </Button>
     </footer>

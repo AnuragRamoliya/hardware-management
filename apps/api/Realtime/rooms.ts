@@ -25,6 +25,11 @@ export async function hasModuleAccess(
   return Boolean(perm);
 }
 
+export async function canJoinRoom(user: AuthenticatedSocketUser, room: string): Promise<boolean> {
+  const result = await authorizeRoomJoin(user, room);
+  return result.allowed;
+}
+
 /**
  * Authorizes a client socket to join a requested room.
  * Never trust client room names; strict server-side RBAC and ownership checks.
@@ -46,6 +51,10 @@ export async function authorizeRoomJoin(
     // 2. Role room: role:{roleName}
     if (room.startsWith('role:')) {
       const targetRole = room.slice(5);
+      const staffRoles = ['admin', 'hardware_manager', 'hardware', 'hr'];
+      if (user.role === 'employee' && staffRoles.includes(targetRole)) {
+        return { allowed: false, reason: 'Non-staff roles cannot join staff role rooms' };
+      }
       if (targetRole === user.role) {
         return { allowed: true };
       }

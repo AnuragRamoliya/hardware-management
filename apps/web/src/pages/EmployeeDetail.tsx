@@ -25,7 +25,7 @@ import { PATHS } from "@/routes/paths";
 import { ReferenceLabel } from "@/components/common/ReferenceLabel";
 import { TabsList } from "@/components/ui/tabs";
 import { AssetStatusBadge } from "@/components/assets/AssetStatusBadge";
-import { ENUMS } from "@/utils/constants";
+import { StatusBadge } from "@/components/common/StatusBadge";
 import { callApi } from "@/api/callApi";
 import { api_methods, endPoints } from "@/api/endpoint";
 import type { AssignmentRecord } from "@/api/assets";
@@ -50,6 +50,10 @@ import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { RowActionsMenu } from "@/components/common/RowActionsMenu";
 import {
   CREDENTIAL_APPROVAL_STATUS,
+  EMPLOYMENT_STATUS,
+  EMPLOYMENT_STATUS_LABELS,
+  EMPLOYMENT_STATUS_TONES,
+  type EmploymentStatus,
   PROVIDED_BY,
   REQUEST_TYPE_LABELS,
   REQUEST_STATUS_LABELS,
@@ -171,10 +175,10 @@ export function EmployeeDetail() {
     );
   }
 
-  const employmentStatus =
-    ENUMS.employmentStatus.find(
-      (option) => option.value === String(employee.employment_status ?? 1),
-    )?.label ?? "Active";
+  const empStatusVal = (employee.employment_status ??
+    EMPLOYMENT_STATUS.ACTIVE) as EmploymentStatus;
+  const employmentStatus = EMPLOYMENT_STATUS_LABELS[empStatusVal] ?? "Active";
+  const employmentTone = EMPLOYMENT_STATUS_TONES[empStatusVal] ?? "muted";
 
   const fullName = `${employee.first_name} ${employee.last_name ?? ""}`.trim();
 
@@ -248,13 +252,11 @@ export function EmployeeDetail() {
     {
       label: "Status",
       value: (
-        <Badge
-          variant={
-            String(employee.employment_status) === "1" ? "success" : "muted"
-          }
-        >
-          {employmentStatus}
-        </Badge>
+        <StatusBadge
+          status={empStatusVal}
+          label={employmentStatus}
+          tone={employmentTone}
+        />
       ),
     },
   ];
@@ -301,9 +303,12 @@ export function EmployeeDetail() {
                   {employee.employee_code ?? "Employee"}
                 </p>
               </div>
-              <Badge className="ml-auto" variant="success">
-                {employmentStatus}
-              </Badge>
+              <StatusBadge
+                className="ml-auto"
+                status={empStatusVal}
+                label={employmentStatus}
+                tone={employmentTone}
+              />
             </div>
             <div className="mt-6">
               <h3 className="mb-4 text-sm font-semibold text-foreground">
