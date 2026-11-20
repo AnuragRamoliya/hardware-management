@@ -177,6 +177,14 @@ export function EmployeeDetail() {
 
   const empStatusVal = (employee.employment_status ??
     EMPLOYMENT_STATUS.ACTIVE) as EmploymentStatus;
+  const empStatusKey =
+    empStatusVal === 1
+      ? "active"
+      : empStatusVal === 2
+        ? "notice"
+        : empStatusVal === 3
+          ? "resigned"
+          : "exited";
   const employmentStatus = EMPLOYMENT_STATUS_LABELS[empStatusVal] ?? "Active";
   const employmentTone = EMPLOYMENT_STATUS_TONES[empStatusVal] ?? "muted";
 
@@ -253,7 +261,7 @@ export function EmployeeDetail() {
       label: "Status",
       value: (
         <StatusBadge
-          status={empStatusVal}
+          status={empStatusKey}
           label={employmentStatus}
           tone={employmentTone}
         />
@@ -305,7 +313,7 @@ export function EmployeeDetail() {
               </div>
               <StatusBadge
                 className="ml-auto"
-                status={empStatusVal}
+                status={empStatusKey}
                 label={employmentStatus}
                 tone={employmentTone}
               />

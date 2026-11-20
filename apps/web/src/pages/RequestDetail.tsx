@@ -12,6 +12,7 @@ import {
   Paperclip,
   Send,
   Download,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +37,11 @@ import {
   useTakeRequest,
   useAddRequestComment,
 } from "@/hooks/queries/requests";
-import { useRealtimeRoom, useTypingIndicator } from "@/lib/realtime";
+import {
+  useRealtimeRoom,
+  useTypingIndicator,
+  useRoomPresence,
+} from "@/lib/realtime";
 import {
   ReviewRequestDialog,
   FulfilRequestDialog,
@@ -62,8 +67,13 @@ export function RequestDetail() {
   // Comment state
   const [newComment, setNewComment] = useState("");
   const [isInternal, setIsInternal] = useState(false);
+  const currentUser = useAuthStore((state) => state.user);
+  const role = useAuthStore((state) => getUserRole(state.user));
+
   const requestRoom = id ? `request:${id}` : undefined;
+  const staffRoom = id ? `request:${id}:staff` : undefined;
   useRealtimeRoom(requestRoom);
+  const viewers = useRoomPresence(role !== "employee" ? staffRoom : undefined);
   const { typingUsers, emitTyping } = useTypingIndicator(requestRoom);
 
   // Dialog states
@@ -72,8 +82,6 @@ export function RequestDetail() {
   const [assignOpen, setAssignOpen] = useState(false);
   const [closeOpen, setCloseOpen] = useState(false);
 
-  const currentUser = useAuthStore((state) => state.user);
-  const role = useAuthStore((state) => getUserRole(state.user));
   const permissions = usePermissionStore(
     (state) => state.modulePermissions.request,
   );
@@ -220,6 +228,15 @@ export function RequestDetail() {
             <p className="text-sm text-muted-foreground whitespace-pre-wrap max-w-3xl">
               {request.reason}
             </p>
+
+            {viewers && viewers.length > 0 && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/30 px-2.5 py-1 rounded-md w-fit">
+                <Eye className="h-3.5 w-3.5 text-primary" />
+                <span>
+                  Viewing now: {viewers.map((v) => v.name).join(", ")}
+                </span>
+              </div>
+            )}
 
             {request.decision_feedback && (
               <div className="mt-3 p-3 rounded-lg border border-border bg-muted/40 text-xs">

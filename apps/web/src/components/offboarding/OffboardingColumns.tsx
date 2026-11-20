@@ -122,8 +122,9 @@ export function getOffboardingColumns(
                   (t) =>
                     t.status === "completed" ||
                     t.status === "waived" ||
-                    (t as any).task_status === "completed" ||
-                    (t as any).task_status === "waived",
+                    (t as { task_status?: string }).task_status ===
+                      "completed" ||
+                    (t as { task_status?: string }).task_status === "waived",
                 ).length
               : 0));
         const percent =

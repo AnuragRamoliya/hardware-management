@@ -16,6 +16,11 @@ const FORBIDDEN_KEYS = new Set([
   'auth_tag',
   'license_key',
   'otp',
+  'internal_notes',
+  'admin_notes',
+  'staff_notes',
+  'private_notes',
+  'waive_reason',
 ]);
 
 /**

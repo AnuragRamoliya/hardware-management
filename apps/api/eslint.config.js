@@ -13,6 +13,10 @@ module.exports = tseslint.config(
     rules: { '@typescript-eslint/no-explicit-any': 'error' },
   },
   {
+    files: ['tests/**/*.ts', 'scripts/**/*.ts'],
+    rules: { '@typescript-eslint/no-explicit-any': 'off' },
+  },
+  {
     files: ['**/*.js', '**/*.cjs'],
     languageOptions: { globals: globals.node },
     rules: { '@typescript-eslint/no-require-imports': 'off' },

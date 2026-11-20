@@ -292,6 +292,7 @@ export const routesSection = createBrowserRouter([
       { path: PATHS.FORGOT_PASSWORD, element: page(<AuthFlow />) },
       { path: PATHS.OTP_VERIFICATION, element: page(<OtpVerification />) },
       { path: PATHS.RESET_PASSWORD, element: page(<ResetPassword />) },
+      { path: PATHS.VERIFY_DOCUMENT, element: page(<VerifyDocument />) },
       {
         element: <ProtectedRoute />,
         children: [

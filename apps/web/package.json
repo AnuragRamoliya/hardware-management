@@ -13,6 +13,8 @@
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest --passWithNoTests",
     "check:ui": "node scripts/check-ui.mjs",
+    "test:e2e": "playwright test",
+    "test:visual": "playwright test",
     "gen:module": "node scripts/gen-module.mjs"
   },
   "dependencies": {
@@ -44,8 +46,10 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^9.32.0",
     "@hm/tsconfig": "*",
+    "@playwright/test": "^1.65.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.0.0",

@@ -331,7 +331,7 @@ export function Dashboard() {
             View all cases →
           </Link>
         </h2>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Link
             to={PATHS.OFFBOARDING_CASES}
             className="group block transition-opacity hover:opacity-90"
@@ -340,6 +340,17 @@ export function Dashboard() {
               label="Active Offboarding Cases"
               value={offboardingCasesQuery.data?.pagination?.totalItems ?? 0}
               icon={<UserX className="h-4 w-4 text-warning" />}
+            />
+          </Link>
+
+          <Link
+            to={`${PATHS.OFFBOARDING_CASES}?status=in_progress`}
+            className="group block transition-opacity hover:opacity-90"
+          >
+            <StatCard
+              label="Exceptions & In-Progress"
+              value="Action Required"
+              icon={<AlertTriangle className="h-4 w-4 text-danger" />}
             />
           </Link>
 

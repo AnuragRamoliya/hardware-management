@@ -115,14 +115,11 @@ export interface OffboardingPreviewDto {
 }
 
 export interface DocumentVerificationResult {
-  verified: boolean;
-  code: string;
-  case_id?: number;
-  employee_name?: string;
-  employee_code?: string;
-  last_working_day?: string;
-  completed_at?: string;
-  hash?: string;
+  valid: boolean;
+  case_no: string | null;
+  issued_at: string | null;
+  verified?: boolean;
+  code?: string;
   message?: string;
 }
 

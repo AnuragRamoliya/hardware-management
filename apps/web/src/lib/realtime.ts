@@ -6,6 +6,22 @@ import useAuthStore from "@/zustand/user-store";
 import { REALTIME_EVENTS } from "@hm/shared";
 
 let socketInstance: Socket | null = null;
+let fallbackPollingTimer: ReturnType<typeof setInterval> | null = null;
+
+function startFallbackPolling(): void {
+  if (fallbackPollingTimer) return;
+  // 60-second fallback polling interval while disconnected from realtime
+  fallbackPollingTimer = setInterval(() => {
+    void queryClient.invalidateQueries();
+  }, 60_000);
+}
+
+function stopFallbackPolling(): void {
+  if (fallbackPollingTimer) {
+    clearInterval(fallbackPollingTimer);
+    fallbackPollingTimer = null;
+  }
+}
 
 export function getSocket(): Socket | null {
   const token = useAuthStore.getState().token;
@@ -33,6 +49,20 @@ export function getSocket(): Socket | null {
     reconnection: true,
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,
+  });
+
+  socketInstance.on("connect", () => {
+    stopFallbackPolling();
+    // Full query invalidation on reconnect to catch any missed updates
+    void queryClient.invalidateQueries();
+  });
+
+  socketInstance.on("disconnect", () => {
+    startFallbackPolling();
+  });
+
+  socketInstance.on("connect_error", () => {
+    startFallbackPolling();
   });
 
   // Handle session revocation from admin/daily job
@@ -89,6 +119,7 @@ export function getSocket(): Socket | null {
 }
 
 export function disconnectSocket(): void {
+  stopFallbackPolling();
   if (socketInstance) {
     socketInstance.disconnect();
     socketInstance = null;
@@ -140,11 +171,58 @@ export function useRealtimeRoom(room?: string) {
     if (!room) return;
     const socket = getSocket();
     if (!socket) return;
-    socket.emit("join", room);
+    socket.emit("room:join", room);
     return () => {
-      socket.emit("leave", room);
+      socket.emit("room:leave", room);
     };
   }, [room]);
+}
+
+export interface ViewerInfo {
+  userId: number;
+  name: string;
+  role?: string;
+}
+
+/**
+ * Hook to track "who is viewing" in collaborative staff rooms
+ */
+export function useRoomPresence(room?: string) {
+  const [viewers, setViewers] = useState<ViewerInfo[]>([]);
+
+  useEffect(() => {
+    if (!room) return;
+    const socket = getSocket();
+    if (!socket) return;
+
+    socket.emit("room:join", room);
+
+    // Heartbeat every 25 seconds
+    const interval = setInterval(() => {
+      socket.emit("presence:heartbeat", room);
+    }, 25_000);
+
+    const handlePresence = (envelope: {
+      data?: { room?: string; viewers?: ViewerInfo[] };
+    }) => {
+      if (
+        envelope?.data?.room === room &&
+        Array.isArray(envelope.data.viewers)
+      ) {
+        setViewers(envelope.data.viewers);
+      }
+    };
+
+    socket.on(REALTIME_EVENTS.PRESENCE_UPDATED, handlePresence);
+
+    return () => {
+      clearInterval(interval);
+      socket.off(REALTIME_EVENTS.PRESENCE_UPDATED, handlePresence);
+      socket.emit("room:leave", room);
+    };
+  }, [room]);
+
+  return viewers;
 }
 
 /**
@@ -158,20 +236,21 @@ export function useTypingIndicator(room?: string) {
     if (!room) return;
     const socket = getSocket();
     if (!socket) return;
+    const timeouts = timeoutRef.current;
 
     const handleStart = (data: { user_id?: number; user_name?: string }) => {
       const name = data.user_name || "Someone";
       setTypingUsers((prev) => (prev.includes(name) ? prev : [...prev, name]));
 
-      if (timeoutRef.current[name]) clearTimeout(timeoutRef.current[name]);
-      timeoutRef.current[name] = setTimeout(() => {
+      if (timeouts[name]) clearTimeout(timeouts[name]);
+      timeouts[name] = setTimeout(() => {
         setTypingUsers((prev) => prev.filter((u) => u !== name));
       }, 3000);
     };
 
     const handleStop = (data: { user_name?: string }) => {
       const name = data.user_name || "Someone";
-      if (timeoutRef.current[name]) clearTimeout(timeoutRef.current[name]);
+      if (timeouts[name]) clearTimeout(timeouts[name]);
       setTypingUsers((prev) => prev.filter((u) => u !== name));
     };
 
@@ -181,7 +260,7 @@ export function useTypingIndicator(room?: string) {
     return () => {
       socket.off("typing:start", handleStart);
       socket.off("typing:stop", handleStop);
-      Object.values(timeoutRef.current).forEach(clearTimeout);
+      Object.values(timeouts).forEach(clearTimeout);
     };
   }, [room]);
 

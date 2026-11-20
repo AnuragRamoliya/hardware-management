@@ -54,14 +54,15 @@ export class OffboardingTasksService {
     if (filters.task_type) {
       where.task_type =
         typeof filters.task_type === 'number'
-          ? (NUMERIC_TO_TASK_TYPE as any)[filters.task_type] || filters.task_type
+          ? (NUMERIC_TO_TASK_TYPE as Record<number, string>)[filters.task_type] || filters.task_type
           : filters.task_type;
     }
 
     if (filters.task_status) {
       where.task_status =
         typeof filters.task_status === 'number'
-          ? (NUMERIC_TO_TASK_STATUS as any)[filters.task_status] || filters.task_status
+          ? (NUMERIC_TO_TASK_STATUS as Record<number, string>)[filters.task_status] ||
+            filters.task_status
           : filters.task_status;
     }
 
@@ -184,10 +185,7 @@ export class OffboardingTasksService {
         currentStatus === OFFBOARDING_TASK_STATUS.CANCELLED ||
         currentStatus === 'completed' ||
         currentStatus === 'waived' ||
-        currentStatus === 'cancelled' ||
-        Number(currentStatus) === 3 ||
-        Number(currentStatus) === 4 ||
-        Number(currentStatus) === 6
+        currentStatus === 'cancelled'
       ) {
         throw new AppError(409, 'Task is already closed.');
       }

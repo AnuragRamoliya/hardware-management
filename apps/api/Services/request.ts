@@ -609,7 +609,8 @@ export class RequestService {
   /**
    * Request statistics for dashboard cards & metrics
    */
-  async stats(actor: UserInfo) {
+  async stats(actor?: UserInfo) {
+    const actorId = actor?.id ? Number(actor.id) : 0;
     const [statusCounts] = await sequelize.query(`
       SELECT \`request_status\`, COUNT(*) as \`count\`
       FROM \`requests\`
@@ -628,7 +629,7 @@ export class RequestService {
       SELECT
         COUNT(*) as total_requests,
         SUM(CASE WHEN \`request_status\` IN (1, 2, 3, 4, 9) THEN 1 ELSE 0 END) as open_requests,
-        SUM(CASE WHEN \`assigned_to\` = ${Number(actor.id)} AND \`request_status\` IN (1, 2, 3, 4, 9) THEN 1 ELSE 0 END) as my_queue,
+        SUM(CASE WHEN \`assigned_to\` = ${actorId} AND \`request_status\` IN (1, 2, 3, 4, 9) THEN 1 ELSE 0 END) as my_queue,
         SUM(CASE WHEN \`sla_breached\` = 1 AND \`request_status\` IN (1, 2, 3, 4, 9) THEN 1 ELSE 0 END) as sla_breached,
         SUM(CASE WHEN \`awaiting_stock\` = 1 AND \`request_status\` IN (1, 2, 3, 4, 9) THEN 1 ELSE 0 END) as awaiting_stock,
         AVG(CASE WHEN \`fulfilled_at\` IS NOT NULL THEN TIMESTAMPDIFF(HOUR, \`createdAt\`, \`fulfilled_at\`) ELSE NULL END) as avg_turnaround_hours

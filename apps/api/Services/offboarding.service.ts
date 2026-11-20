@@ -7,8 +7,8 @@ import {
   TASK_PRIORITY,
   REQUEST_STATUS,
   NUMERIC_TO_CASE_STATUS,
-  type OffboardingCaseStatus,
-  type OffboardingExitType,
+  STATUS,
+  ASSET_STATUS,
 } from '@hm/shared';
 import { AppError } from '../Config/app_error';
 import {
@@ -37,7 +37,7 @@ import {
 import { createActivityLog, getPagination, getSorting } from '../Utils/helpers';
 import type { UserInfo } from '../Types/api';
 import { RequestWorkflowService } from './request_workflow.service';
-import { ClearancePdfService } from './clearance_pdf.service';
+import { ClearancePdfService, type PdfCaseRecord } from './clearance_pdf.service';
 
 const plain = (model: import('sequelize').Model) =>
   model.get({ plain: true }) as Record<string, unknown>;
@@ -133,10 +133,12 @@ export class OffboardingService {
         last_name: String(empData.last_name || ''),
         email: String(empData.email || ''),
         employment_status: Number(empData.employment_status || 1),
-        department: (empData.department as any)?.name,
-        designation: (empData.designation as any)?.name,
-        manager: (empData.manager as any)
-          ? `${(empData.manager as any).first_name} ${(empData.manager as any).last_name || ''}`
+        department: (empData.department as Record<string, unknown> | undefined)?.name as
+          string | undefined,
+        designation: (empData.designation as Record<string, unknown> | undefined)?.name as
+          string | undefined,
+        manager: (empData.manager as Record<string, unknown> | undefined)
+          ? `${(empData.manager as Record<string, unknown>).first_name} ${(empData.manager as Record<string, unknown>).last_name || ''}`
           : undefined,
       },
       proposed_handover_to: handoverUser
@@ -158,7 +160,7 @@ export class OffboardingService {
       },
       items: {
         assets: assignedAssets.map((a) => {
-          const ast = (a as any).asset;
+          const ast = (a as unknown as { asset?: Record<string, unknown> }).asset;
           return {
             id: Number(a.get('id')),
             asset_tag: String(ast?.asset_tag || '—'),
@@ -167,14 +169,15 @@ export class OffboardingService {
           };
         }),
         software: assignedSoftware.map((s) => {
-          const sw = (s as any).software;
+          const sw = (s as unknown as { software?: Record<string, unknown> }).software;
           return {
             id: Number(s.get('id')),
             software_name: String(sw?.name || 'Software License'),
           };
         }),
         credentials: activeCredentials.map((c) => {
-          const ct = (c as any).credential_type;
+          const ct = (c as unknown as { credential_type?: Record<string, unknown> })
+            .credential_type;
           return {
             id: Number(c.get('id')),
             account_identifier: String(c.get('account_identifier') || c.get('username') || '—'),
@@ -283,7 +286,7 @@ export class OffboardingService {
       const [[maxCase]] = await sequelize.query('SELECT MAX(id) as max_id FROM offboarding_cases', {
         transaction,
       });
-      const nextId = (Number((maxCase as any)?.max_id) || 0) + 1;
+      const nextId = (Number((maxCase as unknown as { max_id?: number })?.max_id) || 0) + 1;
       const caseNo = `OFF-${String(nextId).padStart(6, '0')}`;
 
       const createdCase = await offboarding_cases.create(
@@ -318,7 +321,15 @@ export class OffboardingService {
       });
 
       for (const assignment of assignedAssets) {
-        const ast = (assignment as any).asset;
+        const ast = (
+          assignment as unknown as {
+            asset?: import('sequelize').Model & {
+              asset_tag?: string;
+              model?: string;
+              name?: string;
+            };
+          }
+        ).asset;
         const assetTag = String(ast?.asset_tag || `AST-${assignment.get('asset_id')}`);
         const modelName = ast?.model || ast?.name || 'Hardware Asset';
 
@@ -343,7 +354,10 @@ export class OffboardingService {
 
         // Update asset status to pending_return (3) and assignment due_return_date to LWD
         if (ast) {
-          await ast.update({ asset_status: 3, updated_by: actor.id }, { transaction });
+          await ast.update(
+            { asset_status: ASSET_STATUS.PENDING_RETURN, updated_by: actor.id },
+            { transaction },
+          );
         }
         await assignment.update(
           { due_return_date: input.last_working_date, updated_by: actor.id },
@@ -360,7 +374,9 @@ export class OffboardingService {
       });
 
       for (const swAssign of assignedSoftware) {
-        const sw = (swAssign as any).software;
+        const sw = (
+          swAssign as unknown as { software?: import('sequelize').Model & { name?: string } }
+        ).software;
         const swName = String(sw?.name || 'Software License');
 
         await offboarding_tasks.create(
@@ -391,7 +407,9 @@ export class OffboardingService {
       });
 
       for (const cred of activeCreds) {
-        const ct = (cred as any).credential_type;
+        const ct = (
+          cred as unknown as { credential_type?: import('sequelize').Model & { name?: string } }
+        ).credential_type;
         const ident = String(
           cred.get('account_identifier') || cred.get('username') || ct?.name || 'Account',
         );
@@ -663,7 +681,7 @@ export class OffboardingService {
 
     const listWithProgress = rows.map((r) => {
       const item = plain(r);
-      const taskList = (item.tasks as any[]) || [];
+      const taskList = (item.tasks as Array<Record<string, unknown>>) || [];
       const total = taskList.length;
       const completed = taskList.filter(
         (t) => t.task_status === OFFBOARDING_TASK_STATUS.COMPLETED,
@@ -751,7 +769,7 @@ export class OffboardingService {
     }
 
     const item = plain(c);
-    const taskList = (item.tasks as any[]) || [];
+    const taskList = (item.tasks as Array<Record<string, unknown>>) || [];
     const total = taskList.length;
     const completed = taskList.filter(
       (t) => t.task_status === OFFBOARDING_TASK_STATUS.COMPLETED,
@@ -959,8 +977,14 @@ export class OffboardingService {
 
       for (const assign of openAssignments) {
         await assets.update(
-          { asset_status: 2, updated_by: actor.id },
-          { where: { id: Number(assign.get('asset_id')), asset_status: 3 }, transaction },
+          { asset_status: ASSET_STATUS.ASSIGNED, updated_by: actor.id },
+          {
+            where: {
+              id: Number(assign.get('asset_id')),
+              asset_status: ASSET_STATUS.PENDING_RETURN,
+            },
+            transaction,
+          },
         );
         await assign.update({ due_return_date: null, updated_by: actor.id }, { transaction });
       }
@@ -1019,7 +1043,7 @@ export class OffboardingService {
       }
 
       // Check all mandatory tasks
-      const taskList = ((c as any).tasks || []) as any[];
+      const taskList = (c as unknown as { tasks?: Array<Record<string, unknown>> }).tasks || [];
       const unfulfilledMandatory = taskList.filter((t) => {
         const isMandatory = Number(t.is_mandatory) === 1;
         const s = String(t.task_status);
@@ -1061,7 +1085,11 @@ export class OffboardingService {
 
       // Generate clearance and handover receipt PDFs
       const clearanceResult = await this.pdfService.generateClearancePdf(
-        { ...plain(c), clearance_number: clearanceNumber, clearance_issued_at: now },
+        {
+          ...plain(c),
+          clearance_number: clearanceNumber,
+          clearance_issued_at: now,
+        } as unknown as PdfCaseRecord,
         settingsMap,
       );
 
@@ -1070,7 +1098,7 @@ export class OffboardingService {
         ? await users.findByPk(Number(c.get('handover_to')), { transaction })
         : null;
       const handoverReceiptResult = await this.pdfService.generateHandoverReceiptPdf(
-        plain(c),
+        plain(c) as unknown as PdfCaseRecord,
         assetTasks,
         handoverUser ? plain(handoverUser) : null,
         settingsMap,
@@ -1106,7 +1134,7 @@ export class OffboardingService {
         const userId = emp.get('user_id');
         if (userId) {
           await users.update(
-            { status: 0, updated_by: actor.id },
+            { status: STATUS.INACTIVE, updated_by: actor.id },
             { where: { id: Number(userId) }, transaction },
           );
           await user_tokens.update(
@@ -1142,6 +1170,9 @@ export class OffboardingService {
   }
 
   async getClearancePdf(id: number, actor: UserInfo) {
+    if (!actor) {
+      throw new AppError(401, 'Unauthorized');
+    }
     const c = await offboarding_cases.findByPk(id);
     if (!c || Number(c.get('status')) !== 1) {
       throw new AppError(404, 'Case not found.');
@@ -1155,6 +1186,9 @@ export class OffboardingService {
   }
 
   async getHandoverReceiptPdf(id: number, actor: UserInfo) {
+    if (!actor) {
+      throw new AppError(401, 'Unauthorized');
+    }
     const c = await offboarding_cases.findByPk(id);
     if (!c || Number(c.get('status')) !== 1) {
       throw new AppError(404, 'Case not found.');
@@ -1252,7 +1286,7 @@ export class OffboardingService {
     }
 
     const item = plain(c);
-    const taskList = (item.tasks as any[]) || [];
+    const taskList = (item.tasks as Array<Record<string, unknown>>) || [];
     const total = taskList.length;
     const completed = taskList.filter(
       (t) =>
@@ -1283,9 +1317,9 @@ export class OffboardingService {
         is_overdue: daysLeft < 0,
         handover_contact: item.handover_user
           ? {
-              first_name: (item.handover_user as any).first_name,
-              last_name: (item.handover_user as any).last_name,
-              email: (item.handover_user as any).email,
+              first_name: (item.handover_user as Record<string, unknown>).first_name as string,
+              last_name: (item.handover_user as Record<string, unknown>).last_name as string,
+              email: (item.handover_user as Record<string, unknown>).email as string,
             }
           : null,
         instructions,
@@ -1361,7 +1395,7 @@ export class OffboardingService {
       const [[admin]] = await sequelize.query('SELECT * FROM users WHERE status = 1 LIMIT 1', {
         transaction,
       });
-      return admin ? users.build(admin as any, { isNewRecord: false }) : null;
+      return admin ? users.build(admin as Record<string, unknown>, { isNewRecord: false }) : null;
     }
 
     if (strategy === 'round_robin') {

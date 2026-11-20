@@ -157,9 +157,25 @@ export const ASSET_STATUS = {
   ASSIGNED: 2,
   PENDING_RETURN: 3,
   IN_REPAIR: 4,
+  UNDER_REPAIR: 4,
   RETIRED: 5,
   LOST: 6,
 } as const;
+
+export const USER_STATUS = {
+  INACTIVE: 0,
+  ACTIVE: 1,
+} as const;
+
+export type UserStatus = (typeof USER_STATUS)[keyof typeof USER_STATUS];
+
+export const TOKEN_REVOCATION = {
+  ACTIVE: 0,
+  REVOKED: 1,
+} as const;
+
+export type TokenRevocation =
+  (typeof TOKEN_REVOCATION)[keyof typeof TOKEN_REVOCATION];
 
 export type AssetStatus = (typeof ASSET_STATUS)[keyof typeof ASSET_STATUS];
 

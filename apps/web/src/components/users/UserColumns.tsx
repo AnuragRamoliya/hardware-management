@@ -52,7 +52,9 @@ export function getUserColumns(
       id: "status",
       label: "Status",
       sortable: true,
-      render: (row) => <StatusBadge status={row.status} />,
+      render: (row) => (
+        <StatusBadge status={row.status === 1 ? "active" : "inactive"} />
+      ),
     },
     {
       id: "actions",

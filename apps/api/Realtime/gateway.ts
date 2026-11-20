@@ -157,6 +157,11 @@ export class RealtimeGateway {
       if (!room || typeof room !== 'string') return;
       if (!socket.rooms.has(room)) return; // Socket must be in the room
 
+      // In request rooms, typing indicators are staff only
+      if (room.startsWith('request:') && user.role === 'employee') {
+        return;
+      }
+
       // Rate limit typing events: max 1 event per 2s per user/room
       const now = Date.now();
       const typingKey = `${room}:${user.id}`;

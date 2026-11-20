@@ -1,4 +1,3 @@
-import { Router } from 'express';
 import { body, param } from 'express-validator';
 import { ACCESS_TYPES, MODULES } from '../Config/constant';
 import { checkAccess, userAuth } from '../Middleware/authentication';

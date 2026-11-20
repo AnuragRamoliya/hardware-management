@@ -2,6 +2,8 @@ export const ENUMS = {
   recordStatus: [
     { value: "1", label: "Active", tone: "success" },
     { value: "0", label: "Inactive", tone: "muted" },
+    { value: "active", label: "Active", tone: "success" },
+    { value: "inactive", label: "Inactive", tone: "muted" },
   ],
   employmentStatus: [
     { value: "1", label: "Active", tone: "success" },

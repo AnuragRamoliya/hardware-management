@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { ASSET_STATUS } from '@hm/shared';
 import { AppError } from '../Config/app_error';
 import { sequelize, type RowAttributes } from '../Database/Schema';
 import { AssetMaintenanceRecord, MaintenanceAssetRecord } from '../Models/asset_maintenance';
@@ -94,7 +95,7 @@ export class AssetMaintenanceService {
         },
         { transaction },
       );
-      await asset.update({ asset_status: 4 }, { transaction });
+      await asset.update({ asset_status: ASSET_STATUS.UNDER_REPAIR }, { transaction });
       await createActivityLog({
         module: 'asset_maintenance',
         moduleId: Number(maintenance.get('id')),
@@ -156,8 +157,8 @@ export class AssetMaintenanceService {
         transaction,
         lock: transaction.LOCK.UPDATE,
       });
-      if (asset && Number(asset.get('asset_status')) === 4)
-        await asset.update({ asset_status: 1 }, { transaction });
+      if (asset && Number(asset.get('asset_status')) === ASSET_STATUS.UNDER_REPAIR)
+        await asset.update({ asset_status: ASSET_STATUS.AVAILABLE }, { transaction });
       await createActivityLog({
         module: 'asset_maintenance',
         moduleId: Number(item.get('id')),

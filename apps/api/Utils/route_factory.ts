@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type Request, type Response, type NextFunction } from 'express';
 import { body, param } from 'express-validator';
 import { ACCESS_TYPES } from '../Config/constant';
 import { checkAccess, checkOptionsAccess, userAuth } from '../Middleware/authentication';
@@ -8,12 +8,12 @@ import { listValidation, optionsValidation } from './validations';
 import { registerActivityRoute } from './register_activity_route';
 
 export interface CrudController {
-  add: (req: any, res: any, next: any) => Promise<void>;
-  update: (req: any, res: any, next: any) => Promise<void>;
-  get: (req: any, res: any, next: any) => Promise<void>;
-  list: (req: any, res: any, next: any) => Promise<void>;
-  options: (req: any, res: any, next: any) => Promise<void>;
-  delete: (req: any, res: any, next: any) => Promise<void>;
+  add: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+  update: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+  get: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+  list: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+  options: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+  delete: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 }
 
 export function createResourceRouter(

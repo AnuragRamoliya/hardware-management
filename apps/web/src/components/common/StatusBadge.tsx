@@ -1,44 +1,64 @@
-import type React from "react";
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { getStatusLabel, getStatusTone } from "@/utils/constants";
 
+export type StatusBadgeTone =
+  | "default"
+  | "muted"
+  | "secondary"
+  | "success"
+  | "warning"
+  | "danger"
+  | "destructive"
+  | "info"
+  | "purple";
+
+export interface StatusBadgeProps {
+  status?: string;
+  labelMap?: Record<string, string>;
+  label?: string;
+  tone?: StatusBadgeTone;
+  className?: string;
+}
+
 export function StatusBadge({
   status,
+  labelMap,
   label: customLabel,
   tone: customTone,
   className,
-}: {
-  status?: string | number;
-  label?: React.ReactNode;
-  tone?: string;
-  className?: string;
-}) {
+}: StatusBadgeProps) {
+  const mappedLabel = status && labelMap ? labelMap[status] : undefined;
   const rawLabel =
-    customLabel !== undefined && customLabel !== null
-      ? customLabel
-      : getStatusLabel(status) ||
-        (status !== undefined && status !== null ? String(status) : "unknown");
+    customLabel ??
+    mappedLabel ??
+    (status !== undefined && status !== null && status !== ""
+      ? getStatusLabel(status) || status
+      : "Unknown");
 
   const displayText =
-    typeof rawLabel === "string"
+    typeof rawLabel === "string" && rawLabel.trim() !== ""
       ? rawLabel.replace(/_/g, " ")
-      : typeof rawLabel === "number"
-        ? String(rawLabel)
-        : rawLabel;
+      : "Unknown";
 
   let variant: BadgeVariant = "default";
   if (customTone) {
-    if (customTone === "secondary") variant = "muted";
-    else if (customTone === "danger" || customTone === "destructive")
+    if (customTone === "secondary" || customTone === "muted") {
+      variant = "muted";
+    } else if (customTone === "danger" || customTone === "destructive") {
       variant = "destructive";
-    else if (customTone === "warning") variant = "warning";
-    else if (customTone === "success") variant = "success";
-    else if (customTone === "info") variant = "info";
-    else if (customTone === "muted") variant = "muted";
-    else if (customTone === "purple") variant = "purple";
+    } else if (customTone === "warning") {
+      variant = "warning";
+    } else if (customTone === "success") {
+      variant = "success";
+    } else if (customTone === "info") {
+      variant = "info";
+    } else if (customTone === "purple") {
+      variant = "purple";
+    }
   } else {
-    variant = getStatusTone(status);
+    variant = status ? getStatusTone(status) : "muted";
   }
+
   return (
     <Badge variant={variant} className={className}>
       {displayText}

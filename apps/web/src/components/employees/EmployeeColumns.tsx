@@ -94,14 +94,24 @@ export function getEmployeeColumns(
           EMPLOYMENT_STATUS.ACTIVE) as EmploymentStatus;
         const label = EMPLOYMENT_STATUS_LABELS[val] ?? "Active";
         const tone = EMPLOYMENT_STATUS_TONES[val] ?? "muted";
-        return <StatusBadge status={val} label={label} tone={tone} />;
+        const statusKey =
+          val === 1
+            ? "active"
+            : val === 2
+              ? "notice"
+              : val === 3
+                ? "resigned"
+                : "exited";
+        return <StatusBadge status={statusKey} label={label} tone={tone} />;
       },
     },
     {
       id: "status",
       label: "Status",
       sortable: true,
-      render: (row) => <StatusBadge status={row.status} />,
+      render: (row) => (
+        <StatusBadge status={row.status === 1 ? "active" : "inactive"} />
+      ),
     },
     {
       id: "actions",

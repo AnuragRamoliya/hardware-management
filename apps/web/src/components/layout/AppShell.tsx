@@ -347,11 +347,14 @@ export function AppShell() {
   });
   const unreadNotificationCount = useMemo(() => {
     if (!notificationQuery.data) return 0;
-    const data = notificationQuery.data;
-    if (typeof (data as any).unread_count === "number") {
-      return (data as any).unread_count;
+    const data = notificationQuery.data as
+      Record<string, unknown> | Array<Record<string, unknown>>;
+    if ("unread_count" in data && typeof data.unread_count === "number") {
+      return data.unread_count;
     }
-    const items = Array.isArray(data) ? data : (data as any).rows;
+    const items = Array.isArray(data)
+      ? data
+      : (data as { rows?: Array<Record<string, unknown>> }).rows;
     if (Array.isArray(items)) {
       return items.filter((item) => !item.read_at).length;
     }

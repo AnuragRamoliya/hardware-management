@@ -7,6 +7,7 @@ import { validate } from '../Middleware/validator';
 import { listValidation } from '../Utils/validations';
 import { OffboardingController } from '../Controllers/offboarding';
 import { routeHandler } from '../Utils/route_handler';
+import { verifyDocumentRateLimiter } from '../Middleware/rate_limiter';
 
 const controller = new OffboardingController();
 
@@ -216,12 +217,15 @@ offboardingRouter.put(
   offboardingApprove,
   validate([
     body('task_id').optional().isInt({ min: 1 }).toInt(),
-    body('reason').optional().isString().trim(),
+    body('reason')
+      .isString()
+      .trim()
+      .isLength({ min: 5 })
+      .withMessage('Waiver reason must be at least 5 characters.'),
     body('notes').optional().isString().trim(),
   ]),
   routeHandler((req) => {
     if (req.params.id) req.body.task_id = Number(req.params.id);
-    req.body.reason = req.body.reason || req.body.notes || 'Waived by authorized staff';
     return controller.waiveTask(req);
   }),
 );
@@ -233,12 +237,15 @@ offboardingRouter.post(
   offboardingApprove,
   validate([
     param('id').isInt({ min: 1 }).toInt(),
-    body('reason').optional().isString().trim(),
+    body('reason')
+      .isString()
+      .trim()
+      .isLength({ min: 5 })
+      .withMessage('Waiver reason must be at least 5 characters.'),
     body('notes').optional().isString().trim(),
   ]),
   routeHandler((req) => {
     req.body.task_id = Number(req.params.id);
-    req.body.reason = req.body.reason || req.body.notes || 'Waived by authorized staff';
     return controller.waiveTask(req);
   }),
 );
@@ -319,6 +326,7 @@ offboardingRouter.post(
 
 offboardingRouter.post(
   '/verify-document',
+  verifyDocumentRateLimiter,
   validate([body('code').isString().trim().notEmpty()]),
   routeHandler((req) => controller.verifyDocument(req)),
 );

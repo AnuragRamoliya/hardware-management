@@ -102,10 +102,11 @@ export function OffboardingCaseDetail() {
     (t) => t.task_type === OFFBOARDING_TASK_TYPE.CREDENTIAL,
   );
 
-  const caseStatus = ((caseItem as any).case_status ??
-    caseItem.status) as OffboardingCaseStatus;
+  const caseStatus = ((caseItem as { case_status?: OffboardingCaseStatus })
+    .case_status ?? caseItem.status) as OffboardingCaseStatus;
   const completedCount = tasks.filter((t) => {
-    const s = ((t as any).task_status ?? t.status) as OffboardingTaskStatus;
+    const s = ((t as { task_status?: OffboardingTaskStatus }).task_status ??
+      t.status) as OffboardingTaskStatus;
     return (
       s === OFFBOARDING_TASK_STATUS.COMPLETED ||
       s === OFFBOARDING_TASK_STATUS.WAIVED
@@ -396,7 +397,9 @@ export function OffboardingCaseDetail() {
             ) : (
               tasks.map((task) => {
                 const tStatus = String(
-                  (task as any).task_status ?? task.status ?? "pending",
+                  (task as { task_status?: string }).task_status ??
+                    task.status ??
+                    "pending",
                 ) as OffboardingTaskStatus;
                 const statusLabel =
                   (OFFBOARDING_TASK_STATUS_LABELS as Record<string, string>)[
@@ -533,7 +536,9 @@ export function OffboardingCaseDetail() {
             ) : (
               hardwareTasks.map((t) => {
                 const tStatus = String(
-                  (t as any).task_status ?? t.status ?? "pending",
+                  (t as { task_status?: string }).task_status ??
+                    t.status ??
+                    "pending",
                 ) as OffboardingTaskStatus;
                 const statusLabel =
                   (OFFBOARDING_TASK_STATUS_LABELS as Record<string, string>)[
@@ -609,7 +614,9 @@ export function OffboardingCaseDetail() {
             ) : (
               softwareTasks.map((t) => {
                 const tStatus = String(
-                  (t as any).task_status ?? t.status ?? "pending",
+                  (t as { task_status?: string }).task_status ??
+                    t.status ??
+                    "pending",
                 ) as OffboardingTaskStatus;
                 const statusLabel =
                   (OFFBOARDING_TASK_STATUS_LABELS as Record<string, string>)[
@@ -685,7 +692,9 @@ export function OffboardingCaseDetail() {
             ) : (
               credentialTasks.map((t) => {
                 const tStatus = String(
-                  (t as any).task_status ?? t.status ?? "pending",
+                  (t as { task_status?: string }).task_status ??
+                    t.status ??
+                    "pending",
                 ) as OffboardingTaskStatus;
                 const statusLabel =
                   (OFFBOARDING_TASK_STATUS_LABELS as Record<string, string>)[

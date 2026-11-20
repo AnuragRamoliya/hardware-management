@@ -96,4 +96,33 @@ export const offboardingPaths = {
       responses: { '200': { description: 'Employee own offboarding case summary' } },
     },
   },
+  '/offboarding/cases': {
+    post: {
+      summary: 'Legacy alias for listing offboarding cases (Deprecated: Use /offboarding/list)',
+      deprecated: true,
+      tags: ['Offboarding'],
+      security: [{ Token: [] }],
+      responses: { '200': { description: 'Paginated offboarding case list' } },
+    },
+  },
+  '/offboarding/cases/{id}': {
+    get: {
+      summary: 'Legacy alias for case details (Deprecated: Use /offboarding/get/{id})',
+      deprecated: true,
+      tags: ['Offboarding'],
+      security: [{ Token: [] }],
+      parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' } }],
+      responses: { '200': { description: 'Offboarding case details' } },
+    },
+  },
+  '/offboarding/tasks': {
+    post: {
+      summary:
+        'Legacy alias for listing offboarding tasks (Deprecated: Use /offboarding/task/list)',
+      deprecated: true,
+      tags: ['Offboarding'],
+      security: [{ Token: [] }],
+      responses: { '200': { description: 'Offboarding tasks list' } },
+    },
+  },
 };

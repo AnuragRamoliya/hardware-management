@@ -76,9 +76,9 @@ export function Login() {
             itam<span className="text-primary">.</span>
           </div>
           <p className="text-sm font-medium text-primary">Welcome back</p>
-          <h2 className="mt-2 text-3xl font-semibold tracking-[-.04em]">
+          <h1 className="mt-2 text-3xl font-semibold tracking-[-.04em]">
             Sign in to your account
-          </h2>
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Enter your details below to continue.
           </p>

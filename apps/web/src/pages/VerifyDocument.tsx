@@ -30,15 +30,17 @@ export function VerifyDocument() {
         setResult(res.data);
       } else {
         setResult({
-          verified: false,
-          code: trimmed,
+          valid: false,
+          case_no: null,
+          issued_at: null,
           message: res.message || "Document verification failed. Invalid code.",
         });
       }
     } catch (err: unknown) {
       setResult({
-        verified: false,
-        code: trimmed,
+        valid: false,
+        case_no: null,
+        issued_at: null,
         message:
           err instanceof Error
             ? err.message
@@ -50,13 +52,50 @@ export function VerifyDocument() {
   };
 
   useEffect(() => {
-    if (searchParams.get("code")) {
-      void handleVerify();
-    }
-  }, []);
+    const codeParam = searchParams.get("code");
+    if (!codeParam) return;
+    setCode(codeParam);
+    let cancelled = false;
+    setIsLoading(true);
+    setResult(null);
+    offboardingApi
+      .verifyDocument(codeParam.trim())
+      .then((res) => {
+        if (cancelled) return;
+        if (res.ok && res.data) {
+          setResult(res.data);
+        } else {
+          setResult({
+            valid: false,
+            case_no: null,
+            issued_at: null,
+            message:
+              res.message || "Document verification failed. Invalid code.",
+          });
+        }
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setResult({
+          valid: false,
+          case_no: null,
+          issued_at: null,
+          message:
+            err instanceof Error
+              ? err.message
+              : "Could not contact document verification registry.",
+        });
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams]);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 py-6">
+    <main className="mx-auto max-w-2xl space-y-6 py-6">
       <div className="text-center space-y-2">
         <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
           <FileCheck className="h-6 w-6" />
@@ -77,6 +116,7 @@ export function VerifyDocument() {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="e.g. CLR-2026-0012-A1B2C3"
+              aria-label="Clearance certificate verification code"
               className="font-mono uppercase text-base"
               disabled={isLoading}
             />
@@ -99,13 +139,13 @@ export function VerifyDocument() {
       {result && (
         <Card
           className={`border-2 p-6 transition-all ${
-            result.verified
+            (result.valid ?? result.verified)
               ? "border-success/50 bg-success/5"
               : "border-destructive/50 bg-destructive/5"
           }`}
         >
           <div className="flex items-start gap-4">
-            {result.verified ? (
+            {(result.valid ?? result.verified) ? (
               <ShieldCheck className="h-8 w-8 text-success" />
             ) : (
               <ShieldAlert className="h-8 w-8 text-destructive" />
@@ -114,46 +154,34 @@ export function VerifyDocument() {
               <div className="flex items-center gap-3">
                 <h3
                   className={`text-lg font-bold ${
-                    result.verified ? "text-success" : "text-destructive"
+                    (result.valid ?? result.verified)
+                      ? "text-success"
+                      : "text-destructive"
                   }`}
                 >
-                  {result.verified
+                  {(result.valid ?? result.verified)
                     ? "Authentic Certificate Verified"
                     : "Certificate Verification Failed"}
                 </h3>
                 <Badge
-                  variant={result.verified ? "success" : "danger"}
+                  variant={
+                    (result.valid ?? result.verified) ? "success" : "danger"
+                  }
                   className="text-xs"
                 >
-                  {result.verified ? "Verified" : "Invalid"}
+                  {(result.valid ?? result.verified) ? "Verified" : "Invalid"}
                 </Badge>
               </div>
 
-              {result.verified ? (
+              {(result.valid ?? result.verified) ? (
                 <div className="mt-4 space-y-3 rounded-lg border bg-background/80 p-4 text-sm">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <span className="text-xs text-muted-foreground">
-                        Employee:
+                        Case Number:
                       </span>
                       <div className="font-semibold text-foreground">
-                        {result.employee_name || "—"}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground">
-                        Employee ID:
-                      </span>
-                      <div className="font-mono font-medium text-foreground">
-                        {result.employee_code || `EMP-${result.case_id}`}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground">
-                        Last Working Day:
-                      </span>
-                      <div className="font-medium text-foreground">
-                        {result.last_working_day || "—"}
+                        {result.case_no || "—"}
                       </div>
                     </div>
                     <div>
@@ -161,23 +189,12 @@ export function VerifyDocument() {
                         Clearance Issued At:
                       </span>
                       <div className="font-medium text-foreground">
-                        {result.completed_at
-                          ? new Date(result.completed_at).toLocaleDateString()
+                        {result.issued_at
+                          ? new Date(result.issued_at).toLocaleString()
                           : "—"}
                       </div>
                     </div>
                   </div>
-
-                  {result.hash && (
-                    <div className="border-t pt-3">
-                      <span className="text-xs text-muted-foreground">
-                        Tamper-Evident SHA-256 Digest:
-                      </span>
-                      <div className="break-all font-mono text-[11px] text-muted-foreground">
-                        {result.hash}
-                      </div>
-                    </div>
-                  )}
                 </div>
               ) : (
                 <p className="text-sm text-destructive">
@@ -189,6 +206,6 @@ export function VerifyDocument() {
           </div>
         </Card>
       )}
-    </div>
+    </main>
   );
 }
