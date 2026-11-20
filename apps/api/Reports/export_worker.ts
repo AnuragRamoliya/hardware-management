@@ -2,13 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { Op } from 'sequelize';
-import { export_jobs, users } from '../Database/Schema';
+import { export_jobs, users, notifications } from '../Database/Schema';
 import { getReport } from './registry';
 import { exportReportToCsv } from './exporters/csv_exporter';
 import { exportReportToXlsx } from './exporters/xlsx_exporter';
 import { exportReportToPdf } from './exporters/pdf_exporter';
 import { RealtimeService } from '../Services/realtime.service';
-import { REALTIME_EVENTS } from '@hm/shared';
+import { REALTIME_EVENTS, EXPORT_JOB_STATUS } from '@hm/shared';
 import { logger } from '../Config/logger';
 import type { UserInfo } from '../Types/api';
 
@@ -57,9 +57,11 @@ export class ExportWorker {
     this.isProcessing = true;
 
     try {
-      // Find oldest pending job
+      // Find oldest queued job
       const pendingJob = await export_jobs.findOne({
-        where: { job_status: 'pending' },
+        where: {
+          job_status: { [Op.in]: [EXPORT_JOB_STATUS.QUEUED, 'pending'] },
+        },
         order: [['createdAt', 'ASC']],
       });
 
@@ -72,8 +74,13 @@ export class ExportWorker {
 
       // Atomic claim
       const [affected] = await export_jobs.update(
-        { job_status: 'processing', progress: 5 },
-        { where: { id: jobId, job_status: 'pending' } },
+        { job_status: EXPORT_JOB_STATUS.RUNNING, progress: 5 },
+        {
+          where: {
+            id: jobId,
+            job_status: { [Op.in]: [EXPORT_JOB_STATUS.QUEUED, 'pending'] },
+          },
+        },
       );
 
       if (affected === 0) {
@@ -126,7 +133,7 @@ export class ExportWorker {
         job_id: jobId,
         report_key: reportKey,
         format,
-        status: 'processing',
+        status: EXPORT_JOB_STATUS.RUNNING,
         progress: 10,
       },
     });
@@ -179,7 +186,7 @@ export class ExportWorker {
 
       await export_jobs.update(
         {
-          job_status: 'completed',
+          job_status: EXPORT_JOB_STATUS.DONE,
           progress: 100,
           row_count: result.rowCount,
           file_path: filePath,
@@ -189,19 +196,44 @@ export class ExportWorker {
         { where: { id: jobId } },
       );
 
-      // Emit completed event
+      // Create stored notification (F6)
+      try {
+        await notifications.create({
+          recipient_user_id: requestedBy,
+          category: 'report',
+          kind: 'export_job_completed',
+          record_type: 'export_job',
+          record_id: jobId,
+          title: 'Report Export Ready',
+          message: `Your export for ${reportKey} (${format.toUpperCase()}) is ready for download.`,
+          link: `/reports/${reportKey}`,
+          priority: 2,
+        });
+      } catch (notifErr) {
+        logger.warn('Failed to persist export completion notification:', notifErr);
+      }
+
+      // Emit completed and done events (F6) - no file path, no data
+      const eventPayload = {
+        job_id: jobId,
+        report_key: reportKey,
+        format,
+        status: EXPORT_JOB_STATUS.DONE,
+        progress: 100,
+        row_count: result.rowCount,
+        file_sha256: fileSha256,
+      };
+
       this.realtimeService.publish({
         event: REALTIME_EVENTS.EXPORT_JOB_COMPLETED,
         rooms: `user:${requestedBy}`,
-        data: {
-          job_id: jobId,
-          report_key: reportKey,
-          format,
-          status: 'completed',
-          progress: 100,
-          row_count: result.rowCount,
-          file_sha256: fileSha256,
-        },
+        data: eventPayload,
+      });
+
+      this.realtimeService.publish({
+        event: REALTIME_EVENTS.EXPORT_JOB_DONE,
+        rooms: `user:${requestedBy}`,
+        data: eventPayload,
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown export error';
@@ -213,18 +245,35 @@ export class ExportWorker {
   private async failJob(jobId: number, requestedBy: number, errorMessage: string): Promise<void> {
     await export_jobs.update(
       {
-        job_status: 'failed',
+        job_status: EXPORT_JOB_STATUS.FAILED,
         error: errorMessage,
       },
       { where: { id: jobId } },
     );
+
+    // Create stored failure notification (F6)
+    try {
+      await notifications.create({
+        recipient_user_id: requestedBy,
+        category: 'report',
+        kind: 'export_job_failed',
+        record_type: 'export_job',
+        record_id: jobId,
+        title: 'Report Export Failed',
+        message: `Your export request failed: ${errorMessage}`,
+        link: '/reports',
+        priority: 2,
+      });
+    } catch (notifErr) {
+      logger.warn('Failed to persist export failure notification:', notifErr);
+    }
 
     this.realtimeService.publish({
       event: REALTIME_EVENTS.EXPORT_JOB_FAILED,
       rooms: `user:${requestedBy}`,
       data: {
         job_id: jobId,
-        status: 'failed',
+        status: EXPORT_JOB_STATUS.FAILED,
         error: errorMessage,
       },
     });
@@ -234,13 +283,13 @@ export class ExportWorker {
     const expiredJobs = await export_jobs.findAll({
       where: {
         expires_at: { [Op.lt]: new Date() },
-        file_path: { [Op.ne]: null },
+        job_status: { [Op.ne]: EXPORT_JOB_STATUS.EXPIRED },
       },
     });
 
     let cleaned = 0;
     for (const job of expiredJobs) {
-      const fPath = String(job.get('file_path'));
+      const fPath = String(job.get('file_path') || '');
       if (fPath && fs.existsSync(fPath)) {
         try {
           fs.unlinkSync(fPath);
@@ -249,7 +298,10 @@ export class ExportWorker {
           logger.warn(`Failed to unlink expired export file ${fPath}:`, e);
         }
       }
-      await job.update({ file_path: null });
+      await job.update({
+        job_status: EXPORT_JOB_STATUS.EXPIRED,
+        file_path: null,
+      });
     }
     return cleaned;
   }

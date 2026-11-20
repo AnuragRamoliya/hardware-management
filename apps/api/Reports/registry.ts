@@ -38,7 +38,7 @@ export function normalizeRoleKey(roleName?: string): string {
   const clean = roleName.toLowerCase().replace(/[\s_-]/g, '');
   if (clean === 'superadmin' || clean === 'admin') return 'super_admin';
   if (clean === 'hardwaremanager' || clean === 'hardware') return 'hardware_manager';
-  if (clean === 'hrmanager' || clean === 'hr') return 'hr_manager';
+  if (clean === 'hrmanager' || clean === 'hr') return 'hr';
   if (clean === 'employee') return 'employee';
   return roleName.toLowerCase();
 }

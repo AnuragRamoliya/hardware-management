@@ -1460,6 +1460,7 @@ export const REALTIME_EVENTS = {
   EXPORT_JOB_STARTED: "export:started",
   EXPORT_JOB_PROGRESS: "export:progress",
   EXPORT_JOB_COMPLETED: "export:completed",
+  EXPORT_JOB_DONE: "export:done",
   EXPORT_JOB_FAILED: "export:failed",
 } as const;
 
@@ -1649,15 +1650,16 @@ export interface ServerToClientEvents {
 
 export type ReportExportFormat = "csv" | "xlsx" | "pdf";
 
+export const EXPORT_JOB_STATUS = {
+  QUEUED: "queued",
+  RUNNING: "running",
+  DONE: "done",
+  FAILED: "failed",
+  EXPIRED: "expired",
+} as const;
+
 export type ExportJobStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed"
-  | "expired"
-  | "queued"
-  | "running"
-  | "done";
+  (typeof EXPORT_JOB_STATUS)[keyof typeof EXPORT_JOB_STATUS];
 
 export interface ExportJobDto {
   id: number;

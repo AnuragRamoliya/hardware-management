@@ -1,5 +1,7 @@
 import crypto from 'node:crypto';
+import bcrypt from 'bcrypt';
 import {
+  users,
   employees,
   departments,
   designations,
@@ -28,6 +30,35 @@ async function seedTestFixture() {
   console.log('=== Seeding Deterministic Test Fixture for Full-System Verification ===');
 
   const now = FIXTURE_DATE;
+
+  // 0. Seed deterministic users for all 4 roles
+  const testPasswordHash = await bcrypt.hash('TestPassword123!', 10);
+  const fixtureUsers = [
+    { email: 'admin@fixture.local', first_name: 'Admin', last_name: 'Fixture', role_id: 1 },
+    { email: 'hw@fixture.local', first_name: 'HW', last_name: 'Manager', role_id: 2 },
+    { email: 'hr@fixture.local', first_name: 'HR', last_name: 'Specialist', role_id: 3 },
+    { email: 'emp@fixture.local', first_name: 'Emp', last_name: 'Fixture', role_id: 4 },
+  ];
+
+  let empUserRowId: number = 1;
+  for (const u of fixtureUsers) {
+    let userRow = await users.findOne({ where: { email: u.email } });
+    if (!userRow) {
+      userRow = await users.create({
+        email: u.email,
+        first_name: u.first_name,
+        last_name: u.last_name,
+        password: testPasswordHash,
+        role_id: u.role_id,
+        status: STATUS.ACTIVE,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+    if (u.email === 'emp@fixture.local') {
+      empUserRowId = Number(userRow.get('id'));
+    }
+  }
 
   // 1. Department & Designation
   let dept = await departments.findOne({ where: { name: 'Engineering Fixture' } });
@@ -86,6 +117,7 @@ async function seedTestFixture() {
       first_name: 'Alice',
       last_name: 'Fixture',
       email: 'alice.fixture@example.com',
+      user_id: empUserRowId,
       department_id: deptId,
       designation_id: desigId,
       location_id: locId,
@@ -94,6 +126,8 @@ async function seedTestFixture() {
       createdAt: now,
       updatedAt: now,
     });
+  } else if (!emp1.get('user_id')) {
+    await emp1.update({ user_id: empUserRowId });
   }
   const emp1Id = Number(emp1.get('id'));
 

@@ -342,7 +342,7 @@ export function Dashboard() {
           >
             <StatCard
               label="Open Requests"
-              value={requestStats?.metrics.open_requests ?? 0}
+              value={requestStats?.metrics?.open_requests ?? 0}
               icon={<Inbox className="h-4 w-4" />}
             />
           </Link>
@@ -353,7 +353,7 @@ export function Dashboard() {
           >
             <StatCard
               label="My Review Queue"
-              value={requestStats?.metrics.my_queue ?? 0}
+              value={requestStats?.metrics?.my_queue ?? 0}
               icon={<UserCheck className="h-4 w-4" />}
             />
           </Link>
@@ -364,7 +364,7 @@ export function Dashboard() {
           >
             <StatCard
               label="SLA Breached"
-              value={requestStats?.metrics.sla_breached ?? 0}
+              value={requestStats?.metrics?.sla_breached ?? 0}
               icon={<AlertTriangle className="h-4 w-4 text-destructive" />}
             />
           </Link>
@@ -375,7 +375,7 @@ export function Dashboard() {
           >
             <StatCard
               label="Awaiting Stock"
-              value={requestStats?.metrics.awaiting_stock ?? 0}
+              value={requestStats?.metrics?.awaiting_stock ?? 0}
               icon={<PackageX className="h-4 w-4 text-warning" />}
             />
           </Link>
@@ -387,7 +387,7 @@ export function Dashboard() {
               </span>
               <div className="mt-1 flex items-baseline gap-1.5">
                 <span className="text-2xl font-bold tracking-tight text-foreground">
-                  {requestStats?.metrics.avg_turnaround_hours ?? 0}
+                  {requestStats?.metrics?.avg_turnaround_hours ?? 0}
                 </span>
                 <span className="text-xs text-muted-foreground">hours</span>
               </div>

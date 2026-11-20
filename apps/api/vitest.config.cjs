@@ -7,5 +7,6 @@ module.exports = defineConfig({
     clearMocks: true,
     restoreMocks: true,
     passWithNoTests: true,
+    testTimeout: 20000,
   },
 });

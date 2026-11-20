@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -95,6 +95,10 @@ export function ReportPage() {
     },
     enabled: !!key && !!meta,
   });
+
+  const handleQueryChange = useCallback((newQ: Partial<ListQuery>) => {
+    setQuery((prev) => ({ ...prev, ...newQ }));
+  }, []);
 
   // Dynamically map columns
   const tableColumns = useMemo<TableColumn<ReportRow>[]>(() => {
@@ -307,7 +311,7 @@ export function ReportPage() {
         rows={(reportResult?.rows as unknown as ReportRow[]) || []}
         count={reportResult?.count || 0}
         query={query}
-        onQueryChange={(newQ) => setQuery((prev) => ({ ...prev, ...newQ }))}
+        onQueryChange={handleQueryChange}
         loading={isDataLoading}
         error={error ? "Failed to fetch report dataset" : undefined}
         onRetry={() => refetch()}

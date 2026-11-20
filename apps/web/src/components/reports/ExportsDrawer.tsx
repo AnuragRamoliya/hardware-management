@@ -13,7 +13,12 @@ import {
   FileText,
   FileSpreadsheet,
 } from "lucide-react";
-import { REALTIME_EVENTS, type ExportJobDto } from "@hm/shared";
+import {
+  REALTIME_EVENTS,
+  EXPORT_JOB_STATUS,
+  type ExportJobDto,
+  type ExportJobStatus,
+} from "@hm/shared";
 import { toast } from "sonner";
 
 export function ExportsDrawer({
@@ -41,11 +46,11 @@ export function ExportsDrawer({
       return res.data;
     },
     enabled: open,
-    refetchInterval: (query) => {
-      const activeJobs = query.state.data?.some(
-        (j) => j.job_status === "pending" || j.job_status === "processing",
-      );
-      return activeJobs ? 3000 : false;
+    refetchInterval: () => {
+      const socket = getSocket();
+      // No polling while connected to realtime socket; fallback 60s when disconnected
+      if (socket?.connected) return false;
+      return 60_000;
     },
   });
 
@@ -57,7 +62,7 @@ export function ExportsDrawer({
     const handleUpdate = (
       eventData: Partial<ExportJobDto> & {
         job_id: number;
-        status?: "pending" | "processing" | "completed" | "failed";
+        status?: ExportJobStatus | "completed" | "pending" | "processing";
       },
     ) => {
       queryClient.setQueryData<ExportJobDto[]>(
@@ -65,9 +70,12 @@ export function ExportsDrawer({
         (oldJobs = []) => {
           return oldJobs.map((j) => {
             if (j.id === eventData.job_id) {
+              const updatedStatus = (eventData.status ||
+                j.job_status) as ExportJobStatus;
+
               return {
                 ...j,
-                job_status: eventData.status || j.job_status,
+                job_status: updatedStatus,
                 progress:
                   eventData.progress !== undefined
                     ? eventData.progress
@@ -82,25 +90,33 @@ export function ExportsDrawer({
         },
       );
 
-      if (eventData.status === "completed") {
+      if (eventData.status === EXPORT_JOB_STATUS.DONE) {
         toast.success(`Export job #${eventData.job_id} ready for download!`);
         void refetch();
-      } else if (eventData.status === "failed") {
+      } else if (eventData.status === EXPORT_JOB_STATUS.FAILED) {
         toast.error(
           `Export job #${eventData.job_id} failed: ${eventData.error || "Unknown error"}`,
         );
       }
     };
 
+    const handleReconnect = () => {
+      void refetch();
+    };
+
+    socket.on("connect", handleReconnect);
     socket.on(REALTIME_EVENTS.EXPORT_JOB_STARTED, handleUpdate);
     socket.on(REALTIME_EVENTS.EXPORT_JOB_PROGRESS, handleUpdate);
     socket.on(REALTIME_EVENTS.EXPORT_JOB_COMPLETED, handleUpdate);
+    socket.on(REALTIME_EVENTS.EXPORT_JOB_DONE, handleUpdate);
     socket.on(REALTIME_EVENTS.EXPORT_JOB_FAILED, handleUpdate);
 
     return () => {
+      socket.off("connect", handleReconnect);
       socket.off(REALTIME_EVENTS.EXPORT_JOB_STARTED, handleUpdate);
       socket.off(REALTIME_EVENTS.EXPORT_JOB_PROGRESS, handleUpdate);
       socket.off(REALTIME_EVENTS.EXPORT_JOB_COMPLETED, handleUpdate);
+      socket.off(REALTIME_EVENTS.EXPORT_JOB_DONE, handleUpdate);
       socket.off(REALTIME_EVENTS.EXPORT_JOB_FAILED, handleUpdate);
     };
   }, [queryClient, refetch]);
@@ -183,9 +199,11 @@ export function ExportsDrawer({
           <div className="space-y-3">
             {jobs.map((job) => {
               const isRunning =
-                job.job_status === "pending" || job.job_status === "processing";
-              const isCompleted = job.job_status === "completed";
-              const isFailed = job.job_status === "failed";
+                job.job_status === EXPORT_JOB_STATUS.QUEUED ||
+                job.job_status === EXPORT_JOB_STATUS.RUNNING;
+              const isCompleted = job.job_status === EXPORT_JOB_STATUS.DONE;
+              const isFailed = job.job_status === EXPORT_JOB_STATUS.FAILED;
+              const isExpired = job.job_status === EXPORT_JOB_STATUS.EXPIRED;
 
               return (
                 <div
@@ -224,7 +242,15 @@ export function ExportsDrawer({
                               ? "rejected"
                               : "neutral"
                       }
-                      label={job.job_status.toUpperCase()}
+                      label={
+                        isExpired
+                          ? "EXPIRED"
+                          : isCompleted
+                            ? "DONE"
+                            : isRunning
+                              ? "RUNNING"
+                              : String(job.job_status).toUpperCase()
+                      }
                     />
                   </div>
 

@@ -1,4 +1,5 @@
 import { DataTypes } from 'sequelize';
+import { EXPORT_JOB_STATUS } from '@hm/shared';
 
 export const exportJobsSchema = {
   report_key: { type: DataTypes.STRING(100), allowNull: false },
@@ -7,7 +8,7 @@ export const exportJobsSchema = {
   job_status: {
     type: DataTypes.STRING(30),
     allowNull: false,
-    defaultValue: 'queued',
+    defaultValue: EXPORT_JOB_STATUS.QUEUED,
   },
   progress: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
   row_count: { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0 },

@@ -4,215 +4,255 @@ This document defines the 10 operational and compliance reports available in the
 
 ---
 
-## 1. Hardware Reports
+## 1. Hardware & Inventory Reports
 
 ### R1: Hardware Per Employee
 
 - **Key**: `hardware-per-employee`
 - **Category**: `hardware`
+- **Title**: Hardware Per Employee
 - **Description**: Company-wide visibility into hardware deployed to employees, department allocation, and warranty coverage status.
-- **Allowed Roles**: `super_admin`, `admin`, `hardware_manager`, `hr_manager`
+- **Allowed Roles**: `super_admin`, `hardware_manager`
 - **KPI Strip**:
-  - `Total Assigned Assets`: Count of active assigned hardware devices
-  - `Active Employees with Hardware`: Count of distinct employees holding at least 1 hardware asset
+  - `Total Tracked Assets`: Count of active assigned hardware devices
+  - `Deployed Assets`: Count of active hardware assets deployed to employees
+  - `Assigned Rate`: Percentage of assigned assets out of tracked assets
 - **Columns**:
   - `employee_name` (string, sortable) — Full name of employee
+  - `employee_code` (string, sortable) — Employee code
   - `department` (string, sortable) — Department name
   - `asset_tag` (string, sortable) — Unique hardware asset tag
   - `asset_name` (string, sortable) — Asset model / description
-  - `category` (string, sortable) — Laptop, Desktop, Monitor, Peripheral, Mobile
+  - `category` (string, sortable) — Hardware category
+  - `serial_number` (string, sortable) — Serial number
   - `assigned_date` (date, sortable) — Date of assignment
   - `warranty_status` (enum, sortable) — `active` | `expired`
-- **Filter Parameters**: `department_id`, `category_id`, `search`, `start_date`, `end_date`
+- **Filter Parameters**: `employee_id`, `department_id`, `category_id`, `search`
 
-### R2: Asset Lifecycle & Depreciation
+### R2: Assets by Category and Department
 
-- **Key**: `asset-lifecycle`
-- **Category**: `lifecycle`
-- **Description**: Financial depreciation tracker calculating straight-line salvage value, book value, and asset age.
-- **Allowed Roles**: `super_admin`, `admin`, `hardware_manager`
+- **Key**: `assets-by-category-department`
+- **Category**: `inventory`
+- **Title**: Assets by Category and Department
+- **Description**: Cross-tabulation of hardware asset counts across asset categories and organizational departments.
+- **Allowed Roles**: `super_admin`, `hardware_manager`
 - **KPI Strip**:
-  - `Total Asset Acquisition Cost`: Sum of original purchase costs
-  - `Current Portfolio Book Value`: Current depreciated balance across all assets
+  - `Total Tracked Assets`: Grand total of hardware assets across all categories
+  - `Active Assigned`: Total assets currently deployed
+  - `Available Spare`: Total assets in stock / available
+- **Columns**:
+  - `category` (string, sortable) — Asset category name
+  - `department` (string, sortable) — Assigned department name
+  - `total_assets` (number, sortable) — Total hardware count in category/dept
+  - `active_assets` (number, sortable) — Number of active in-use assets
+  - `spare_assets` (number, sortable) — Number of spare / in-stock assets
+  - `in_repair` (number, sortable) — Number of assets currently undergoing repair
+  - `retired` (number, sortable) — Number of decommissioned / retired assets
+- **Filter Parameters**: `category_id`, `department_id`
+
+### R3: Assigned vs Unassigned Hardware
+
+- **Key**: `assigned-vs-unassigned`
+- **Category**: `inventory`
+- **Title**: Assigned vs Unassigned Hardware
+- **Description**: Inventory allocation ratio comparing deployed hardware against in-stock spare capacity.
+- **Allowed Roles**: `super_admin`, `hardware_manager`
+- **KPI Strip**:
+  - `Total Tracked Assets`: Grand total of assets
+  - `Assigned Hardware`: Assets currently assigned to personnel
+  - `In Stock (Spare)`: Assets available for deployment
+  - `Allocation Rate`: Percentage of fleet deployed
 - **Columns**:
   - `asset_tag` (string, sortable) — Asset tag
-  - `asset_name` (string, sortable) — Name / model
-  - `purchase_date` (date, sortable) — Date acquired
-  - `purchase_cost` (currency, sortable) — Original acquisition cost (USD)
-  - `useful_life_years` (number, sortable) — Expected useful life
-  - `depreciated_value` (currency, sortable) — Calculated current book value
-  - `lifecycle_status` (enum, sortable) — `active` | `expiring_soon` | `salvaged`
-- **Filter Parameters**: `status`, `min_cost`, `max_cost`, `purchase_year`
-
-### R3: Warranty Expiration Forecast
-
-- **Key**: `warranty-expiry`
-- **Category**: `lifecycle`
-- **Description**: Forward-looking 30/60/90-day warranty expiration forecast for proactive hardware refresh and maintenance planning.
-- **Allowed Roles**: `super_admin`, `admin`, `hardware_manager`
-- **KPI Strip**:
-  - `Expiring Within 30 Days`: Urgent replacements / warranty renewals needed
-  - `Expiring Within 90 Days`: Quarterly budget planning forecast
-- **Columns**:
-  - `asset_tag` (string, sortable) — Hardware asset tag
-  - `asset_name` (string, sortable) — Asset model
-  - `assigned_to` (string, sortable) — Current assignee or "Unassigned"
-  - `vendor` (string, sortable) — Vendor / OEM supplier
-  - `warranty_expiry_date` (date, sortable) — Date warranty expires
-  - `days_remaining` (number, sortable) — Number of days until expiration
-  - `risk_level` (enum, sortable) — `critical` (<=30d) | `moderate` (31-90d) | `normal` (>90d)
-- **Filter Parameters**: `days_horizon` (30, 60, 90, 180), `vendor_id`
-
-### R4: Maintenance & Repair History
-
-- **Key**: `maintenance-history`
-- **Category**: `hardware`
-- **Description**: Historical log of hardware failures, servicing events, repair costs, and downtime metrics.
-- **Allowed Roles**: `super_admin`, `admin`, `hardware_manager`
-- **KPI Strip**:
-  - `Total Maintenance Expenditure`: Cumulative cost of all completed repairs
-  - `Currently Under Repair`: Assets currently in service
-- **Columns**:
-  - `asset_tag` (string, sortable) — Asset tag
-  - `asset_name` (string, sortable) — Hardware name
-  - `issue_description` (string) — Reported fault or maintenance description
-  - `service_vendor` (string, sortable) — Repair shop / OEM service provider
-  - `cost` (currency, sortable) — Total repair cost
-  - `status` (enum, sortable) — `under_repair` | `fulfilled` | `unrepairable`
-  - `completed_at` (date, sortable) — Service completion date
-- **Filter Parameters**: `status`, `vendor_id`, `start_date`, `end_date`
+  - `category` (string, sortable) — Category name
+  - `brand` (string, sortable) — Brand / manufacturer
+  - `model` (string, sortable) — Hardware model
+  - `serial_number` (string, sortable) — Serial number
+  - `location` (string, sortable) — Storage or office location
+  - `assignment_status` (enum, sortable) — `assigned` | `unassigned`
+  - `assignee_name` (string, sortable) — Assigned employee or Unassigned
+  - `assigned_date` (date, sortable) — Date of assignment
+  - `days_deployed` (number, sortable) — Number of days deployed
+- **Filter Parameters**: `category_id`, `location_id`, `assignment_status`
 
 ---
 
 ## 2. Software & License Reports
 
-### R5: Software License Utilization
+### R4: Software License Utilization
 
 - **Key**: `software-license-utilization`
 - **Category**: `software`
-- **Description**: License seat utilization rates, allocated vs available headroom, and over-allocation risk.
-- **Allowed Roles**: `super_admin`, `admin`, `hardware_manager`
+- **Title**: Software License Utilization
+- **Description**: Software seat allocation efficiency, license occupancy rates, and over-allocation risk.
+- **Allowed Roles**: `super_admin`, `hardware_manager`
 - **KPI Strip**:
-  - `Total Licensed Seats`: Global capacity across SaaS & installed licenses
-  - `Average Seat Utilization`: Percentage of seats currently occupied
+  - `Total Software Seats`: Total purchased seat capacity
+  - `Assigned Seats`: Total active seat assignments
+  - `Average Utilization`: Overall percentage of purchased seats utilized
+  - `Over-Allocated Products`: Number of titles with utilization exceeding 100%
 - **Columns**:
-  - `software_name` (string, sortable) — Software title
-  - `license_type` (string, sortable) — Subscription, Per-Seat, Enterprise, OEM
-  - `total_seats` (number, sortable) — Total seats purchased
-  - `allocated_seats` (number, sortable) — Seats deployed to employees
-  - `utilization_pct` (number, sortable) — Calculated % occupancy
-  - `status` (enum, sortable) — `optimal` | `expiring_soon` | `over_allocated`
-- **Filter Parameters**: `license_type`, `search`
-
-### R6: Expiring Software Subscriptions
-
-- **Key**: `expiring-software`
-- **Category**: `software`
-- **Description**: Contract renewal and subscription expiration radar for annual, monthly, and multi-year SaaS agreements.
-- **Allowed Roles**: `super_admin`, `admin`, `hardware_manager`
-- **KPI Strip**:
-  - `Renewals Due Next 30 Days`: Immediate renewals requiring purchasing approval
-  - `Annual Renewal Commit`: Estimated annual commitment for expiring software
-- **Columns**:
-  - `software_name` (string, sortable) — Software title
-  - `vendor` (string, sortable) — Publisher / Reseller
-  - `cost` (currency, sortable) — Annual contract cost
-  - `renewal_date` (date, sortable) — Subscription expiry date
-  - `days_until_renewal` (number, sortable) — Days until next payment/renewal
-  - `status` (enum, sortable) — `active` | `expiring_soon` | `expired`
-- **Filter Parameters**: `days_horizon`, `vendor_id`
+  - `software_name` (string, sortable) — Application name
+  - `category` (string, sortable) — Software category
+  - `vendor` (string, sortable) — Vendor / publisher
+  - `license_type` (enum, sortable) — `perpetual` | `subscription` | `seat` | `site`
+  - `total_seats` (number, sortable) — Purchased seats
+  - `assigned_seats` (number, sortable) — Deployed seats
+  - `available_seats` (number, sortable) — Available seat buffer
+  - `utilization_pct` (number, sortable) — Utilization percentage
+  - `utilization_status` (enum, sortable) — `normal` | `high` | `over_allocated`
+  - `expiration_date` (date, sortable) — License expiration / renewal date
+- **Filter Parameters**: `category`, `vendor_id`, `utilization_status`
 
 ---
 
-## 3. Operational & Service-Level Reports
+## 3. Lifecycle & Maintenance Reports
 
-### R7: Request SLA Performance
+### R5: Hardware Warranty Expiry
 
-- **Key**: `request-sla-performance`
-- **Category**: `service-level`
-- **Description**: IT support desk velocity, ticket fulfillment times, and SLA breach ratios.
-- **Allowed Roles**: `super_admin`, `admin`, `hardware_manager`, `hr_manager`
+- **Key**: `warranty-expiry`
+- **Category**: `lifecycle`
+- **Title**: Hardware Warranty Expiry
+- **Description**: Hardware approaching end-of-warranty horizons (30, 60, 90 days) or already expired.
+- **Allowed Roles**: `super_admin`, `hardware_manager`
 - **KPI Strip**:
-  - `Overall SLA Compliance Rate`: Percentage of requests fulfilled within designated SLA
-  - `Average Resolution Time`: Average turnaround time in hours
+  - `Matching Assets`: Total assets in filter window
+  - `Expired Warranties`: Total assets with expired warranty
+  - `Expiring in 30 Days`: Immediate upcoming expirations
+  - `Expiring in 90 Days`: Medium-term renewals
 - **Columns**:
-  - `request_no` (string, sortable) — Request identifier
-  - `requester_name` (string, sortable) — Requesting employee
-  - `item_type` (string, sortable) — Hardware, Software, Access
-  - `sla_status` (enum, sortable) — `within_sla` | `breached`
-  - `hours_to_fulfill` (number, sortable) — Turnaround duration in decimal hours
-  - `created_at` (date, sortable) — Timestamp request logged
-- **Filter Parameters**: `sla_status`, `item_type`, `start_date`, `end_date`
+  - `asset_tag` (string, sortable) — Asset tag
+  - `category` (string, sortable) — Category
+  - `brand` (string, sortable) — Brand
+  - `model` (string, sortable) — Model
+  - `serial_number` (string, sortable) — Serial number
+  - `vendor_name` (string, sortable) — Vendor name
+  - `warranty_end` (date, sortable) — Expiration date
+  - `days_remaining` (number, sortable) — Days remaining (negative if expired)
+  - `warranty_status` (enum, sortable) — `active` | `expired`
+  - `assignee_name` (string, sortable) — Current assignee
+- **Filter Parameters**: `window_days` (`30`, `60`, `90`, `all`), `category_id`, `vendor_id`
 
-### R8: Offboarding Clearance & Recovery
+### R6: Hardware Repair & Maintenance History
 
-- **Key**: `offboarding-clearance`
-- **Category**: `service-level`
-- **Description**: Employee separation hardware recovery status, credential revocation tracking, and clearance certificates.
-- **Allowed Roles**: `super_admin`, `admin`, `hr_manager`
+- **Key**: `repair-history`
+- **Category**: `lifecycle`
+- **Title**: Hardware Repair & Maintenance History
+- **Description**: Asset maintenance logs, cumulative repair expenses, recurring failure trends, and turnaround time.
+- **Allowed Roles**: `super_admin`, `hardware_manager`
 - **KPI Strip**:
-  - `Pending Offboarding Cases`: Active departures requiring asset check-in
-  - `Asset Recovery Rate`: Percentage of deployed assets retrieved
+  - `Total Maintenance Records`: Maintenance tickets matching criteria
+  - `Total Repair Cost`: Sum of repair costs incurred
+  - `Under Active Repair`: Assets currently under repair
 - **Columns**:
-  - `case_no` (string, sortable) — Case tracking code
-  - `employee_name` (string, sortable) — Departing employee
-  - `separation_date` (date, sortable) — Official last working day
-  - `assigned_assets_count` (number, sortable) — Number of assets held
-  - `returned_assets_count` (number, sortable) — Number of assets returned
-  - `recovery_status` (enum, sortable) — `pending` | `in_progress` | `fulfilled`
-- **Filter Parameters**: `recovery_status`, `start_date`, `end_date`
+  - `asset_tag` (string, sortable) — Asset tag
+  - `asset_name` (string, sortable) — Asset name / model
+  - `category` (string, sortable) — Category
+  - `issue_description` (string, sortable) — Reported fault / issue
+  - `start_date` (date, sortable) — Date sent for maintenance
+  - `end_date` (date, sortable) — Date repair completed
+  - `cost` (number, sortable) — Maintenance cost in base currency
+  - `repair_status` (enum, sortable) — `in_repair` | `repaired` | `unrepairable`
+  - `vendor_name` (string, sortable) — Service provider / vendor
+- **Filter Parameters**: `asset_id`, `repair_status`, `vendor_id`, `start_date`, `end_date`
 
 ---
 
-## 4. Security & Audit Reports
+## 4. Service Level & Operations Reports
 
-### R9: Credential Vault Approvals & Access Audit
+### R7: Hardware Request Turnaround & SLA Compliance
+
+- **Key**: `request-turnaround-sla`
+- **Category**: `service-level`
+- **Title**: Hardware Request Turnaround & SLA Compliance
+- **Description**: Service request fulfillment velocity, average resolution duration, and SLA breach rate.
+- **Allowed Roles**: `super_admin`, `hardware_manager`, `hr`
+- **KPI Strip**:
+  - `Total Requests Evaluated`: Evaluated requests count
+  - `Average Turnaround Hours`: Average fulfillment duration in hours
+  - `SLA Compliance Rate`: Percentage of requests fulfilled within SLA target
+  - `Breached SLA Requests`: Count of breached requests
+- **Columns**:
+  - `request_number` (string, sortable) — Request identifier
+  - `requester_name` (string, sortable) — Requester employee name
+  - `department` (string, sortable) — Department
+  - `item_type` (string, sortable) — Requested item type
+  - `priority` (enum, sortable) — `low` | `medium` | `high` | `urgent`
+  - `sla_hours` (number, sortable) — SLA threshold hours
+  - `turnaround_hours` (number, sortable) — Actual resolution hours
+  - `sla_status` (enum, sortable) — `met` | `breached` | `pending`
+  - `created_at` (date, sortable) — Request date
+  - `fulfilled_at` (date, sortable) — Fulfillment date
+- **Filter Parameters**: `department_id`, `priority`, `sla_status`, `start_date`, `end_date`
+
+### R8: Employee Offboarding & Asset Recovery Status
+
+- **Key**: `offboarding-status`
+- **Category**: `lifecycle`
+- **Title**: Employee Offboarding & Asset Recovery Status
+- **Description**: Offboarding clearance workflows, asset retrieval completion, overdue returns, and certificate generation.
+- **Allowed Roles**: `super_admin`, `hardware_manager`, `hr`
+- **KPI Strip**:
+  - `Total Offboarding Cases`: Tracked cases
+  - `Completed Clearances`: Fully closed and cleared cases
+  - `Pending Asset Returns`: Cases with unrecovered hardware
+  - `Overdue Cases`: Cases past last working day with pending assets
+- **Columns**:
+  - `case_number` (string, sortable) — Case number
+  - `employee_name` (string, sortable) — Offboarding employee
+  - `department` (string, sortable) — Department
+  - `last_working_day` (date, sortable) — Last working day
+  - `status` (enum, sortable) — Case status (`initiated`, `in_progress`, `completed`, `cancelled`)
+  - `clearance_status` (enum, sortable) — Clearance status
+  - `total_assets_to_return` (number, sortable) — Assets required to return
+  - `assets_returned` (number, sortable) — Recovered assets
+  - `certificate_issued` (boolean, sortable) — Document generated
+- **Filter Parameters**: `status`, `clearance_status`, `department_id`, `start_date`, `end_date`
+
+---
+
+## 5. Security & Compliance Reports
+
+### R9: Credential Approvals & Access Audits
 
 - **Key**: `credential-approvals-access`
 - **Category**: `security`
-- **Description**: Privileged secret access request ledger, approvals, time-bounded grants, and check-out events.
-- **Allowed Roles**: `super_admin`, `admin` (Strictly restricted; hardware_manager and hr_manager receive 403 Forbidden)
+- **Title**: Credential Approvals & Access Audits
+- **Description**: Audit ledger of credential vault approvals, reveal events, checkout windows, and privileged access.
+- **Allowed Roles**: `super_admin`
+- **Security Guard**: Strictly redacts and excludes raw passwords, ciphertext, and private vault secrets from all exports.
 - **KPI Strip**:
-  - `Total Privileged Access Grants`: Historical count of approved secret authorizations
-  - `Active Unexpired Grants`: Secrets currently unlocked for engineer use
+  - `Total Access Events`: Total logged approval/reveal events
+  - `Approved Requests`: Total approved credentials
+  - `Active Checkouts`: Currently checked-out credentials
 - **Columns**:
-  - `credential_name` (string, sortable) — Safe secret title
-  - `requester_name` (string, sortable) — Engineer who requested access
-  - `approver_name` (string, sortable) — Admin who authorized access
-  - `access_duration_minutes` (number, sortable) — Approved TTL duration
-  - `approved_at` (date, sortable) — Grant timestamp
-  - `status` (enum, sortable) — `active` | `expired` | `revoked`
-- **Filter Parameters**: `status`, `start_date`, `end_date`
+  - `credential_title` (string, sortable) — Vault credential identifier
+  - `credential_type` (string, sortable) — Credential category
+  - `requester_name` (string, sortable) — Requesting employee
+  - `approver_name` (string, sortable) — Approving manager / admin
+  - `access_type` (enum, sortable) — Access requested
+  - `status` (enum, sortable) — Approval status
+  - `revealed_at` (date, sortable) — Timestamp revealed
+  - `expires_at` (date, sortable) — Access expiration
+- **Filter Parameters**: `status`, `credential_type_id`, `start_date`, `end_date`
 
-### R10: System-Wide Audit & Activity Trail
+### R10: Full System Audit & Activity Logs
 
 - **Key**: `audit-export`
 - **Category**: `audit`
-- **Description**: Tamper-evident immutable ledger with SHA-256 hash chains, entity change history, actor IP addresses, and user-agent forensics.
-- **Allowed Roles**: `super_admin`, `admin` (Strictly restricted; hardware_manager and hr_manager receive 403 Forbidden)
+- **Title**: Full System Audit & Activity Logs
+- **Description**: Immutable append-only audit trail capturing user actions, administrative interventions, entity modifications, and security events.
+- **Allowed Roles**: `super_admin`
 - **KPI Strip**:
-  - `Total Audit Events Recorded`: Total system ledger records
-  - `Cryptographic Chain Status`: `VERIFIED` (SHA-256 integrity unbroken)
+  - `Total Log Entries`: Total recorded activity logs
+  - `Action Types`: Count of distinct recorded actions
+  - `Active Operators`: Number of distinct users performing actions
 - **Columns**:
-  - `event_id` (number, sortable) — Sequential sequence index
-  - `entity_type` (string, sortable) — asset, employee, credential, user, request
-  - `action` (string, sortable) — CREATE, UPDATE, DELETE, ACCESS, EXPORT
-  - `actor_name` (string, sortable) — User executing the action
-  - `ip_address` (string) — Source IP address
-  - `record_hash` (string) — Cryptographic SHA-256 hash
-  - `created_at` (date, sortable) — Immutable ISO-8601 timestamp
-- **Filter Parameters**: `entity_type`, `action`, `actor_id`, `start_date`, `end_date`
-
----
-
-## 5. Export Capabilities & Worker Architecture
-
-| Feature           | Specification                                                                                                                                                                                                                                     |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **CSV Format**    | UTF-8 with BOM (`\uFEFF`) for Excel auto-detection; neutralizing formula injection (`=`, `+`, `-`, `@`, `\t`, `\r` escaped with `'`).                                                                                                             |
-| **XLSX Format**   | Streaming ExcelJS workbook with dual tabs: `Report Data` (typed numbers/currencies/dates, auto-fit columns) and `Export Summary` (audit metadata, row count, generated timestamp, timezone).                                                      |
-| **PDF Format**    | PDFKit landscape layout, primary brand header banner, KPI metric summary strip, alternating striped data table rows, right-aligned numbers, and dynamic footer (`Page X of Y`, confidentiality notice).                                           |
-| **Sync Limit**    | Requests `<= 5,000` rows stream directly over HTTP with Content-Disposition attachment.                                                                                                                                                           |
-| **Async Worker**  | Requests `> 5,000` rows (or user preference) create an atomic job in `export_jobs` table. Worker claims via `job_status = 'processing'`, streams to disk in `/exports`, updates row progress %, computes SHA-256 checksum, and flags `completed`. |
-| **Max Cap**       | Strict limit of `200,000` rows per export job.                                                                                                                                                                                                    |
-| **Job Retention** | Automated cron cleans completed jobs older than 24 hours.                                                                                                                                                                                         |
+  - `timestamp` (date, sortable) — ISO timestamp of event
+  - `actor_name` (string, sortable) — Full name of actor
+  - `actor_email` (string, sortable) — Actor email
+  - `module` (string, sortable) — Affected domain module
+  - `action` (string, sortable) — Action verb (`CREATE`, `UPDATE`, `DELETE`, etc.)
+  - `record_id` (number, sortable) — Target entity ID
+  - `ip_address` (string, sortable) — Client IP address
+- **Filter Parameters**: `module`, `action`, `actor_id`, `start_date`, `end_date`

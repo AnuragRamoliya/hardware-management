@@ -85,8 +85,10 @@ export function CommonTable<T extends { id: string | number }>({
     [columns, visible],
   );
   useEffect(() => {
-    onQueryChange({ currentPage: 1, general_search: debouncedSearch });
-  }, [debouncedSearch, onQueryChange]);
+    if (debouncedSearch !== (query.general_search ?? "")) {
+      onQueryChange({ currentPage: 1, general_search: debouncedSearch });
+    }
+  }, [debouncedSearch, onQueryChange, query.general_search]);
 
   const sortBy = (column: TableColumn<T>) => {
     if (column.sortable === false) return;

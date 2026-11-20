@@ -5,6 +5,8 @@ import { roles } from '../Database/Schema';
 import { exportReportToCsv } from '../Reports/exporters/csv_exporter';
 import { exportReportToXlsx } from '../Reports/exporters/xlsx_exporter';
 import { exportReportToPdf } from '../Reports/exporters/pdf_exporter';
+import { createActivityLog } from '../Utils/helpers';
+import { MODULES } from '@hm/shared';
 
 async function resolveUserRole(req: Request): Promise<string> {
   const actor = getActor(req);
@@ -82,6 +84,16 @@ export class ReportController {
         actorWithRole,
         preferAsync,
       );
+
+      void createActivityLog({
+        module: MODULES.REPORT,
+        moduleId: exportResult.jobId || 0,
+        action: 'EXPORT',
+        newValue: { report_key: reportKey, format, is_async: exportResult.isAsync, filters },
+        description: `Export triggered for ${reportKey} (${format.toUpperCase()})`,
+        createdBy: actor.id,
+        createdByName: `${actor.first_name || ''} ${actor.last_name || ''}`.trim() || 'Staff',
+      }).catch(() => {});
 
       if (exportResult.isAsync) {
         res.handler.success({

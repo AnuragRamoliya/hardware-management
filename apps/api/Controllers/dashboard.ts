@@ -6,6 +6,6 @@ const dashboard = new DashboardService();
 export class DashboardController {
   async summary(req: Request) {
     const actor = getActor(req);
-    return dashboard.summary(actor);
+    return dashboard.summary(actor, req.query);
   }
 }

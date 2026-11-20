@@ -2,9 +2,16 @@ import fs from 'node:fs';
 import { export_jobs, users } from '../Database/Schema';
 import { getReport, getReportsForRole, canRoleAccessReport } from '../Reports/registry';
 import { exportWorker, SYNC_ROW_LIMIT, MAX_EXPORT_ROWS } from '../Reports/export_worker';
+import { validateAndWhitelistFilters } from '../Reports/helpers';
 import type { ReportDefinition, ReportRunOptions } from '../Reports/types';
 import type { UserInfo } from '../Types/api';
-import type { ReportMetadataDto, ReportRunResultDto, ExportJobDto } from '@hm/shared';
+import {
+  type ReportMetadataDto,
+  type ReportRunResultDto,
+  type ExportJobDto,
+  type ExportJobStatus,
+  EXPORT_JOB_STATUS,
+} from '@hm/shared';
 
 interface ServiceError extends Error {
   status?: number;
@@ -72,7 +79,8 @@ export class ReportService {
       throw createError(`Access forbidden to report '${reportKey}' for role '${userRole}'.`, 403);
     }
 
-    return rep.run(options, actor);
+    const validatedFilters = validateAndWhitelistFilters(rep, options.filters);
+    return rep.run({ ...options, filters: validatedFilters }, actor);
   }
 
   public async exportReport(
@@ -97,6 +105,8 @@ export class ReportService {
       throw createError(`Access forbidden to report '${reportKey}' for role '${userRole}'.`, 403);
     }
 
+    const validatedFilters = validateAndWhitelistFilters(rep, options.filters);
+
     const fmt = format.toLowerCase();
     if (!['csv', 'xlsx', 'pdf'].includes(fmt)) {
       throw createError(`Unsupported export format '${format}'. Valid: csv, xlsx, pdf.`, 400);
@@ -104,7 +114,7 @@ export class ReportService {
 
     // Run quick preview with limit 1 to get row count
     const preview = await rep.run(
-      { filters: options.filters, currentPage: 1, itemsPerPage: 1 },
+      { filters: validatedFilters, currentPage: 1, itemsPerPage: 1 },
       actor,
     );
     const totalCount = preview.count;
@@ -123,11 +133,12 @@ export class ReportService {
       const newJob = await export_jobs.create({
         report_key: reportKey,
         format: fmt,
-        filters: options.filters || {},
-        job_status: 'pending',
+        filters: validatedFilters,
+        job_status: EXPORT_JOB_STATUS.QUEUED,
         progress: 0,
         row_count: totalCount,
         requested_by: actor.id,
+        expires_at: new Date(Date.now() + 7 * 86400000),
       });
 
       const jobId = Number(newJob.get('id'));
@@ -144,7 +155,7 @@ export class ReportService {
     }
 
     // Return synchronous stream handles
-    const stream = rep.stream({ filters: options.filters }, actor);
+    const stream = rep.stream({ filters: validatedFilters }, actor);
     return {
       isAsync: false,
       report: rep,
@@ -170,12 +181,22 @@ export class ReportService {
 
     return jobs.map((j) => {
       const plain = j.get({ plain: true }) as Record<string, unknown>;
+      const rawStatus = String(plain.job_status);
+      const normalizedStatus: ExportJobStatus =
+        rawStatus === 'pending'
+          ? EXPORT_JOB_STATUS.QUEUED
+          : rawStatus === 'processing'
+            ? EXPORT_JOB_STATUS.RUNNING
+            : rawStatus === 'completed'
+              ? EXPORT_JOB_STATUS.DONE
+              : (rawStatus as ExportJobStatus);
+
       return {
         id: Number(plain.id),
         report_key: String(plain.report_key),
         format: String(plain.format) as 'csv' | 'xlsx' | 'pdf',
         filters: plain.filters as Record<string, unknown>,
-        job_status: String(plain.job_status) as 'pending' | 'processing' | 'completed' | 'failed',
+        job_status: normalizedStatus,
         progress: Number(plain.progress || 0),
         row_count: plain.row_count != null ? Number(plain.row_count) : 0,
         file_path: plain.file_path ? 'available' : undefined,
@@ -205,12 +226,22 @@ export class ReportService {
     }
 
     const plain = job.get({ plain: true }) as Record<string, unknown>;
+    const rawStatus = String(plain.job_status);
+    const normalizedStatus: ExportJobStatus =
+      rawStatus === 'pending'
+        ? EXPORT_JOB_STATUS.QUEUED
+        : rawStatus === 'processing'
+          ? EXPORT_JOB_STATUS.RUNNING
+          : rawStatus === 'completed'
+            ? EXPORT_JOB_STATUS.DONE
+            : (rawStatus as ExportJobStatus);
+
     return {
       id: Number(plain.id),
       report_key: String(plain.report_key),
       format: String(plain.format) as 'csv' | 'xlsx' | 'pdf',
       filters: plain.filters as Record<string, unknown>,
-      job_status: String(plain.job_status) as 'pending' | 'processing' | 'completed' | 'failed',
+      job_status: normalizedStatus,
       progress: Number(plain.progress || 0),
       row_count: plain.row_count != null ? Number(plain.row_count) : 0,
       file_path: plain.file_path ? 'available' : undefined,
@@ -238,7 +269,16 @@ export class ReportService {
     }
 
     const st = String(job.get('job_status'));
-    if (st !== 'completed') {
+    if (st === EXPORT_JOB_STATUS.EXPIRED) {
+      throw createError('This export file has expired and is no longer available.', 410);
+    }
+
+    const expiresAt = job.get('expires_at');
+    if (expiresAt && new Date(expiresAt as string | Date) < new Date()) {
+      throw createError('This export file has expired and is no longer available.', 410);
+    }
+
+    if (st !== EXPORT_JOB_STATUS.DONE && st !== 'completed') {
       throw createError(`Export job is currently ${st}, not ready for download.`, 400);
     }
 
