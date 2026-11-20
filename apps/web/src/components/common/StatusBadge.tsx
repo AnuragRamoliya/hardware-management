@@ -1,3 +1,4 @@
+import type React from "react";
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { getStatusLabel, getStatusTone } from "@/utils/constants";
 
@@ -8,11 +9,23 @@ export function StatusBadge({
   className,
 }: {
   status?: string | number;
-  label?: string;
+  label?: React.ReactNode;
   tone?: string;
   className?: string;
 }) {
-  const label = customLabel ?? (getStatusLabel(status) || "unknown");
+  const rawLabel =
+    customLabel !== undefined && customLabel !== null
+      ? customLabel
+      : getStatusLabel(status) ||
+        (status !== undefined && status !== null ? String(status) : "unknown");
+
+  const displayText =
+    typeof rawLabel === "string"
+      ? rawLabel.replace(/_/g, " ")
+      : typeof rawLabel === "number"
+        ? String(rawLabel)
+        : rawLabel;
+
   let variant: BadgeVariant = "default";
   if (customTone) {
     if (customTone === "secondary") variant = "muted";
@@ -28,7 +41,7 @@ export function StatusBadge({
   }
   return (
     <Badge variant={variant} className={className}>
-      {label.replaceAll("_", " ")}
+      {displayText}
     </Badge>
   );
 }

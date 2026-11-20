@@ -17,6 +17,7 @@ export interface OffboardingTaskDto {
   assignee_id?: number;
   assignee?: { id: number; name: string; email: string };
   status: OffboardingTaskStatus;
+  task_status?: OffboardingTaskStatus;
   priority?: TaskPriority;
   due_date?: string;
   completed_at?: string;
@@ -42,12 +43,22 @@ export interface OffboardingCaseDto {
   initiated_by: number;
   initiator?: { id: number; name: string; email: string };
   last_working_day: string;
+  last_working_date?: string;
   reason?: string;
   notes?: string;
   status: OffboardingCaseStatus;
+  case_status?: OffboardingCaseStatus;
   completed_at?: string;
   verification_code?: string;
   verification_hash?: string;
+  progress?: {
+    total: number;
+    completed: number;
+    waived: number;
+    exceptions: number;
+    pending: number;
+    percent: number;
+  };
   tasks?: OffboardingTaskDto[];
   tasks_count?: number;
   completed_tasks_count?: number;

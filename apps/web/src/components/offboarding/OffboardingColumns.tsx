@@ -78,11 +78,9 @@ export function getOffboardingColumns(
       label: "Last working day",
       sortable: true,
       render: (row) => {
-        const lwd = row.last_working_day
-          ? new Date(row.last_working_day)
-          : null;
-        if (!lwd || isNaN(lwd.getTime()))
-          return <span>{row.last_working_day ?? "—"}</span>;
+        const rawDate = row.last_working_date || row.last_working_day;
+        const lwd = rawDate ? new Date(rawDate) : null;
+        if (!lwd || isNaN(lwd.getTime())) return <span>{rawDate ?? "—"}</span>;
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         lwd.setHours(0, 0, 0, 0);
@@ -112,15 +110,25 @@ export function getOffboardingColumns(
       label: "Tasks cleared",
       sortable: false,
       render: (row) => {
-        const total = row.tasks_count ?? (row.tasks ? row.tasks.length : 0);
-        const completed =
-          row.completed_tasks_count ??
-          (row.tasks
-            ? row.tasks.filter(
-                (t) => t.status === "completed" || t.status === "waived",
-              ).length
-            : 0);
-        const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+        const total =
+          row.progress?.total ??
+          row.tasks_count ??
+          (row.tasks ? row.tasks.length : 0);
+        const completed = row.progress
+          ? row.progress.completed + row.progress.waived
+          : (row.completed_tasks_count ??
+            (row.tasks
+              ? row.tasks.filter(
+                  (t) =>
+                    t.status === "completed" ||
+                    t.status === "waived" ||
+                    (t as any).task_status === "completed" ||
+                    (t as any).task_status === "waived",
+                ).length
+              : 0));
+        const percent =
+          row.progress?.percent ??
+          (total > 0 ? Math.round((completed / total) * 100) : 0);
         return (
           <div className="w-28 space-y-1">
             <div className="flex justify-between text-xs font-medium text-muted-foreground">
@@ -148,9 +156,13 @@ export function getOffboardingColumns(
       label: "Status",
       sortable: true,
       render: (row) => {
-        const st = row.status as OffboardingCaseStatus;
-        const label = OFFBOARDING_CASE_STATUS_LABELS[st] ?? st;
-        const tone = OFFBOARDING_CASE_STATUS_TONES[st] ?? "info";
+        const st = (row.case_status ?? row.status) as OffboardingCaseStatus;
+        const label =
+          (typeof st === "string" && OFFBOARDING_CASE_STATUS_LABELS[st]) ||
+          String(st ?? "unknown");
+        const tone =
+          (typeof st === "string" && OFFBOARDING_CASE_STATUS_TONES[st]) ||
+          "info";
         return <StatusBadge status={st} label={label} tone={tone} />;
       },
     },

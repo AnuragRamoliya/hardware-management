@@ -34,6 +34,7 @@ import {
   OFFBOARDING_TASK_STATUS_LABELS,
   OFFBOARDING_TASK_STATUS_TONES,
   type OffboardingCaseStatus,
+  type OffboardingTaskStatus,
 } from "@hm/shared";
 import type { OffboardingTaskDto } from "@/api/offboarding";
 import useAuthStore from "@/zustand/user-store";
@@ -101,11 +102,15 @@ export function OffboardingCaseDetail() {
     (t) => t.task_type === OFFBOARDING_TASK_TYPE.CREDENTIAL,
   );
 
-  const completedCount = tasks.filter(
-    (t) =>
-      t.status === OFFBOARDING_TASK_STATUS.COMPLETED ||
-      t.status === OFFBOARDING_TASK_STATUS.WAIVED,
-  ).length;
+  const caseStatus = ((caseItem as any).case_status ??
+    caseItem.status) as OffboardingCaseStatus;
+  const completedCount = tasks.filter((t) => {
+    const s = ((t as any).task_status ?? t.status) as OffboardingTaskStatus;
+    return (
+      s === OFFBOARDING_TASK_STATUS.COMPLETED ||
+      s === OFFBOARDING_TASK_STATUS.WAIVED
+    );
+  }).length;
   const totalCount = tasks.length;
   const progressPercent =
     totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
@@ -227,17 +232,16 @@ export function OffboardingCaseDetail() {
                 Back
               </Button>
             </Link>
-            {(caseItem.status === OFFBOARDING_CASE_STATUS.COMPLETED ||
-              caseItem.status ===
-                OFFBOARDING_CASE_STATUS.PENDING_CLEARANCE) && (
+            {(caseStatus === OFFBOARDING_CASE_STATUS.COMPLETED ||
+              caseStatus === OFFBOARDING_CASE_STATUS.PENDING_CLEARANCE) && (
               <Button onClick={handleDownloadClearance} className="gap-2">
                 <Download className="h-4 w-4" />
                 Clearance Certificate
               </Button>
             )}
             {canManage &&
-              caseItem.status !== OFFBOARDING_CASE_STATUS.COMPLETED &&
-              caseItem.status !== OFFBOARDING_CASE_STATUS.CANCELLED && (
+              caseStatus !== OFFBOARDING_CASE_STATUS.COMPLETED &&
+              caseStatus !== OFFBOARDING_CASE_STATUS.CANCELLED && (
                 <Button
                   variant="outline"
                   onClick={() => setCancellingOpen(true)}
@@ -264,17 +268,12 @@ export function OffboardingCaseDetail() {
                   {fullName}
                 </h2>
                 <StatusBadge
-                  status={caseItem.status}
+                  status={caseStatus}
                   label={
-                    OFFBOARDING_CASE_STATUS_LABELS[
-                      caseItem.status as OffboardingCaseStatus
-                    ]
+                    OFFBOARDING_CASE_STATUS_LABELS[caseStatus] ??
+                    String(caseStatus)
                   }
-                  tone={
-                    OFFBOARDING_CASE_STATUS_TONES[
-                      caseItem.status as OffboardingCaseStatus
-                    ]
-                  }
+                  tone={OFFBOARDING_CASE_STATUS_TONES[caseStatus] ?? "info"}
                 />
               </div>
               <p className="text-sm text-muted-foreground">
@@ -396,10 +395,24 @@ export function OffboardingCaseDetail() {
               </div>
             ) : (
               tasks.map((task) => {
+                const tStatus = String(
+                  (task as any).task_status ?? task.status ?? "pending",
+                ) as OffboardingTaskStatus;
                 const statusLabel =
-                  OFFBOARDING_TASK_STATUS_LABELS[task.status] ?? task.status;
+                  (OFFBOARDING_TASK_STATUS_LABELS as Record<string, string>)[
+                    tStatus
+                  ] ?? String(tStatus);
                 const statusTone =
-                  OFFBOARDING_TASK_STATUS_TONES[task.status] ?? "secondary";
+                  (
+                    OFFBOARDING_TASK_STATUS_TONES as Record<
+                      string,
+                      | "secondary"
+                      | "destructive"
+                      | "success"
+                      | "warning"
+                      | "info"
+                    >
+                  )[tStatus] ?? "secondary";
 
                 return (
                   <div
@@ -443,13 +456,13 @@ export function OffboardingCaseDetail() {
 
                     <div className="flex items-center gap-3">
                       <StatusBadge
-                        status={task.status}
+                        status={tStatus}
                         label={statusLabel}
                         tone={statusTone}
                       />
                       {canManage &&
-                        task.status !== OFFBOARDING_TASK_STATUS.COMPLETED &&
-                        task.status !== OFFBOARDING_TASK_STATUS.WAIVED && (
+                        tStatus !== OFFBOARDING_TASK_STATUS.COMPLETED &&
+                        tStatus !== OFFBOARDING_TASK_STATUS.WAIVED && (
                           <div className="flex items-center gap-1.5">
                             <Button
                               size="sm"
@@ -518,38 +531,61 @@ export function OffboardingCaseDetail() {
                 No hardware assets assigned to this employee.
               </div>
             ) : (
-              hardwareTasks.map((t) => (
-                <div
-                  key={t.id}
-                  className="flex items-center justify-between p-4"
-                >
-                  <div>
-                    <div className="font-medium text-foreground">{t.title}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {t.description || "Return required"}
+              hardwareTasks.map((t) => {
+                const tStatus = String(
+                  (t as any).task_status ?? t.status ?? "pending",
+                ) as OffboardingTaskStatus;
+                const statusLabel =
+                  (OFFBOARDING_TASK_STATUS_LABELS as Record<string, string>)[
+                    tStatus
+                  ] ?? String(tStatus);
+                const statusTone =
+                  (
+                    OFFBOARDING_TASK_STATUS_TONES as Record<
+                      string,
+                      | "secondary"
+                      | "destructive"
+                      | "success"
+                      | "warning"
+                      | "info"
+                    >
+                  )[tStatus] ?? "secondary";
+
+                return (
+                  <div
+                    key={t.id}
+                    className="flex items-center justify-between p-4"
+                  >
+                    <div>
+                      <div className="font-medium text-foreground">
+                        {t.title}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {t.description || "Return required"}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <StatusBadge
+                        status={tStatus}
+                        label={statusLabel}
+                        tone={statusTone}
+                      />
+                      {canManage &&
+                        tStatus !== OFFBOARDING_TASK_STATUS.COMPLETED &&
+                        tStatus !== OFFBOARDING_TASK_STATUS.WAIVED && (
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              setSelectedTask({ task: t, action: "complete" })
+                            }
+                          >
+                            Mark Returned
+                          </Button>
+                        )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <StatusBadge
-                      status={t.status}
-                      label={OFFBOARDING_TASK_STATUS_LABELS[t.status]}
-                      tone={OFFBOARDING_TASK_STATUS_TONES[t.status]}
-                    />
-                    {canManage &&
-                      t.status !== OFFBOARDING_TASK_STATUS.COMPLETED &&
-                      t.status !== OFFBOARDING_TASK_STATUS.WAIVED && (
-                        <Button
-                          size="sm"
-                          onClick={() =>
-                            setSelectedTask({ task: t, action: "complete" })
-                          }
-                        >
-                          Mark Returned
-                        </Button>
-                      )}
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </Card>
@@ -571,38 +607,61 @@ export function OffboardingCaseDetail() {
                 No software licenses assigned to this employee.
               </div>
             ) : (
-              softwareTasks.map((t) => (
-                <div
-                  key={t.id}
-                  className="flex items-center justify-between p-4"
-                >
-                  <div>
-                    <div className="font-medium text-foreground">{t.title}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {t.description || "Revocation task"}
+              softwareTasks.map((t) => {
+                const tStatus = String(
+                  (t as any).task_status ?? t.status ?? "pending",
+                ) as OffboardingTaskStatus;
+                const statusLabel =
+                  (OFFBOARDING_TASK_STATUS_LABELS as Record<string, string>)[
+                    tStatus
+                  ] ?? String(tStatus);
+                const statusTone =
+                  (
+                    OFFBOARDING_TASK_STATUS_TONES as Record<
+                      string,
+                      | "secondary"
+                      | "destructive"
+                      | "success"
+                      | "warning"
+                      | "info"
+                    >
+                  )[tStatus] ?? "secondary";
+
+                return (
+                  <div
+                    key={t.id}
+                    className="flex items-center justify-between p-4"
+                  >
+                    <div>
+                      <div className="font-medium text-foreground">
+                        {t.title}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {t.description || "Revocation task"}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <StatusBadge
+                        status={tStatus}
+                        label={statusLabel}
+                        tone={statusTone}
+                      />
+                      {canManage &&
+                        tStatus !== OFFBOARDING_TASK_STATUS.COMPLETED && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              setSelectedTask({ task: t, action: "complete" })
+                            }
+                          >
+                            Confirm Revoked
+                          </Button>
+                        )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <StatusBadge
-                      status={t.status}
-                      label={OFFBOARDING_TASK_STATUS_LABELS[t.status]}
-                      tone={OFFBOARDING_TASK_STATUS_TONES[t.status]}
-                    />
-                    {canManage &&
-                      t.status !== OFFBOARDING_TASK_STATUS.COMPLETED && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            setSelectedTask({ task: t, action: "complete" })
-                          }
-                        >
-                          Confirm Revoked
-                        </Button>
-                      )}
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </Card>
@@ -624,38 +683,61 @@ export function OffboardingCaseDetail() {
                 No credentials assigned to this employee.
               </div>
             ) : (
-              credentialTasks.map((t) => (
-                <div
-                  key={t.id}
-                  className="flex items-center justify-between p-4"
-                >
-                  <div>
-                    <div className="font-medium text-foreground">{t.title}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {t.description || "Revocation task"}
+              credentialTasks.map((t) => {
+                const tStatus = String(
+                  (t as any).task_status ?? t.status ?? "pending",
+                ) as OffboardingTaskStatus;
+                const statusLabel =
+                  (OFFBOARDING_TASK_STATUS_LABELS as Record<string, string>)[
+                    tStatus
+                  ] ?? String(tStatus);
+                const statusTone =
+                  (
+                    OFFBOARDING_TASK_STATUS_TONES as Record<
+                      string,
+                      | "secondary"
+                      | "destructive"
+                      | "success"
+                      | "warning"
+                      | "info"
+                    >
+                  )[tStatus] ?? "secondary";
+
+                return (
+                  <div
+                    key={t.id}
+                    className="flex items-center justify-between p-4"
+                  >
+                    <div>
+                      <div className="font-medium text-foreground">
+                        {t.title}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {t.description || "Revocation task"}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <StatusBadge
+                        status={tStatus}
+                        label={statusLabel}
+                        tone={statusTone}
+                      />
+                      {canManage &&
+                        tStatus !== OFFBOARDING_TASK_STATUS.COMPLETED && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              setSelectedTask({ task: t, action: "complete" })
+                            }
+                          >
+                            Revoke Account
+                          </Button>
+                        )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <StatusBadge
-                      status={t.status}
-                      label={OFFBOARDING_TASK_STATUS_LABELS[t.status]}
-                      tone={OFFBOARDING_TASK_STATUS_TONES[t.status]}
-                    />
-                    {canManage &&
-                      t.status !== OFFBOARDING_TASK_STATUS.COMPLETED && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            setSelectedTask({ task: t, action: "complete" })
-                          }
-                        >
-                          Revoke Account
-                        </Button>
-                      )}
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </Card>
