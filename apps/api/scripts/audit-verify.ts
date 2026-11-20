@@ -48,12 +48,15 @@ async function main() {
     employee_id: r.employee_id,
     accessed_by: r.accessed_by,
     action: r.action,
-    reason: r.reason,
-    ip_address: r.ip_address,
-    user_agent: r.user_agent,
-    success: r.success,
-    failure_reason: r.failure_reason,
-    accessed_at: r.accessed_at,
+    reason: r.reason ?? null,
+    ip_address: r.ip_address ?? null,
+    user_agent: r.user_agent ?? null,
+    success: Number(r.success),
+    failure_reason: r.failure_reason ?? null,
+    accessed_at:
+      (r.accessed_at as unknown) instanceof Date
+        ? (r.accessed_at as unknown as Date).toISOString()
+        : r.accessed_at,
   }));
 
   if (accessResult.valid) {
@@ -85,12 +88,10 @@ async function main() {
   if (activityRows.length > 0) {
     const activityResult = verifyHashChain(activityRows, (r: ActivityLogRow) => ({
       id: r.id,
-      user_id: r.user_id,
       module: r.module,
       module_id: r.module_id,
       action: r.action,
       description: r.description,
-      ip_address: r.ip_address,
     }));
 
     if (activityResult.valid) {

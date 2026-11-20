@@ -1,4 +1,3 @@
-import crypto from 'node:crypto';
 import bcrypt from 'bcrypt';
 import {
   users,
@@ -23,6 +22,7 @@ import {
   vendors,
 } from '../Database/Schema';
 import { STATUS, ASSET_STATUS } from '@hm/shared';
+import { computeRowHash, GENESIS_HASH } from '../Utils/hash_chain';
 
 const FIXTURE_DATE = new Date('2026-11-20T10:00:00.000Z');
 
@@ -393,42 +393,76 @@ async function seedTestFixture() {
       createdAt: now,
       updatedAt: now,
     });
-    await credential_access_logs.create({
+  }
+
+  let accessLog = await credential_access_logs.findOne({
+    where: { credential_id: Number(cred.get('id')), action: 'REVEAL' },
+  });
+  const prevHash = GENESIS_HASH;
+  if (!accessLog) {
+    accessLog = await credential_access_logs.create({
       credential_id: Number(cred.get('id')),
       employee_id: emp1Id,
       accessed_by: 1,
       action: 'REVEAL',
+      reason: null,
+      ip_address: null,
+      user_agent: null,
+      success: 1,
+      failure_reason: null,
       accessed_at: '2026-11-19T14:15:00.000Z',
-      prev_hash: '0000000000000000000000000000000000000000000000000000000000000000',
-      hash: crypto.createHash('sha256').update('fixture-access-log').digest('hex'),
+      prev_hash: prevHash,
+      hash: 'PENDING',
       status: STATUS.ACTIVE,
       createdAt: now,
       updatedAt: now,
     });
   }
+  const logId = Number(accessLog.get('id'));
+  const accessRowData = {
+    id: logId,
+    credential_id: Number(cred.get('id')),
+    employee_id: emp1Id,
+    accessed_by: 1,
+    action: 'REVEAL',
+    reason: null,
+    ip_address: null,
+    user_agent: null,
+    success: 1,
+    failure_reason: null,
+    accessed_at: '2026-11-19T14:15:00.000Z',
+  };
+  const accessHash = computeRowHash(prevHash, accessRowData);
+  await accessLog.update({ prev_hash: prevHash, hash: accessHash });
 
   // 8. Deterministic Activity Log
   const fixAuditDesc = 'DETERMINISTIC_FIXTURE_AUDIT_LOG_INITIALIZATION';
-  const actLog = await activity_logs.findOne({ where: { description: fixAuditDesc } });
+  let actLog = await activity_logs.findOne({ where: { description: fixAuditDesc } });
+  const pHash = GENESIS_HASH;
   if (!actLog) {
-    const pHash = '0000000000000000000000000000000000000000000000000000000000000000';
-    const cHash = crypto
-      .createHash('sha256')
-      .update(`${pHash}|reports|EXPORT|${fixAuditDesc}|${now.toISOString()}`)
-      .digest('hex');
-    await activity_logs.create({
+    actLog = await activity_logs.create({
       module: 'reports',
       module_id: 1,
       action: 'EXPORT',
       description: fixAuditDesc,
       created_by_name: 'Test Administrator',
       prev_hash: pHash,
-      hash: cHash,
+      hash: 'PENDING',
       status: STATUS.ACTIVE,
       createdAt: now,
       updatedAt: now,
     });
   }
+  const actId = Number(actLog.get('id'));
+  const actRowData = {
+    id: actId,
+    module: 'reports',
+    module_id: 1,
+    action: 'EXPORT',
+    description: fixAuditDesc,
+  };
+  const cHash = computeRowHash(pHash, actRowData);
+  await actLog.update({ prev_hash: pHash, hash: cHash });
 
   console.log('Deterministic test fixture successfully created.');
   process.exit(0);

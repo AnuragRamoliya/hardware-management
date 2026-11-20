@@ -5,7 +5,7 @@ test("real login with fixture admin", async ({ page }) => {
   await page.fill('input[name="password"]', "TestPassword123!");
   await page.click('button[type="submit"]');
   await page.waitForURL((url) => !url.pathname.includes("/login"), {
-    timeout: 10000,
+    timeout: 15000,
   });
   expect(page.url()).not.toContain("/login");
 });

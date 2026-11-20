@@ -7,6 +7,10 @@ export function canonicalJson(data: unknown): string {
     return JSON.stringify(data);
   }
 
+  if (data instanceof Date) {
+    return JSON.stringify(data.toISOString());
+  }
+
   if (Array.isArray(data)) {
     return `[${data.map(canonicalJson).join(',')}]`;
   }

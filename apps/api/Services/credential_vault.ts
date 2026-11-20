@@ -1290,7 +1290,7 @@ export class CredentialVaultService {
     const employeeId = Number(cred.get('employee_id'));
 
     // 5. Portal ownership check
-    if (isPortal && actor.employee_id && actor.employee_id !== employeeId) {
+    if (isPortal && (!actor.employee_id || actor.employee_id !== employeeId)) {
       throw new AppError(403, 'You are not authorized to view another employee’s credentials.');
     }
 

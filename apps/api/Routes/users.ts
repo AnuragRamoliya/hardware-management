@@ -4,6 +4,7 @@ import { body, param } from 'express-validator';
 import { Op } from 'sequelize';
 import { AppError } from '../Config/app_error';
 import { ACCESS_TYPES, MODULES, STATUS } from '../Config/constant';
+import { env } from '../Config/env';
 import { users } from '../Database/Schema';
 import { UserController } from '../Controllers/users';
 import { checkAccess, checkOptionsAccess, userAuth } from '../Middleware/authentication';
@@ -22,14 +23,14 @@ export const router = Router();
 const controller = new UserController();
 const loginLimiter = rateLimit({
   windowMs: 15 * 60_000,
-  limit: 5,
+  limit: env.NODE_ENV === 'production' ? 5 : 200,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   handler: (_req, res) => res.handler.tooManyRequests(),
 });
 const recoveryLimiter = rateLimit({
   windowMs: 60 * 60_000,
-  limit: 5,
+  limit: env.NODE_ENV === 'production' ? 5 : 100,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   handler: (_req, res) => res.handler.tooManyRequests(),

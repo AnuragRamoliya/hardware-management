@@ -111,22 +111,24 @@ npm run dev
 
 Run these commands from the repository root:
 
-| Command                | Description                                                          |
-| :--------------------- | :------------------------------------------------------------------- |
-| `npm run dev`          | Runs API, Web, and packages concurrently in watch mode via Turborepo |
-| `npm run build`        | Builds all packages (`@hm/shared`, `@hm/api`, `@hm/web`)             |
-| `npm run lint`         | Runs ESLint across all workspaces                                    |
-| `npm run typecheck`    | Validates TypeScript types across all workspaces (`tsc --noEmit`)    |
-| `npm run test`         | Runs unit tests across all workspaces                                |
-| `npm run check:ui`     | Validates frontend adherence to UI standards (runs `check-ui.mjs`)   |
-| `npm run format`       | Auto-formats code with Prettier                                      |
-| `npm run format:check` | Checks formatting without modifying files                            |
-| `npm run clean`        | Cleans build artifacts, `.turbo`, and `node_modules`                 |
-| `npm run db:migrate`   | Runs Sequelize migrations in `@hm/api`                               |
-| `npm run db:seed`      | Runs core seeders in `@hm/api` (RBAC + Admin)                        |
-| `npm run db:seed:bulk` | Runs bulk test data seeders in `@hm/api`                             |
-| `npm run docker:up`    | Starts production containers via `docker-compose.yml`                |
-| `npm run docker:down`  | Stops production containers                                          |
+| Command                    | Description                                                             |
+| :------------------------- | :---------------------------------------------------------------------- |
+| `npm run dev`              | Runs API, Web, and packages concurrently in watch mode via Turborepo    |
+| `npm run build`            | Builds all packages (`@hm/shared`, `@hm/api`, `@hm/web`)                |
+| `npm run lint`             | Runs ESLint across all workspaces                                       |
+| `npm run typecheck`        | Validates TypeScript types across all workspaces (`tsc --noEmit`)       |
+| `npm run test`             | Runs unit tests across all workspaces                                   |
+| `npm run check:ui`         | Validates frontend adherence to UI standards (runs `check-ui.mjs`)      |
+| `npm run format`           | Auto-formats code with Prettier                                         |
+| `npm run format:check`     | Checks formatting without modifying files                               |
+| `npm run clean`            | Cleans build artifacts, `.turbo`, and `node_modules`                    |
+| `npm run db:migrate`       | Runs Sequelize migrations in `@hm/api`                                  |
+| `npm run db:seed`          | Runs core seeders in `@hm/api` (RBAC + Admin)                           |
+| `npm run db:seed:bulk`     | Runs bulk test data seeders in `@hm/api`                                |
+| `npm run test:all-fixture` | Runs full-system verification suite across all reports and roles        |
+| `npm run audit:verify`     | Verifies cryptographic SHA-256 hash chains for activity and access logs |
+| `npm run docker:up`        | Starts production containers via `docker-compose.yml`                   |
+| `npm run docker:down`      | Stops production containers                                             |
 
 ---
 

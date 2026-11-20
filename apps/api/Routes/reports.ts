@@ -4,6 +4,7 @@ import { ACCESS_TYPES, MODULES } from '../Config/constant';
 import { checkAccess, userAuth } from '../Middleware/authentication';
 import { decryptPayload } from '../Middleware/cryptography';
 import { validate } from '../Middleware/validator';
+import { exportRateLimiter } from '../Middleware/rate_limiter';
 import { ReportController } from '../Controllers/reports';
 
 export const reportRouter = Router();
@@ -54,6 +55,7 @@ reportRouter.post(
 // Export report data (sync stream or async job creation)
 reportRouter.post(
   '/reports/export/:key',
+  exportRateLimiter,
   userAuth,
   decryptPayload,
   reportsRead,
@@ -94,6 +96,7 @@ reportRouter.post(
 // Download exported file
 reportRouter.get(
   '/reports/jobs/download/:id',
+  exportRateLimiter,
   userAuth,
   reportsRead,
   param('id').isNumeric(),
@@ -103,6 +106,7 @@ reportRouter.get(
 
 reportRouter.post(
   '/reports/jobs/download/:id',
+  exportRateLimiter,
   userAuth,
   decryptPayload,
   reportsRead,

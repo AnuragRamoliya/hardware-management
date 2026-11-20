@@ -9,6 +9,7 @@ import {
   NUMERIC_TO_CASE_STATUS,
   STATUS,
   ASSET_STATUS,
+  ROLES,
 } from '@hm/shared';
 import { AppError } from '../Config/app_error';
 import {
@@ -1178,6 +1179,21 @@ export class OffboardingService {
       throw new AppError(404, 'Case not found.');
     }
 
+    const roleName = typeof actor.role === 'string' ? actor.role : actor.role?.name;
+    const isStaff =
+      roleName === ROLES.SUPER_ADMIN ||
+      roleName === ROLES.HARDWARE_MANAGER ||
+      roleName === ROLES.HR;
+
+    if (!isStaff) {
+      const emp = await employees.findOne({ where: { user_id: actor.id, status: 1 } });
+      const ownEmpId = emp ? Number(emp.get('id')) : null;
+      const caseEmpId = Number(c.get('employee_id'));
+      if (!ownEmpId || ownEmpId !== caseEmpId) {
+        throw new AppError(403, 'You are not authorized to download this clearance document.');
+      }
+    }
+
     if (!c.get('clearance_file_path')) {
       throw new AppError(404, 'Clearance certificate has not been generated for this case.');
     }
@@ -1192,6 +1208,23 @@ export class OffboardingService {
     const c = await offboarding_cases.findByPk(id);
     if (!c || Number(c.get('status')) !== 1) {
       throw new AppError(404, 'Case not found.');
+    }
+
+    const roleName = typeof actor.role === 'string' ? actor.role : actor.role?.name;
+    const isStaff =
+      roleName === ROLES.SUPER_ADMIN ||
+      roleName === ROLES.HARDWARE_MANAGER ||
+      roleName === ROLES.HR;
+
+    if (!isStaff) {
+      const emp = await employees.findOne({ where: { user_id: actor.id, status: 1 } });
+      const ownEmpId = emp ? Number(emp.get('id')) : null;
+      const caseEmpId = Number(c.get('employee_id'));
+      const handoverUserId = Number(c.get('handover_to') || 0);
+
+      if (!ownEmpId || (ownEmpId !== caseEmpId && actor.id !== handoverUserId)) {
+        throw new AppError(403, 'You are not authorized to download this handover receipt.');
+      }
     }
 
     if (!c.get('handover_receipt_file_path')) {

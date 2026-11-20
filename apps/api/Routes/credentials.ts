@@ -8,6 +8,7 @@ import { listValidation, optionsValidation } from '../Utils/validations';
 import { registerActivityRoute } from '../Utils/register_activity_route';
 import { CredentialsController, PortalCredentialsController } from '../Controllers/credentials';
 import { routeHandler } from '../Utils/route_handler';
+import { revealRateLimiter } from '../Middleware/rate_limiter';
 
 const controller = new CredentialsController();
 const portalController = new PortalCredentialsController();
@@ -212,6 +213,7 @@ credRouter.post(
 // Reveal
 credRouter.post(
   '/reveal/:id',
+  revealRateLimiter,
   decryptPayload,
   userAuth,
   credReveal,
@@ -344,6 +346,7 @@ portalCredRouter.delete(
 );
 portalCredRouter.post(
   '/reveal/:id',
+  revealRateLimiter,
   decryptPayload,
   userAuth,
   validate([param('id').isInt({ min: 1 }).toInt(), body('reauth_token').isString().notEmpty()]),

@@ -1,0 +1,51 @@
+name: Release & Container Build
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version tag (e.g. v1.0.0)'
+        required: true
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    name: Build & Package Containers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.2.2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.10.0
+
+      - name: Determine Version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "TAG=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build API Image
+        uses: docker/build-push-action@v6.15.0
+        with:
+          context: .
+          file: docker/api.Dockerfile
+          push: false
+          tags: hardware-management-api:${{ steps.version.outputs.TAG }}
+
+      - name: Build Web Image
+        uses: docker/build-push-action@v6.15.0
+        with:
+          context: .
+          file: docker/web.Dockerfile
+          push: false
+          tags: hardware-management-web:${{ steps.version.outputs.TAG }}

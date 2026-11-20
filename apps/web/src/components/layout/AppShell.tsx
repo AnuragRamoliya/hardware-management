@@ -766,32 +766,39 @@ export function AppShell() {
             <Button
               variant="outline"
               size="sm"
-              aria-label="Open search"
               className="h-9 justify-start gap-2 px-2.5 text-muted-foreground sm:w-52 sm:justify-between sm:px-3"
               onClick={() => setPaletteOpen(true)}
             >
               <span className="flex items-center gap-2">
                 <Search className="h-4 w-4" />
                 <span className="hidden sm:inline">Search anything</span>
+                <span className="sm:hidden sr-only">Search</span>
               </span>
-              <kbd className="hidden rounded border bg-muted px-1.5 py-0.5 text-[10px] sm:inline-flex">
+              <kbd
+                aria-hidden="true"
+                className="hidden rounded border bg-muted px-1.5 py-0.5 text-[10px] sm:inline-flex"
+              >
                 <CommandIcon className="h-3 w-3" /> K
               </kbd>
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Notifications"
-              onClick={() => navigate(PATHS.NOTIFICATIONS)}
-              className="relative"
-            >
-              <Bell className="h-[18px] w-[18px]" />
+            <div className="relative inline-flex">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Notifications"
+                onClick={() => navigate(PATHS.NOTIFICATIONS)}
+              >
+                <Bell className="h-[18px] w-[18px]" />
+              </Button>
               {unreadNotificationCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[9px] font-semibold text-white ring-2 ring-background">
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[9px] font-semibold text-white ring-2 ring-background"
+                >
                   {unreadNotificationCount > 9 ? "9+" : unreadNotificationCount}
                 </span>
               )}
-            </Button>
+            </div>
             <Button
               variant="ghost"
               size="icon"
