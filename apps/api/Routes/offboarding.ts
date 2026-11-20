@@ -45,7 +45,7 @@ offboardingRouter.post(
 );
 
 offboardingRouter.post(
-  '/list',
+  ['/list', '/cases'],
   decryptPayload,
   userAuth,
   offboardingRead,
@@ -54,7 +54,7 @@ offboardingRouter.post(
 );
 
 offboardingRouter.get(
-  '/get/:id',
+  ['/get/:id', '/cases/:id'],
   decryptPayload,
   userAuth,
   offboardingRead,
@@ -96,15 +96,32 @@ offboardingRouter.put(
 );
 
 offboardingRouter.put(
-  '/cancel',
+  ['/cancel', '/cancel/:id', '/cases/:id/cancel'],
   decryptPayload,
   userAuth,
   offboardingWrite,
   validate([
-    body('id').isInt({ min: 1 }).toInt(),
-    body('reason').isString().trim().isLength({ min: 5 }),
+    body('id').optional().isInt({ min: 1 }).toInt(),
+    body('reason').optional().isString().trim(),
   ]),
-  routeHandler((req) => controller.cancel(req)),
+  routeHandler((req) => {
+    if (req.params.id) req.body.id = Number(req.params.id);
+    if (!req.body.reason) req.body.reason = 'Cancelled by administrator';
+    return controller.cancel(req);
+  }),
+);
+
+offboardingRouter.post(
+  ['/cancel/:id', '/cases/:id/cancel'],
+  decryptPayload,
+  userAuth,
+  offboardingWrite,
+  validate([param('id').isInt({ min: 1 }).toInt(), body('reason').optional().isString().trim()]),
+  routeHandler((req) => {
+    req.body.id = Number(req.params.id);
+    if (!req.body.reason) req.body.reason = 'Cancelled by administrator';
+    return controller.cancel(req);
+  }),
 );
 
 offboardingRouter.put(
@@ -134,7 +151,7 @@ offboardingRouter.post(
 
 // Task Queue Endpoints
 offboardingRouter.post(
-  '/task/list',
+  ['/task/list', '/tasks'],
   decryptPayload,
   userAuth,
   offboardingRead,
@@ -166,37 +183,98 @@ offboardingRouter.put(
 );
 
 offboardingRouter.put(
-  '/task/complete',
+  ['/task/complete', '/tasks/:id/complete', '/task/complete/:id'],
   decryptPayload,
   userAuth,
   offboardingWrite,
-  validate([body('task_id').isInt({ min: 1 }).toInt(), body('notes').optional().isString()]),
-  routeHandler((req) => controller.completeTask(req)),
+  validate([
+    body('task_id').optional().isInt({ min: 1 }).toInt(),
+    body('notes').optional().isString(),
+  ]),
+  routeHandler((req) => {
+    if (req.params.id) req.body.task_id = Number(req.params.id);
+    return controller.completeTask(req);
+  }),
+);
+
+offboardingRouter.post(
+  ['/tasks/:id/complete', '/task/complete/:id'],
+  decryptPayload,
+  userAuth,
+  offboardingWrite,
+  validate([param('id').isInt({ min: 1 }).toInt(), body('notes').optional().isString()]),
+  routeHandler((req) => {
+    req.body.task_id = Number(req.params.id);
+    return controller.completeTask(req);
+  }),
 );
 
 offboardingRouter.put(
-  '/task/waive',
+  ['/task/waive', '/tasks/:id/waive', '/task/waive/:id'],
   decryptPayload,
   userAuth,
   offboardingApprove,
   validate([
-    body('task_id').isInt({ min: 1 }).toInt(),
-    body('reason').isString().trim().isLength({ min: 5 }),
+    body('task_id').optional().isInt({ min: 1 }).toInt(),
+    body('reason').optional().isString().trim(),
+    body('notes').optional().isString().trim(),
   ]),
-  routeHandler((req) => controller.waiveTask(req)),
+  routeHandler((req) => {
+    if (req.params.id) req.body.task_id = Number(req.params.id);
+    req.body.reason = req.body.reason || req.body.notes || 'Waived by authorized staff';
+    return controller.waiveTask(req);
+  }),
+);
+
+offboardingRouter.post(
+  ['/tasks/:id/waive', '/task/waive/:id'],
+  decryptPayload,
+  userAuth,
+  offboardingApprove,
+  validate([
+    param('id').isInt({ min: 1 }).toInt(),
+    body('reason').optional().isString().trim(),
+    body('notes').optional().isString().trim(),
+  ]),
+  routeHandler((req) => {
+    req.body.task_id = Number(req.params.id);
+    req.body.reason = req.body.reason || req.body.notes || 'Waived by authorized staff';
+    return controller.waiveTask(req);
+  }),
 );
 
 offboardingRouter.put(
-  '/task/exception',
+  ['/task/exception', '/tasks/:id/exception', '/task/exception/:id'],
   decryptPayload,
   userAuth,
   offboardingWrite,
   validate([
-    body('task_id').isInt({ min: 1 }).toInt(),
-    body('notes').isString().trim().isLength({ min: 5 }),
+    body('task_id').optional().isInt({ min: 1 }).toInt(),
+    body('notes').optional().isString().trim(),
     body('to_status').optional().isIn(['lost', 'in_repair']),
   ]),
-  routeHandler((req) => controller.exceptionTask(req)),
+  routeHandler((req) => {
+    if (req.params.id) req.body.task_id = Number(req.params.id);
+    if (!req.body.notes) req.body.notes = 'Marked exception by staff';
+    return controller.exceptionTask(req);
+  }),
+);
+
+offboardingRouter.post(
+  ['/tasks/:id/exception', '/task/exception/:id'],
+  decryptPayload,
+  userAuth,
+  offboardingWrite,
+  validate([
+    param('id').isInt({ min: 1 }).toInt(),
+    body('notes').optional().isString().trim(),
+    body('to_status').optional().isIn(['lost', 'in_repair']),
+  ]),
+  routeHandler((req) => {
+    req.body.task_id = Number(req.params.id);
+    if (!req.body.notes) req.body.notes = 'Marked exception by staff';
+    return controller.exceptionTask(req);
+  }),
 );
 
 offboardingRouter.put(
@@ -268,7 +346,7 @@ offboardingRouter.post(
 
 // PDF Downloads
 offboardingRouter.get(
-  '/clearance/:id',
+  ['/clearance/:id', '/cases/:id/clearance-pdf', '/clearance-pdf/:id'],
   userAuth,
   offboardingRead,
   validate([param('id').isInt({ min: 1 }).toInt()]),
