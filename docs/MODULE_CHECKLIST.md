@@ -24,5 +24,5 @@
 - [ ] Route, sidebar, toolbar, row, bulk, and export visibility follow module permissions; server authorization is retained.
 - [ ] No native controls outside `components/ui`, direct axios outside `src/api`, unjustified `any`, console logging, hard-coded hex colors, or `window.location` navigation.
 - [ ] Unit and browser tests cover the form, list filters, errors, role access, and keyboard access.
-- [ ] Verified 360/768/1024/1440 widths, light/dark parity, no page horizontal scroll, keyboard/focus behavior, and axe checks. Attach screenshot baselines when UI changed.
+- [ ] Verified 360/768/1024/1440 widths, light/dark parity, no page horizontal scroll, keyboard/focus behavior, and axe checks. Screenshots are forbidden; UI is verified in a real browser at the local URL and results are recorded as text in `docs/UI_BROWSER_TEST_RESULTS.md`.
 - [ ] Related API lint/typecheck/tests/build, migration/seed, and smoke checks pass when API behavior is touched.

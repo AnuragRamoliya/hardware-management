@@ -14,7 +14,6 @@
     "test:watch": "vitest --passWithNoTests",
     "check:ui": "node scripts/check-ui.mjs",
     "test:e2e": "playwright test",
-    "test:visual": "playwright test",
     "gen:module": "node scripts/gen-module.mjs"
   },
   "dependencies": {

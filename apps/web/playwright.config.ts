@@ -7,7 +7,9 @@ export default defineConfig({
   reporter: "list",
   use: {
     baseURL: "http://localhost:5173",
-    trace: "on-first-retry",
+    screenshot: "off",
+    video: "off",
+    trace: "off",
   },
   projects: [
     {

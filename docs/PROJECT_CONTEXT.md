@@ -437,7 +437,7 @@ erDiagram
 1. **Missing Documentation Files**:
    - `docs/OPTIONS_PAGINATION_REPORT.md` (Claimed done in Phase 2 brief; missing).
    - `docs/ASSET_SOFTWARE_PARITY_AUDIT.md` (Claimed prompted; missing).
-   - Before/after visual parity screenshots are missing.
+   - Visual screenshot baselines are officially eliminated per Step 1; UI verification is strictly browser-based with text assertions recorded in `docs/UI_BROWSER_TEST_RESULTS.md`.
 2. **API Select Validation Gap**:
    - `validateExists` middleware is missing on employee creation and update routes. Department, designation, location, and manager IDs are not validated for active existence prior to insertion.
    - `ResourceModel.list` returns raw records without joined association objects, forcing the web client to execute client-side hydration via `ReferenceLabel`.

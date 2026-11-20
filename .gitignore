@@ -31,6 +31,12 @@ coverage/
 .nyc_output/
 playwright-report/
 test-results/
+blob-report/
+**/__snapshots__/
+docs/parity/
+screenshots/
+*.trace.zip
+*.webm
 
 # Uploads and temporary assets
 uploads/
