@@ -60,7 +60,11 @@ export function checkAccess(
   return async (req, _res, next): Promise<void> => {
     try {
       if (!req.userInfo) throw new AppError(401, STATUS_MESSAGES.UNAUTHORIZED);
-      const module = await modules.findOne({ where: { name: moduleName, status: STATUS.ACTIVE } });
+      const targetModules =
+        moduleName === 'reports' || moduleName === 'report' ? ['report', 'reports'] : [moduleName];
+      const module = await modules.findOne({
+        where: { name: { [Op.in]: targetModules }, status: STATUS.ACTIVE },
+      });
       if (!module) throw new AppError(403, STATUS_MESSAGES.FORBIDDEN);
       const moduleId = Number(plain(module).id);
       const permission = await permissions.findOne({
@@ -83,8 +87,10 @@ export function checkOptionsAccess(moduleName: string): RequestHandler {
   return async (req, _res, next): Promise<void> => {
     try {
       if (!req.userInfo) throw new AppError(401, STATUS_MESSAGES.UNAUTHORIZED);
+      const targetModules =
+        moduleName === 'reports' || moduleName === 'report' ? ['report', 'reports'] : [moduleName];
       const module = await modules.findOne({
-        where: { name: moduleName, status: STATUS.ACTIVE },
+        where: { name: { [Op.in]: targetModules }, status: STATUS.ACTIVE },
       });
       if (!module) throw new AppError(403, STATUS_MESSAGES.FORBIDDEN);
       const moduleId = Number(plain(module).id);

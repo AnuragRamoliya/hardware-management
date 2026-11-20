@@ -9,7 +9,7 @@ import { ReportController } from '../Controllers/reports';
 export const reportRouter = Router();
 const report = new ReportController();
 
-const reportsRead = checkAccess(MODULES.REPORTS, ACCESS_TYPES.READ);
+const reportsRead = checkAccess(MODULES.REPORT, ACCESS_TYPES.READ);
 
 // List available reports for current role
 reportRouter.post(

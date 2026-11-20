@@ -8,7 +8,9 @@ import { exportReportToPdf } from '../Reports/exporters/pdf_exporter';
 
 async function resolveUserRole(req: Request): Promise<string> {
   const actor = getActor(req);
-  if (!actor || !actor.role_id) return '';
+  if (!actor) return '';
+  if (actor.role_name) return actor.role_name;
+  if (!actor.role_id) return '';
   const roleRow = (await roles.findByPk(actor.role_id, {
     attributes: ['id', 'name'],
     raw: true,

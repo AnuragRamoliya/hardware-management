@@ -33,13 +33,36 @@ export function getAllReports(): ReportDefinition[] {
   return ALL_REPORTS;
 }
 
+export function normalizeRoleKey(roleName?: string): string {
+  if (!roleName) return '';
+  const clean = roleName.toLowerCase().replace(/[\s_-]/g, '');
+  if (clean === 'superadmin' || clean === 'admin') return 'super_admin';
+  if (clean === 'hardwaremanager' || clean === 'hardware') return 'hardware_manager';
+  if (clean === 'hrmanager' || clean === 'hr') return 'hr_manager';
+  if (clean === 'employee') return 'employee';
+  return roleName.toLowerCase();
+}
+
 export function getReportsForRole(roleName: string): ReportDefinition[] {
   if (!roleName) return [];
-  return ALL_REPORTS.filter((r) => r.allowedRoles.includes(roleName));
+  const normalized = normalizeRoleKey(roleName);
+  return ALL_REPORTS.filter(
+    (r) =>
+      r.allowedRoles.includes(roleName) ||
+      r.allowedRoles.includes(normalized) ||
+      (normalized === 'super_admin' &&
+        (r.allowedRoles.includes('super_admin') || r.allowedRoles.includes('admin'))),
+  );
 }
 
 export function canRoleAccessReport(roleName: string, reportKey: string): boolean {
   const rep = reportMap.get(reportKey);
   if (!rep) return false;
-  return rep.allowedRoles.includes(roleName);
+  const normalized = normalizeRoleKey(roleName);
+  return (
+    rep.allowedRoles.includes(roleName) ||
+    rep.allowedRoles.includes(normalized) ||
+    (normalized === 'super_admin' &&
+      (rep.allowedRoles.includes('super_admin') || rep.allowedRoles.includes('admin')))
+  );
 }

@@ -78,7 +78,7 @@ export const MODULES = {
   OFFBOARDING: "offboarding",
   OFFBOARDING_TEMPLATE: "offboarding_template",
   REPORT: "report",
-  REPORTS: "reports",
+  REPORTS: "report",
   AUDIT_LOG: "audit_log",
   SETTING: "setting",
   MODULE: "module",
