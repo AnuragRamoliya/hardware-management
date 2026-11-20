@@ -2,6 +2,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import { resourcePaths } from './resources';
 import { userPaths } from './users';
 import { offboardingPaths } from './offboarding';
+import { reportPaths } from './reports';
 
 const definition = {
   openapi: '3.0.3',
@@ -22,7 +23,7 @@ const definition = {
       },
     },
   },
-  paths: { ...userPaths, ...resourcePaths, ...offboardingPaths },
+  paths: { ...userPaths, ...resourcePaths, ...offboardingPaths, ...reportPaths },
 };
 
 export const swaggerSpec = swaggerJsdoc({ definition, apis: [] });

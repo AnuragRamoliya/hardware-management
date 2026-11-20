@@ -78,6 +78,7 @@ export const MODULES = {
   OFFBOARDING: "offboarding",
   OFFBOARDING_TEMPLATE: "offboarding_template",
   REPORT: "report",
+  REPORTS: "reports",
   AUDIT_LOG: "audit_log",
   SETTING: "setting",
   MODULE: "module",
@@ -1454,6 +1455,12 @@ export const REALTIME_EVENTS = {
   // Presence & Typing (Ephemerals)
   PRESENCE_UPDATED: "presence:updated",
   TYPING_UPDATED: "typing:updated",
+
+  // Reports & Exports
+  EXPORT_JOB_STARTED: "export:started",
+  EXPORT_JOB_PROGRESS: "export:progress",
+  EXPORT_JOB_COMPLETED: "export:completed",
+  EXPORT_JOB_FAILED: "export:failed",
 } as const;
 
 export type RealtimeEventName =
@@ -1634,4 +1641,95 @@ export interface ClientToServerEvents {
 // Server to Client socket events
 export interface ServerToClientEvents {
   [event: string]: (envelope: RealtimeEnvelope<any>) => void;
+}
+
+// ============================================================================
+// REPORTS & EXPORT JOBS
+// ============================================================================
+
+export type ReportExportFormat = "csv" | "xlsx" | "pdf";
+
+export type ExportJobStatus =
+  | "pending"
+  | "processing"
+  | "completed"
+  | "failed"
+  | "expired"
+  | "queued"
+  | "running"
+  | "done";
+
+export interface ExportJobDto {
+  id: number;
+  report_key: string;
+  format: ReportExportFormat;
+  filters: Record<string, unknown>;
+  job_status: ExportJobStatus;
+  status?: ExportJobStatus;
+  progress: number;
+  row_count: number;
+  file_path?: string | null;
+  file_sha256?: string | null;
+  error?: string | null;
+  requested_by: number;
+  expires_at?: string | Date;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+}
+
+export interface ReportFilterDef {
+  key: string;
+  label: string;
+  type: "id-select" | "enum" | "date-range" | "boolean" | "text" | "date";
+  endpoint?: string;
+  options?: Array<{ label: string; value: string | number }>;
+  defaultValue?: unknown;
+  placeholder?: string;
+}
+
+export interface ReportColumnDef {
+  key: string;
+  label: string;
+  type: "string" | "number" | "date" | "currency" | "enum" | "boolean";
+  sortable?: boolean;
+  exportable?: boolean;
+  sensitive?: boolean;
+  format?: string;
+}
+
+export interface ReportSummaryItem {
+  key: string;
+  label: string;
+  value: string | number;
+  tone?:
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "destructive"
+    | "muted"
+    | "danger";
+}
+
+export interface ReportMetadataDto {
+  key: string;
+  title: string;
+  description: string;
+  category: string;
+  module: string;
+  requiredRole?: string[];
+  filters: ReportFilterDef[];
+  columns: ReportColumnDef[];
+  defaultSort?: { key: string; direction: "asc" | "desc" };
+}
+
+export interface ReportRunResultDto<T = Record<string, unknown>> {
+  key: string;
+  rows: T[];
+  count: number;
+  summary: ReportSummaryItem[];
+  columns: ReportColumnDef[];
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }

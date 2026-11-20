@@ -50,8 +50,12 @@ export async function callApi<T, TBody = unknown>(
   options: ApiOptions<TBody>,
 ): Promise<ApiResult<T>> {
   const token = useAuthStore.getState().token ?? localStorage.getItem("token");
+  const cleanedUrl = options.url.startsWith("/")
+    ? options.url.slice(1)
+    : options.url;
+  const baseUrl = API_URL.endsWith("/") ? API_URL : `${API_URL}/`;
   const config: AxiosRequestConfig<TBody> = {
-    url: `${API_URL}${options.url}`,
+    url: `${baseUrl}${cleanedUrl}`,
     method: options.method,
     data: options.data ?? options.body,
     params: options.params,

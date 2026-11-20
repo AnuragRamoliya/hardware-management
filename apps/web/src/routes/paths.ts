@@ -39,6 +39,8 @@ export const PATHS = {
   PORTAL_REQUEST_DETAIL: "/portal/requests/:id",
   PORTAL_PROFILE: "/portal/profile",
   PORTAL_OFFBOARDING: "/portal/offboarding",
+  REPORTS: "/reports",
+  REPORT_DETAIL: "/reports/:key",
   OFFBOARDING_CASES: "/offboarding/cases",
   OFFBOARDING_CASE_DETAIL: "/offboarding/cases/:id",
   OFFBOARDING_SCAN_RETURNS: "/offboarding/scan-returns",

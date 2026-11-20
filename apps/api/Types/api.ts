@@ -11,6 +11,8 @@ export interface UserInfo {
   last_name: string;
   email: string;
   employee_id?: number;
+  role?: string | { id: number; name: string };
+  role_name?: string;
 }
 
 export interface ListDto {

@@ -76,3 +76,7 @@ router.use(requestsRouter);
 router.use('/offboarding/template', offboardingTemplateRouter);
 router.use('/offboarding', offboardingRouter);
 router.use('/portal', portalOffboardingRouter);
+
+// Reports & Exports
+import { reportRouter } from './reports';
+router.use(reportRouter);

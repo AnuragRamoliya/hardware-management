@@ -8,8 +8,12 @@ import {
   runOverdueCheck,
   runPendingClearanceCheck,
 } from './offboarding_daily';
+import { exportWorker } from '../Reports/export_worker';
 
 export function registerJobs(): void {
+  // Start export background worker
+  exportWorker.start();
+
   // Hourly SLA breach check
   cron.schedule('0 * * * *', () => {
     void runSlaCheck()
@@ -63,5 +67,13 @@ export function registerJobs(): void {
         if (count > 0) logger.info(`Pending clearance checks completed: ${count}`);
       })
       .catch((error: unknown) => logger.error('Pending clearance check job failed', { error }));
+
+    // Clean up expired export files
+    void exportWorker
+      .cleanupExpiredExports()
+      .then((cleaned) => {
+        if (cleaned > 0) logger.info(`Cleaned up ${cleaned} expired export files`);
+      })
+      .catch((error: unknown) => logger.error('Export cleanup job failed', { error }));
   });
 }

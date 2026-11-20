@@ -35,6 +35,7 @@ import { requestAttachmentsSchema } from './request_attachments';
 import { offboardingChecklistTemplatesSchema } from './offboarding_checklist_templates';
 import { offboardingCasesSchema } from './offboarding_cases';
 import { offboardingTasksSchema } from './offboarding_tasks';
+import { exportJobsSchema } from './export_jobs';
 
 export type RowAttributes = Record<string, unknown>;
 export type EntityModel = ModelStatic<Model<RowAttributes, RowAttributes>>;
@@ -83,6 +84,7 @@ const schemas = {
   offboarding_checklist_templates: offboardingChecklistTemplatesSchema,
   offboarding_cases: offboardingCasesSchema,
   offboarding_tasks: offboardingTasksSchema,
+  export_jobs: exportJobsSchema,
 };
 
 function defineModel(tableName: string, attributes: Record<string, object>): EntityModel {
@@ -152,6 +154,7 @@ export const request_attachments = models.request_attachments;
 export const offboarding_checklist_templates = models.offboarding_checklist_templates;
 export const offboarding_cases = models.offboarding_cases;
 export const offboarding_tasks = models.offboarding_tasks;
+export const export_jobs = models.export_jobs;
 
 // Associations
 roles.hasMany(permissions, { foreignKey: 'role_id', as: 'permissions' });
@@ -271,3 +274,7 @@ offboarding_tasks.belongsTo(users, { foreignKey: 'waived_by', as: 'waiver' });
 employees.hasMany(offboarding_cases, { foreignKey: 'employee_id', as: 'offboarding_cases' });
 users.hasMany(offboarding_cases, { foreignKey: 'handover_to', as: 'assigned_offboarding_cases' });
 users.hasMany(offboarding_tasks, { foreignKey: 'assigned_to', as: 'assigned_offboarding_tasks' });
+
+// Export Jobs Associations
+export_jobs.belongsTo(users, { foreignKey: 'requested_by', as: 'requester' });
+users.hasMany(export_jobs, { foreignKey: 'requested_by', as: 'export_jobs' });

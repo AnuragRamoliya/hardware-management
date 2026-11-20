@@ -9,6 +9,7 @@ import {
 import { useTheme } from "next-themes";
 import { Command } from "cmdk";
 import {
+  BarChart3,
   Bell,
   Building2,
   ChevronDown,
@@ -222,6 +223,13 @@ const navigation: NavigationItem[] = [
         permission: "offboarding_template",
       },
     ],
+  },
+  {
+    label: "Reports",
+    path: PATHS.REPORTS,
+    icon: BarChart3,
+    roles: ["admin", "hardware", "hr"],
+    permission: "reports",
   },
   {
     label: "Organization",

@@ -14,6 +14,7 @@ import { endPoints } from "@/api/endpoint";
 import { PageHeader } from "@/components/common/PageHeader";
 import { StatCard } from "@/components/common/StatCard";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Chart } from "@/components/common/Chart";
 import { PATHS } from "@/routes/paths";
 import {
   useCredentialApprovalsList,
@@ -207,6 +208,85 @@ export function Dashboard() {
             </p>
           </CardContent>
         </Card>
+      </section>
+
+      {/* Visual Analytics & Distribution Charts */}
+      <section className="mt-6 grid gap-5 lg:grid-cols-2">
+        <Chart
+          title="Hardware Inventory Status"
+          description="Live distribution of assets across stock, employee deployment, and maintenance"
+          type="pie"
+          data={[
+            { name: "Available (Stock)", value: summary?.available ?? 0 },
+            { name: "Assigned (Deployed)", value: summary?.assigned ?? 0 },
+            { name: "In Repair", value: summary?.inRepair ?? 0 },
+          ]}
+        />
+        <Chart
+          title="Software Seat Allocation"
+          description="Purchased seat capacity utilization vs unallocated buffer"
+          type="bar"
+          categoryKey="name"
+          dataKey="value"
+          barColor="#10B981"
+          data={[
+            { name: "Allocated Seats", value: summary?.seatsUsed ?? 0 },
+            { name: "Available Seats", value: summary?.seatsAvailable ?? 0 },
+          ]}
+        />
+      </section>
+
+      {/* Reports & Intelligence Hub */}
+      <section className="mt-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-semibold">Reports & Intelligence</h2>
+          <Link
+            to={PATHS.REPORTS}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            Explore all 10 reports →
+          </Link>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Link to="/reports/hardware-per-employee" className="block">
+            <Card className="p-4 hover:border-primary/40 transition-colors">
+              <span className="text-xs font-semibold">
+                Hardware Per Employee
+              </span>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Asset deployments cross-referenced by department
+              </p>
+            </Card>
+          </Link>
+          <Link to="/reports/warranty-expiry" className="block">
+            <Card className="p-4 hover:border-primary/40 transition-colors">
+              <span className="text-xs font-semibold">
+                Warranty Expiry Tracker
+              </span>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Assets nearing end-of-warranty in 30/60/90 days
+              </p>
+            </Card>
+          </Link>
+          <Link to="/reports/request-turnaround-sla" className="block">
+            <Card className="p-4 hover:border-primary/40 transition-colors">
+              <span className="text-xs font-semibold">Turnaround & SLA</span>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Resolution duration & breach rates
+              </p>
+            </Card>
+          </Link>
+          <Link to="/reports/offboarding-status" className="block">
+            <Card className="p-4 hover:border-primary/40 transition-colors">
+              <span className="text-xs font-semibold">
+                Offboarding & Recovery
+              </span>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Clearance status & pending hardware returns
+              </p>
+            </Card>
+          </Link>
+        </div>
       </section>
 
       {/* Credential Vault Overview Section */}

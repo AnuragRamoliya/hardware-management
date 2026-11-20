@@ -198,6 +198,16 @@ const NotificationPreferences = lazy(() =>
     default: module.NotificationPreferences,
   })),
 );
+const ReportCatalogue = lazy(() =>
+  import("@/pages/ReportCatalogue").then((module) => ({
+    default: module.ReportCatalogue,
+  })),
+);
+const ReportPage = lazy(() =>
+  import("@/pages/ReportPage").then((module) => ({
+    default: module.ReportPage,
+  })),
+);
 const Requests = lazy(() =>
   import("@/pages/Requests").then((module) => ({
     default: module.Requests,
@@ -518,6 +528,22 @@ export const routesSection = createBrowserRouter([
               {
                 path: PATHS.NOTIFICATION_PREFERENCES,
                 element: page(<NotificationPreferences />),
+              },
+              {
+                path: PATHS.REPORTS,
+                element: page(
+                  <ReportCatalogue />,
+                  ["admin", "hardware", "hr"],
+                  "reports",
+                ),
+              },
+              {
+                path: PATHS.REPORT_DETAIL,
+                element: page(
+                  <ReportPage />,
+                  ["admin", "hardware", "hr"],
+                  "reports",
+                ),
               },
               {
                 path: PATHS.VERIFY_DOCUMENT,

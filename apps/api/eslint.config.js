@@ -10,7 +10,13 @@ module.exports = tseslint.config(
   {
     files: ['**/*.ts'],
     languageOptions: { globals: { ...globals.node, ...globals.vitest } },
-    rules: { '@typescript-eslint/no-explicit-any': 'error' },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+    },
   },
   {
     files: ['tests/**/*.ts', 'scripts/**/*.ts'],
