@@ -2,6 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ListFilter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Radio } from "@/components/ui/radio";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useAsyncOptions } from "@/hooks/use-async-options";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -148,16 +157,24 @@ function AsyncFilterControl({
             return (
               <label
                 key={id}
-                className="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-muted"
+                className="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-muted cursor-pointer"
               >
-                <input
-                  type={field.multiple ? "checkbox" : "radio"}
-                  name={`filter-${field.key}`}
-                  checked={checked}
-                  onChange={(event) =>
-                    updateSelection(id, event.target.checked)
-                  }
-                />
+                {field.multiple ? (
+                  <Checkbox
+                    checked={checked}
+                    onChange={(event) =>
+                      updateSelection(id, event.target.checked)
+                    }
+                  />
+                ) : (
+                  <Radio
+                    name={`filter-${field.key}`}
+                    checked={checked}
+                    onChange={(event) =>
+                      updateSelection(id, event.target.checked)
+                    }
+                  />
+                )}
                 <span>{option.label}</span>
               </label>
             );
@@ -282,12 +299,11 @@ function FilterControl({
     return (
       <label
         htmlFor={id}
-        className="flex min-h-10 items-center justify-between gap-3 text-xs font-medium"
+        className="flex min-h-10 items-center justify-between gap-3 text-xs font-medium cursor-pointer"
       >
         {field.label}
-        <input
+        <Checkbox
           id={id}
-          type="checkbox"
           checked={value === true}
           onChange={(event) =>
             onChange(event.target.checked ? true : undefined)
@@ -330,10 +346,9 @@ function FilterControl({
             return (
               <label
                 key={option.value}
-                className="flex items-center gap-2 text-sm"
+                className="flex items-center gap-2 text-sm cursor-pointer"
               >
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={selected.includes(optionValue)}
                   onChange={(event) =>
                     onChange(
@@ -352,24 +367,32 @@ function FilterControl({
     );
   }
   if (field.type !== "select") return null;
+  const currentValue = value ? String(value) : "__all__";
   return (
     <div className="space-y-2">
       {label}
-      <select
-        id={id}
-        className="h-10 w-full rounded-md border bg-card px-3 text-sm"
-        value={String(value ?? "")}
-        onChange={(event) => onChange(event.target.value || undefined)}
+      <Select
+        value={currentValue}
+        onValueChange={(val) => onChange(val === "__all__" ? undefined : val)}
       >
-        <option value="">
-          {field.placeholder ?? `All ${field.label.toLowerCase()}`}
-        </option>
-        {field.options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger id={id} className="h-10 w-full" data-hm="select">
+          <SelectValue
+            placeholder={
+              field.placeholder ?? `All ${field.label.toLowerCase()}`
+            }
+          />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="__all__">
+            {field.placeholder ?? `All ${field.label.toLowerCase()}`}
+          </SelectItem>
+          {field.options.map((option) => (
+            <SelectItem key={option.value} value={String(option.value)}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

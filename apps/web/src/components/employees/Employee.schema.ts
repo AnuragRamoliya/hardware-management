@@ -10,6 +10,7 @@ export const employeeFormSchema = yup.object({
     .trim()
     .email(FORM_VALIDATION.EMAIL)
     .required(FORM_VALIDATION.REQUIRED),
+  phone: yup.string().trim().nullable().default(""),
   department_id: yup
     .mixed<string | number>()
     .nullable()

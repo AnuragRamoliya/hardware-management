@@ -9,6 +9,7 @@ import { listValidation, optionsValidation } from '../Utils/validations';
 import { registerActivityRoute } from '../Utils/register_activity_route';
 import { EmployeeController } from '../Controllers/employees';
 import { employees, users } from '../Database/Schema';
+import { validatePhoneNumber } from '@hm/shared';
 
 export const employeeRouter = Router();
 const employee = new EmployeeController();
@@ -54,6 +55,16 @@ const employeeAddValidation = [
     .if((value, { req }) => req.body.create_login === true)
     .isLength({ min: 12 }),
   body('employment_status').optional().isInt({ min: 1, max: 4 }).toInt(),
+  body('phone')
+    .optional({ nullable: true, checkFalsy: true })
+    .custom((value, { req }) => {
+      const result = validatePhoneNumber(value, 'IN');
+      if (!result.valid) {
+        throw new Error(result.error || 'Invalid phone number format');
+      }
+      req.body.phone = result.e164;
+      return true;
+    }),
 ];
 
 employeeRouter.post(
@@ -73,6 +84,16 @@ employeeRouter.put(
   validate([
     body('id').isInt({ min: 1 }),
     body('employment_status').optional().isInt({ min: 1, max: 4 }),
+    body('phone')
+      .optional({ nullable: true, checkFalsy: true })
+      .custom((value, { req }) => {
+        const result = validatePhoneNumber(value, 'IN');
+        if (!result.valid) {
+          throw new Error(result.error || 'Invalid phone number format');
+        }
+        req.body.phone = result.e164;
+        return true;
+      }),
   ]),
   employee.update.bind(employee),
 );

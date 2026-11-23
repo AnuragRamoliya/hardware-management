@@ -15,6 +15,7 @@ import {
   RHFPasswordField,
   RHFAsyncSelect,
   RHFSelect,
+  RHFPhoneField,
 } from "@/components/hook-form/fields";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ENUMS } from "@/utils/constants";
@@ -45,6 +46,7 @@ const defaultValues: EmployeeFormValues = {
   login_password: "",
   employment_status: 1,
   status: 1,
+  phone: "",
 };
 
 export function AddEditEmployee({
@@ -91,6 +93,7 @@ export function AddEditEmployee({
         login_password: "",
         employment_status: String(employee.employment_status ?? 1),
         status: String(employee.status ?? 1),
+        phone: employee.phone ?? "",
       });
     } else if (!open) {
       reset(defaultValues);
@@ -103,6 +106,7 @@ export function AddEditEmployee({
       first_name: values.first_name.trim(),
       last_name: values.last_name.trim(),
       email: values.email.trim(),
+      phone: values.phone ? values.phone.trim() : null,
       department_id: values.department_id ? Number(values.department_id) : null,
       designation_id: values.designation_id
         ? Number(values.designation_id)
@@ -197,6 +201,13 @@ export function AddEditEmployee({
                       label="Last name"
                       placeholder="e.g. Doe"
                       required
+                    />
+                  </FormGridItem>
+                  <FormGridItem span={2}>
+                    <RHFPhoneField
+                      name="phone"
+                      label="Contact phone"
+                      placeholder="e.g. 98765 43210"
                     />
                   </FormGridItem>
                 </FormGrid>

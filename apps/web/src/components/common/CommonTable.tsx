@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState } from "@/components/common/States";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useExportCsv } from "@/hooks/use-export-csv";
@@ -227,9 +228,8 @@ export function CommonTable<T extends { id: string | number }>({
               <thead className="sticky top-0 bg-muted/70 text-xs text-muted-foreground">
                 <tr>
                   <th className="w-10 px-4 py-3">
-                    <input
+                    <Checkbox
                       aria-label="Select all rows"
-                      type="checkbox"
                       checked={
                         rows.length > 0 && selected.length === rows.length
                       }
@@ -281,9 +281,8 @@ export function CommonTable<T extends { id: string | number }>({
                           className="px-4 py-3"
                           onClick={(event) => event.stopPropagation()}
                         >
-                          <input
+                          <Checkbox
                             aria-label={`Select row ${row.id}`}
-                            type="checkbox"
                             checked={selected.includes(row.id)}
                             onChange={() => toggleRow(row.id)}
                           />

@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   sizeVariant?: "sm" | "md" | "lg";
+  "data-hm"?: string;
 }
 
 const sizeClasses = {
@@ -12,9 +13,14 @@ const sizeClasses = {
 };
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, sizeVariant = "md", ...props }, ref) => (
+  (
+    { className, sizeVariant = "md", type, "data-hm": dataHm, ...props },
+    ref,
+  ) => (
     <input
       ref={ref}
+      type={type}
+      data-hm={dataHm || type || "text"}
       className={cn(
         "w-full rounded-md border border-input bg-card placeholder:text-muted-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60",
         "aria-[invalid=true]:border-danger aria-[invalid=true]:focus-visible:ring-danger",

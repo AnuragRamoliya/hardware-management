@@ -6,6 +6,7 @@ import {
   type RowAction,
 } from "@/components/common/RowActionsMenu";
 import { StatusBadge } from "@/components/common/StatusBadge";
+import { PhoneDisplay } from "@/components/ui/phone-field";
 import { ReferenceLabel } from "@/components/common/ReferenceLabel";
 import { PATHS } from "@/routes/paths";
 import {
@@ -60,6 +61,12 @@ export function getEmployeeColumns(
       render: (row) => (
         <span className="text-sm text-muted-foreground">{row.email}</span>
       ),
+    },
+    {
+      id: "phone",
+      label: "Phone",
+      sortable: false,
+      render: (row) => <PhoneDisplay value={row.phone} />,
     },
     {
       id: "department_id",

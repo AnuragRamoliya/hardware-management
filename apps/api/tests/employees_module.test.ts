@@ -48,7 +48,7 @@ describe('API Module 03: Employees Comprehensive QA Suite', () => {
           first_name: 'TestQA',
           last_name: 'Employee',
           email: `qa.emp.${testSuffix}@example.com`,
-          phone: '+1-555-0199',
+          phone: '+1-202-555-0199',
           department_id: 1,
           designation_id: 1,
           location_id: 1,

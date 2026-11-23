@@ -6,6 +6,7 @@ import { decryptPayload } from '../Middleware/cryptography';
 import { validate } from '../Middleware/validator';
 import { listValidation, optionsValidation } from './validations';
 import { registerActivityRoute } from './register_activity_route';
+import { validatePhoneNumber } from '@hm/shared';
 
 export interface CrudController {
   add: (req: Request, res: Response, next: NextFunction) => Promise<void>;
@@ -27,22 +28,46 @@ export function createResourceRouter(
   const writeAccess = checkAccess(moduleName, ACCESS_TYPES.WRITE);
   const deleteAccess = checkAccess(moduleName, ACCESS_TYPES.DELETE);
 
-  const createValidation = requiredCreateFields.map((field) =>
-    body(field)
-      .custom((value) =>
-        typeof value === 'string'
-          ? value.trim().length > 0
-          : value !== null && value !== undefined && value !== '',
-      )
-      .withMessage(`${field} is required.`),
-  );
+  const createValidation = [
+    ...requiredCreateFields.map((field) =>
+      body(field)
+        .custom((value) =>
+          typeof value === 'string'
+            ? value.trim().length > 0
+            : value !== null && value !== undefined && value !== '',
+        )
+        .withMessage(`${field} is required.`),
+    ),
+    body('phone')
+      .optional({ nullable: true, checkFalsy: true })
+      .custom((value, { req }) => {
+        const result = validatePhoneNumber(value, 'IN');
+        if (!result.valid) {
+          throw new Error(result.error || 'Invalid phone number format');
+        }
+        req.body.phone = result.e164;
+        return true;
+      }),
+  ];
 
-  const updateValidation = requiredCreateFields.map((field) =>
-    body(field)
-      .optional()
-      .custom((value) => typeof value !== 'string' || value.trim().length > 0)
-      .withMessage(`${field} cannot be empty.`),
-  );
+  const updateValidation = [
+    ...requiredCreateFields.map((field) =>
+      body(field)
+        .optional()
+        .custom((value) => typeof value !== 'string' || value.trim().length > 0)
+        .withMessage(`${field} cannot be empty.`),
+    ),
+    body('phone')
+      .optional({ nullable: true, checkFalsy: true })
+      .custom((value, { req }) => {
+        const result = validatePhoneNumber(value, 'IN');
+        if (!result.valid) {
+          throw new Error(result.error || 'Invalid phone number format');
+        }
+        req.body.phone = result.e164;
+        return true;
+      }),
+  ];
 
   router.post(
     '/add',

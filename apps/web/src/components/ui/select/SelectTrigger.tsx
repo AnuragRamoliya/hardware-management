@@ -8,6 +8,7 @@ export interface SelectTriggerProps extends React.HTMLAttributes<HTMLDivElement>
   onToggle: () => void;
   placeholder?: string;
   sizeVariant?: "sm" | "md" | "lg";
+  "data-hm"?: string;
 }
 
 const sizeClasses = {
@@ -23,6 +24,7 @@ export function SelectTrigger({
   onToggle,
   placeholder = "Choose",
   sizeVariant = "md",
+  "data-hm": dataHm,
   ...props
 }: SelectTriggerProps) {
   return (
@@ -30,6 +32,7 @@ export function SelectTrigger({
       role="combobox"
       aria-haspopup="listbox"
       aria-expanded={false}
+      data-hm={dataHm || "select"}
       onClick={onToggle}
       className={cn(
         "w-full rounded-md border border-input bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",

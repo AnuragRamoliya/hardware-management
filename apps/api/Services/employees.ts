@@ -14,6 +14,7 @@ import { ResourceModel, type ResourceDefinition } from '../Models/resource';
 import { createActivityLog, createHashPassword } from '../Utils/helpers';
 import type { UserInfo } from '../Types/api';
 import type { OptionsDto, OptionsResult } from '../Types/options';
+import { validatePhoneNumber } from '@hm/shared';
 
 const employeeDefinition: ResourceDefinition = {
   table: 'employee',
@@ -113,6 +114,13 @@ export class EmployeeService {
         ![1, 2, 3, 4].includes(Number(input.employment_status))
       ) {
         throw new AppError(422, 'employment_status must be between 1 and 4.');
+      }
+
+      if (input.phone && typeof input.phone === 'string' && input.phone.trim()) {
+        const phoneValidation = validatePhoneNumber(input.phone, 'IN');
+        if (phoneValidation.valid && phoneValidation.e164) {
+          input.phone = phoneValidation.e164;
+        }
       }
 
       const employee = await employees.create(

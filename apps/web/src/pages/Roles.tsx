@@ -4,6 +4,7 @@ import { ListPageScaffold } from "@/components/common/ListPageScaffold";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/common/Drawer";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Spinner } from "@/components/common/States";
 import {
   useRolesList,
@@ -299,15 +300,13 @@ export function RolesPage() {
                         ] as const
                       ).map((permission) => (
                         <td key={permission} className="px-4 py-3 text-center">
-                          <input
+                          <Checkbox
                             aria-label={`${permission.replace("_access", "")} ${module.name}`}
-                            type="checkbox"
                             checked={matrix[module.name]?.[permission] ?? false}
                             disabled={
                               permission !== "read_access" &&
                               !matrix[module.name]?.read_access
                             }
-                            className="h-4 w-4 accent-primary disabled:opacity-40"
                             onChange={() => toggle(module.name, permission)}
                           />
                         </td>

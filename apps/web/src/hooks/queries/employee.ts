@@ -20,6 +20,7 @@ export interface EmployeeRecord extends Omit<Employee, "status"> {
   status?: number | string;
   create_login?: number | string | boolean;
   login_password?: string;
+  phone?: string | null;
   join_date?: string | null;
   createdAt?: string;
   updatedAt?: string;

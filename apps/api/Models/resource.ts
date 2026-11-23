@@ -12,6 +12,7 @@ import {
 import type { ListDto, UserInfo } from '../Types/api';
 import { getOptions, isOptionsResource } from './options';
 import type { OptionsDto, OptionsResult } from '../Types/options';
+import { validatePhoneNumber } from '@hm/shared';
 
 export interface ResourceDefinition {
   table: string;
@@ -32,9 +33,16 @@ export class ResourceModel {
   ) {}
 
   protected values(input: Record<string, unknown>): Record<string, unknown> {
-    return Object.fromEntries(
+    const raw = Object.fromEntries(
       Object.entries(input).filter(([key]) => this.definition.writableFields.includes(key)),
     );
+    if (typeof raw.phone === 'string' && raw.phone.trim()) {
+      const p = validatePhoneNumber(raw.phone, 'IN');
+      if (p.valid && p.e164) {
+        raw.phone = p.e164;
+      }
+    }
+    return raw;
   }
 
   protected actorName(actor: UserInfo): string {

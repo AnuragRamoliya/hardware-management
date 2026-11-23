@@ -16,6 +16,12 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Radio } from "@/components/ui/radio";
+import { RHFPhoneField } from "./RHFPhoneField";
+
+export { RHFPhoneField };
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAsyncOptions } from "@/hooks/use-async-options";
 import type { OptionItem } from "@/types/select";
@@ -621,17 +627,17 @@ export function RHFAsyncSelect({
 export function RHFSwitch({ name, label, helperText }: FieldProps) {
   const { register } = useFormContext();
   return (
-    <label className="flex min-h-11 items-center justify-between gap-4">
+    <label className="flex min-h-11 items-center justify-between gap-4 cursor-pointer">
       <span>
         <span className="block text-sm font-medium">{label}</span>
         {helperText && (
           <span className="text-xs text-muted-foreground">{helperText}</span>
         )}
       </span>
-      <input
+      <Switch
+        id={name}
         aria-label={label}
-        type="checkbox"
-        className="h-5 w-9 accent-primary"
+        data-hm="switch"
         {...register(name)}
       />
     </label>
@@ -641,11 +647,13 @@ export function RHFSwitch({ name, label, helperText }: FieldProps) {
 export function RHFCheckbox({ name, label, required }: FieldProps) {
   const { register } = useFormContext();
   return (
-    <label className="flex min-h-11 items-center gap-2 text-sm">
-      <input
+    <label
+      htmlFor={name}
+      className="flex min-h-11 items-center gap-2 text-sm cursor-pointer"
+    >
+      <Checkbox
         id={name}
-        type="checkbox"
-        className="h-4 w-4 accent-primary"
+        data-hm="checkbox"
         {...register(name, {
           required: required ? `${label} is required` : false,
         })}
@@ -667,14 +675,9 @@ export function RHFRadioGroup({
       {options.map((option) => (
         <label
           key={option.value}
-          className="flex min-h-10 items-center gap-2 text-sm"
+          className="flex min-h-10 items-center gap-2 text-sm cursor-pointer"
         >
-          <input
-            type="radio"
-            value={option.value}
-            className="h-4 w-4 accent-primary"
-            {...register(name)}
-          />
+          <Radio value={option.value} data-hm="radio" {...register(name)} />
           {option.label}
         </label>
       ))}
@@ -694,12 +697,11 @@ export function RHFCheckboxGroup({
       {options.map((option) => (
         <label
           key={option.value}
-          className="flex min-h-10 items-center gap-2 text-sm"
+          className="flex min-h-10 items-center gap-2 text-sm cursor-pointer"
         >
-          <input
-            type="checkbox"
+          <Checkbox
             value={option.value}
-            className="h-4 w-4 accent-primary"
+            data-hm="checkbox"
             {...register(name)}
           />
           {option.label}
@@ -1029,31 +1031,8 @@ export function RHFDateRangePicker({
   );
 }
 
-export function RHFPhoneInput({ name, label, required }: FieldProps) {
-  const { register } = useFormContext();
-  return (
-    <FieldShell name={name} label={label} required={required}>
-      <div className="flex">
-        <select
-          aria-label="Country calling code"
-          className="h-10 rounded-l-md border border-r-0 border-input bg-muted px-2 text-sm"
-        >
-          <option>+1</option>
-          <option>+44</option>
-          <option>+91</option>
-        </select>
-        <Input
-          id={name}
-          type="tel"
-          autoComplete="tel-national"
-          className="rounded-l-none"
-          {...register(name, {
-            required: required ? `${label} is required` : false,
-          })}
-        />
-      </div>
-    </FieldShell>
-  );
+export function RHFPhoneInput(props: FieldProps) {
+  return <RHFPhoneField {...props} />;
 }
 
 export function RHFTagsInput({ name, label }: FieldProps) {

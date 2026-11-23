@@ -26,6 +26,7 @@ import { ReferenceLabel } from "@/components/common/ReferenceLabel";
 import { TabsList } from "@/components/ui/tabs";
 import { AssetStatusBadge } from "@/components/assets/AssetStatusBadge";
 import { StatusBadge } from "@/components/common/StatusBadge";
+import { PhoneDisplay } from "@/components/ui/phone-field";
 import { callApi } from "@/api/callApi";
 import { api_methods, endPoints } from "@/api/endpoint";
 import type { AssignmentRecord } from "@/api/assets";
@@ -199,6 +200,10 @@ export function EmployeeDetail() {
           {employee.email}
         </span>
       ),
+    },
+    {
+      label: "Phone",
+      value: <PhoneDisplay value={employee.phone} showIcon />,
     },
     {
       label: "Department",

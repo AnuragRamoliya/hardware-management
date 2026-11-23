@@ -3,9 +3,7 @@
  * Pure framework-free TypeScript contracts, types, and constants.
  */
 
-// ============================================================================
-// Core Enums & Constants
-// ============================================================================
+export * from "./phone.js";
 
 export const STATUS = {
   INACTIVE: 0,

@@ -2,6 +2,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import type { TableColumn } from "@/components/common/CommonTable";
 import { RowActionsMenu } from "@/components/common/RowActionsMenu";
 import { StatusBadge } from "@/components/common/StatusBadge";
+import { PhoneDisplay } from "@/components/ui/phone-field";
 import type { VendorRecord } from "@/hooks/queries/vendors";
 
 export interface VendorColumnActions {
@@ -42,11 +43,7 @@ export function getVendorColumns(
       id: "phone",
       label: "Phone",
       sortable: false,
-      render: (row) => (
-        <span className="text-sm text-muted-foreground">
-          {row.phone || "—"}
-        </span>
-      ),
+      render: (row) => <PhoneDisplay value={row.phone} />,
     },
     {
       id: "status",
