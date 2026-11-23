@@ -11,7 +11,7 @@
 | **Part D: Browser Walkthrough & Audit**    | Completed | Audit all 81+ inventory items with real clicks at 360/768/1440 in light & dark, DOM geometry, touch target measurement, zero axe violations                         | 2026-11-23      |
 | **Part E: Module Test Matrix & Coverage**  | Completed | Test cases T1-T10 across all modules in `docs/MODULE_TEST_MATRIX.md`, enforce coverage thresholds, mutation testing, flaky test resolution                          | 2026-11-23      |
 | **Part F: Dead Code Removal**              | Completed | Knip, depcheck, unused exports/components/deps cleanup, `docs/DEAD_CODE_REPORT.md`, bundle size comparison                                                          | 2026-11-23      |
-| **Part G: CI Harness & Quality Gates**     | Pending   | CI job for responsive harness, WebKit status, deterministic test accounts, final quality gate runs                                                                  | -               |
+| **Part G: CI Harness & Quality Gates**     | Completed | CI job for responsive harness, WebKit status & Docker runner, deterministic fixture lockout test & guards, final quality gate runs                                  | 2026-11-23      |
 
 ---
 
@@ -82,7 +82,7 @@
 
 ### Part G: CI Automation & Final Quality Gates
 
-- [ ] Register responsive harness job in CI
-- [ ] Address WebKit environment status and provide Docker runner instructions
-- [ ] Implement deterministic fixture account handling
-- [ ] Full quality gate verification across all packages
+- [x] Register responsive harness job in CI
+- [x] Address WebKit environment status and provide Docker runner instructions
+- [x] Implement deterministic fixture account handling
+- [x] Full quality gate verification across all packages

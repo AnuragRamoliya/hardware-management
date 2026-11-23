@@ -49,6 +49,24 @@ function durationMilliseconds(duration: string): number {
   return amount * multiplier;
 }
 
+export const isFixtureLockoutBypassed = (email: string): boolean => {
+  // STRICT SECURITY CHECK: Never bypass lockout in production or staging under any circumstances
+  if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
+    return false;
+  }
+  // Only bypass when explicitly enabled in test environment AND email is a recognized test fixture domain
+  if (process.env.NODE_ENV === 'test' && process.env.TEST_DISABLE_FIXTURE_LOCKOUT === 'true') {
+    const lower = (email || '').toLowerCase();
+    return (
+      lower.endsWith('@fixture.local') ||
+      lower.endsWith('@example.com') ||
+      lower.endsWith('@test.com') ||
+      lower.endsWith('@hardware.test')
+    );
+  }
+  return false;
+};
+
 export class UserModel extends ResourceModel {
   constructor() {
     super(users, userDefinition);
@@ -95,8 +113,14 @@ export class UserModel extends ResourceModel {
       throw new AppError(403, 'Your account has been deactivated due to offboarding clearance.');
     }
 
+    const bypassLockout = isFixtureLockoutBypassed(email);
+
     // Lockout check
-    if (userData.locked_until && new Date(String(userData.locked_until)) > new Date()) {
+    if (
+      !bypassLockout &&
+      userData.locked_until &&
+      new Date(String(userData.locked_until)) > new Date()
+    ) {
       await login_history.create({
         user_id: Number(userData.id),
         email_attempted: email,
@@ -115,7 +139,7 @@ export class UserModel extends ResourceModel {
     if (!passwordValid) {
       const failedAttempts = Number(userData.failed_login_count || 0) + 1;
       let lockedUntil: Date | null = null;
-      if (failedAttempts >= 5) {
+      if (failedAttempts >= 5 && !bypassLockout) {
         lockedUntil = new Date(Date.now() + 15 * 60 * 1000);
       }
       await user.update({

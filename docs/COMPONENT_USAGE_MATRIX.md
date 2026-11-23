@@ -1,6 +1,6 @@
 # Component Usage Matrix
 
-Generated: 2026-11-23T09:52:03.795Z
+Generated: 2026-11-23T10:40:25.494Z
 Total scanned field usages: 264
 Violations detected: 0
 
@@ -155,11 +155,11 @@ Violations detected: 0
 | `components/employees/AddEditEmployee.tsx:279`                 | `RHFSelect`           | select         | ✅ Compliant |       |
 | `components/employees/AddEditEmployee.tsx:287`                 | `RHFPasswordField`    | password       | ✅ Compliant |       |
 | `components/employees/EmployeeImportDialog.tsx:60`             | `Input`               | file           | ✅ Compliant |       |
-| `components/hook-form/RHFDatePicker.tsx:37`                    | `DatePicker`          | date           | ✅ Compliant |       |
-| `components/hook-form/RHFDateRangePicker.tsx:35`               | `DateRangePicker`     | date-range     | ✅ Compliant |       |
-| `components/hook-form/RHFDateTimePicker.tsx:40`                | `DateTimePicker`      | datetime       | ✅ Compliant |       |
+| `components/hook-form/RHFDatePicker.tsx:39`                    | `DatePicker`          | date           | ✅ Compliant |       |
+| `components/hook-form/RHFDateRangePicker.tsx:37`               | `DateRangePicker`     | date-range     | ✅ Compliant |       |
+| `components/hook-form/RHFDateTimePicker.tsx:42`                | `DateTimePicker`      | datetime       | ✅ Compliant |       |
 | `components/hook-form/RHFPhoneField.tsx:45`                    | `PhoneField`          | phone          | ✅ Compliant |       |
-| `components/hook-form/RHFTimePicker.tsx:37`                    | `TimePicker`          | time           | ✅ Compliant |       |
+| `components/hook-form/RHFTimePicker.tsx:39`                    | `TimePicker`          | time           | ✅ Compliant |       |
 | `components/hook-form/fields.tsx:108`                          | `Input`               | text           | ✅ Compliant |       |
 | `components/hook-form/fields.tsx:188`                          | `Input`               | text           | ✅ Compliant |       |
 | `components/hook-form/fields.tsx:269`                          | `Textarea`            | textarea       | ✅ Compliant |       |
@@ -172,18 +172,18 @@ Violations detected: 0
 | `components/hook-form/fields.tsx:664`                          | `Checkbox`            | checkbox       | ✅ Compliant |       |
 | `components/hook-form/fields.tsx:690`                          | `Radio`               | radio          | ✅ Compliant |       |
 | `components/hook-form/fields.tsx:712`                          | `Checkbox`            | checkbox       | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:740`                          | `Input`               | search         | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:787`                          | `Input`               | number         | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:817`                          | `Input`               | text           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:886`                          | `Select`              | select         | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:908`                          | `Input`               | text           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:980`                          | `RHFPhoneField`       | phone          | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1022`                         | `Input`               | text           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1047`                         | `Input`               | text           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1094`                         | `Input`               | file           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1135`                         | `RHFFileField`        | file           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1150`                         | `RHFFileField`        | file           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1164`                         | `Input`               | text           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:739`                          | `Input`               | search         | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:786`                          | `Input`               | number         | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:816`                          | `Input`               | text           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:885`                          | `Select`              | select         | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:907`                          | `Input`               | text           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:978`                          | `RHFPhoneField`       | phone          | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:1020`                         | `Input`               | text           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:1045`                         | `Input`               | text           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:1092`                         | `Input`               | file           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:1133`                         | `RHFFileField`        | file           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:1148`                         | `RHFFileField`        | file           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:1162`                         | `Input`               | text           | ✅ Compliant |       |
 | `components/locations/AddEditLocation.tsx:125`                 | `RHFTextField`        | text           | ✅ Compliant |       |
 | `components/locations/AddEditLocation.tsx:133`                 | `RHFSelect`           | select         | ✅ Compliant |       |
 | `components/locations/AddEditLocation.tsx:141`                 | `RHFTextArea`         | textarea       | ✅ Compliant |       |

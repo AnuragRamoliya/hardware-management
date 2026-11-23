@@ -96,3 +96,17 @@ Every field has an associated label. Required fields show `*` and also validate.
 Use the shared spacing and color tokens (`bg-card`, `text-muted-foreground`, `border-input`, `text-danger`, etc.), never literal hex colors. Design mobile first: one form column below `md`, two at `md`, three at `xl`; dialogs become full-screen sheets below `md`; tables become cards below `md`. Avoid page-level horizontal scrolling; allow it only inside a table or tab strip. Interactive targets are at least 44px high. Preserve focus on close, expose expanded/selected/invalid states with ARIA, support keyboard operation, respect reduced motion, and check light/dark parity. Verify representative pages at 360, 768, 1024, and 1440px.
 
 Screenshots, images, and visual baselines are strictly forbidden and eliminated across the repository. All UI verification is performed in a real browser at the local URL via DOM assertions (`document.scrollWidth <= window.innerWidth`, touch targets >= 44px, axe accessibility violations = 0, theme token toggling). All verification outcomes are recorded exclusively as text in `docs/UI_BROWSER_TEST_RESULTS.md`.
+
+## Automated Responsive & Field Consistency Verification
+
+All forms, overlays, drawers, sheets, and dialogs must adhere to common field standards and responsive geometry rules:
+
+1. **Registration Mandate**: Any new field kind, modal, drawer, or overlay must be registered in `docs/UI_INVENTORY.md`.
+2. **Quality Harness**: Every registered screen and overlay must pass the Playwright responsive harness (`e2e/responsive/`) and the static field usage scanner (`scripts/check_field_usage.ts`).
+3. **Execution Gate**: The responsive and field-consistency harness runs as part of `npm run test:all-fixture` and as an automated job in GitHub Actions CI.
+4. **Conformance Criteria**:
+   - `data-hm` runtime guard attributes on all input and select components.
+   - Zero horizontal overflow (`document.scrollWidth <= window.innerWidth`).
+   - Interactive touch targets >= 36-44px on mobile and tablet viewports.
+   - Zero Axe accessibility violations (`axe.run()`).
+   - Clean viewport adaptation (popovers converting to bottom-sheets on mobile viewports <= 640px).

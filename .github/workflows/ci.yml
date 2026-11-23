@@ -85,5 +85,60 @@ jobs:
       - name: Check UI Inventory Coverage
         run: npm run check:ui-inventory
 
+      - name: Check Common Field Usage Guard
+        run: npm run check:field-usage
+
       - name: Build All Workspaces
         run: npm run build
+
+  responsive-harness:
+    name: Responsive & Field Consistency Harness
+    runs-on: ubuntu-latest
+    needs: [ci]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install Playwright Browsers (Chromium, Firefox)
+        run: npx playwright install --with-deps chromium firefox
+
+      - name: Run Responsive Harness (Chromium & Firefox at 360, 768, 1440)
+        run: npx playwright test e2e/responsive/ --project=desktop-1440 --project=mobile-360 --project=tablet-768 --project=firefox-desktop --project=firefox-mobile --reporter=list
+        working-directory: apps/web
+        env:
+          CI: true
+
+  responsive-webkit:
+    name: WebKit Responsive Harness
+    runs-on: ubuntu-latest
+    needs: [ci]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install WebKit with System Dependencies
+        run: npx playwright install --with-deps webkit
+
+      - name: Run WebKit Responsive Harness (360, 768, 1440)
+        run: npx playwright test e2e/responsive/ --project=webkit-desktop --project=webkit-tablet --project=webkit-mobile --reporter=list
+        working-directory: apps/web
+        env:
+          CI: true

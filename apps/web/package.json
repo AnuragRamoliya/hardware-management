@@ -15,6 +15,8 @@
     "test:watch": "vitest --passWithNoTests",
     "check:ui": "node scripts/check-ui.mjs",
     "test:e2e": "playwright test",
+    "test:responsive": "playwright test e2e/responsive/ --project=desktop-1440 --project=mobile-360 --project=tablet-768 --project=firefox-desktop --project=firefox-mobile",
+    "test:responsive:webkit": "playwright test e2e/responsive/ --project=webkit-desktop --project=webkit-tablet --project=webkit-mobile",
     "gen:module": "node scripts/gen-module.mjs"
   },
   "dependencies": {

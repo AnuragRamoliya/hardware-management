@@ -1316,6 +1316,7 @@ export class CredentialVaultService {
 
     // 7. Audit log with hash chain
     const now = new Date();
+    now.setMilliseconds(0);
     await sequelize.transaction(async (transaction) => {
       // Find latest access log for chain linking
       const lastLog = await credential_access_logs.findOne({

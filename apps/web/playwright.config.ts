@@ -48,5 +48,26 @@ export default defineConfig({
         viewport: { width: 360, height: 740 },
       },
     },
+    {
+      name: "webkit-desktop",
+      use: {
+        browserName: "webkit",
+        viewport: { width: 1440, height: 900 },
+      },
+    },
+    {
+      name: "webkit-tablet",
+      use: {
+        browserName: "webkit",
+        viewport: { width: 768, height: 1024 },
+      },
+    },
+    {
+      name: "webkit-mobile",
+      use: {
+        browserName: "webkit",
+        viewport: { width: 360, height: 740 },
+      },
+    },
   ],
 });

@@ -23,14 +23,14 @@ export const router = Router();
 const controller = new UserController();
 const loginLimiter = rateLimit({
   windowMs: 15 * 60_000,
-  limit: env.NODE_ENV === 'production' ? 5 : 200,
+  limit: env.NODE_ENV === 'production' ? 5 : 2000,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   handler: (_req, res) => res.handler.tooManyRequests(),
 });
 const recoveryLimiter = rateLimit({
   windowMs: 60 * 60_000,
-  limit: env.NODE_ENV === 'production' ? 5 : 100,
+  limit: env.NODE_ENV === 'production' ? 5 : 1000,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   handler: (_req, res) => res.handler.tooManyRequests(),

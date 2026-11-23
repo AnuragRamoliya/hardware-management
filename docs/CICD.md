@@ -15,8 +15,13 @@ The Hardware Management monorepo uses GitHub Actions for continuous integration,
   1. **Secret Scan**: Uses `gitleaks-action` across full git commit history.
   2. **Lint & Quality**: Runs ESLint across all workspaces (`@hm/api`, `@hm/web`, `@hm/shared`), TypeScript type checking (`tsc --noEmit`), and UI standards validation (`npm run check:ui`).
   3. **Unit & Integration Tests**: Spins up MySQL 8.4 service container, applies Sequelize migrations (`npm run db:migrate`), runs test fixtures, golden report verifications, and API integration tests.
-  4. **Playwright E2E**: Headless Chromium testing across Desktop (1440x900) and Mobile (360x740) viewports. Generates JUnit and text reports; artifact uploads strictly exclude video, screenshot, or trace files.
-  5. **Build**: Builds production bundles for `@hm/shared`, `@hm/api`, and `@hm/web`.
+  4. **Playwright Responsive & Field Consistency Harness**: Runs across desktop (1440px), tablet (768px), and mobile (360px) in Chromium and Firefox. Validates runtime `data-hm` guards, touch targets >= 36-44px, zero horizontal overflow, and 0 Axe accessibility violations. Exclusively outputs text/JUnit results; trace, screenshot, and video captures are permanently disabled.
+  5. **WebKit Verification (Docker & CI)**: Installs WebKit dependencies (`npx playwright install --with-deps webkit`) in CI and executes responsive tests across 360, 768, and 1440 viewports. For local Linux hosts lacking WebKit shared libraries, the official Playwright Docker container can be run directly:
+     ```bash
+     docker run --rm --network host -v $(pwd):/work -w /work mcr.microsoft.com/playwright:v1.48.0-focal npx playwright test e2e/responsive/ --project=webkit-desktop --project=webkit-tablet --project=webkit-mobile
+     ```
+  6. **UI Inventory & Field Usage Guards**: Executes `npm run check:ui-inventory` (ensuring 100% of routes and overlays are covered) and `npm run check:field-usage` (AST scanner verifying no unapproved native inputs exist).
+  7. **Build**: Builds production bundles for `@hm/shared`, `@hm/api`, and `@hm/web`.
 
 ### `security.yml` (Weekly Security Audits)
 
