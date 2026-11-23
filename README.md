@@ -72,7 +72,7 @@ cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env
 ```
 
-### Step 4: Start Database Service
+### Step 4: Start Database Service (UNVERIFIED on Docker: Host daemon socket inactive)
 
 You can start a local MySQL instance with Docker:
 
@@ -80,7 +80,7 @@ You can start a local MySQL instance with Docker:
 docker compose -f docker-compose.dev.yml up -d
 ```
 
-_(Or ensure your host MySQL service is active on port 3306)_
+_(Or ensure your host MySQL service is active on port 3306 - VERIFIED on host MySQL 8)_
 
 ### Step 5: Run Database Migrations and Seeders
 

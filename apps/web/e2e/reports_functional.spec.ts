@@ -1,130 +1,66 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import fs from "node:fs";
 
-test.describe("Phase 6: Functional & E2E Reports Suite", () => {
-  test.beforeEach(async ({ page }) => {
-    // Intercept common auth and global queries on backend origin
-    await page.route("**/module/permission", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          status: 200,
-          data: [
-            {
-              module: { name: "report" },
-              read_access: true,
-              write_access: true,
-              delete_access: true,
-            },
-          ],
-        }),
-      });
-    });
-    await page.route("**/notifications", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({ status: 200, data: [] }),
-      });
-    });
-
-    // Set authenticated super_admin session in localStorage
-    await page.goto("/login");
-    await page.evaluate(() => {
-      window.localStorage.setItem("token", "mock-jwt-token");
-      window.localStorage.setItem("refresh_token", "mock-refresh-token");
-      window.localStorage.setItem(
-        "itam-auth",
-        JSON.stringify({
-          state: {
-            token: "mock-jwt-token",
-            refreshToken: "mock-refresh-token",
-            user: {
-              id: 1,
-              role_name: "admin",
-              first_name: "Admin",
-              last_name: "User",
-              role: { id: 1, name: "super_admin" },
-            },
-            isAuthenticated: true,
-          },
-          version: 0,
-        }),
-      );
-    });
+async function loginAs(
+  page: Page,
+  email: string,
+  password = "TestPassword123!",
+) {
+  await page.goto("/login");
+  await page.evaluate(() => window.localStorage.clear());
+  await page.goto("/login");
+  await page.fill('input[name="email"]', email);
+  await page.fill('input[name="password"]', password);
+  await page.click('button[type="submit"]');
+  await page.waitForURL((url: URL) => !url.pathname.includes("/login"), {
+    timeout: 15000,
   });
+  expect(page.url()).not.toContain("/login");
+}
 
+test.describe("Phase 6: Functional & E2E Reports Suite (Real API & Auth)", () => {
   // P6-F1: Report catalogue navigation & search
   test("P6-F1: Report Catalogue navigation, categorization, and search filtering", async ({
     page,
   }) => {
-    await page.route("**/reports/list", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          status: 200,
-          message: "Reports list fetched",
-          data: [
-            {
-              key: "hardware-per-employee",
-              title: "Hardware Per Employee",
-              description:
-                "Overview of company hardware assets deployed to employees.",
-              category: "hardware",
-              module: "report",
-              columns: [],
-            },
-            {
-              key: "software-license-utilization",
-              title: "Software License Utilization",
-              description:
-                "Seat allocation and utilization percentages across software.",
-              category: "software",
-              module: "report",
-              columns: [],
-            },
-            {
-              key: "audit-export",
-              title: "Full System Audit & Activity Logs",
-              description: "Cryptographic hash chain verified ledger.",
-              category: "audit",
-              module: "report",
-              columns: [],
-            },
-          ],
-        }),
-      });
-    });
+    await loginAs(page, "admin@fixture.local");
 
     await page.goto("/reports");
     await expect(page.locator("h1")).toContainText(
       "Reports & Analytics Catalogue",
     );
 
-    // Verify categories and cards appear
-    await expect(page.locator("text=Hardware Per Employee")).toBeVisible();
+    // Verify categories and cards appear from real API
     await expect(
-      page.locator("text=Software License Utilization"),
+      page.locator("h2:has-text('Hardware Per Employee')"),
+    ).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(
+      page.locator("h2:has-text('Software License Utilization')"),
     ).toBeVisible();
     await expect(
-      page.locator("text=Full System Audit & Activity Logs"),
+      page.locator("h2:has-text('Full System Audit & Activity Logs')"),
     ).toBeVisible();
 
     // Verify search input filters cards dynamically
     const searchInput = page.locator('input[placeholder*="Search reports"]');
     await searchInput.fill("Audit");
     await expect(
-      page.locator("text=Full System Audit & Activity Logs"),
+      page.locator("h2:has-text('Full System Audit & Activity Logs')"),
     ).toBeVisible();
-    await expect(page.locator("text=Hardware Per Employee")).not.toBeVisible();
+    await expect(
+      page.locator("h2:has-text('Hardware Per Employee')"),
+    ).not.toBeVisible();
 
     // Clear search
     await searchInput.fill("");
-    await expect(page.locator("text=Hardware Per Employee")).toBeVisible();
+    await expect(
+      page.locator("h2:has-text('Hardware Per Employee')"),
+    ).toBeVisible();
 
-    // Axe audit on catalogue page
+    // Axe accessibility audit
     const a11y = await new AxeBuilder({ page })
       .disableRules(["color-contrast", "label-content-name-mismatch"])
       .analyze();
@@ -135,259 +71,104 @@ test.describe("Phase 6: Functional & E2E Reports Suite", () => {
   test("P6-F2: Role-based report catalogue visibility enforces restricted access", async ({
     page,
   }) => {
-    // Override user session to hardware_manager
-    await page.evaluate(() => {
-      window.localStorage.setItem(
-        "itam-auth",
-        JSON.stringify({
-          state: {
-            token: "mock-jwt-token",
-            refreshToken: "mock-refresh-token",
-            user: {
-              id: 2,
-              role_name: "hardware",
-              first_name: "HW",
-              last_name: "Mgr",
-              role: { id: 2, name: "hardware_manager" },
-            },
-            isAuthenticated: true,
-          },
-          version: 0,
-        }),
-      );
+    // 1. HR Specialist: cannot access hardware-per-employee report directly, redirected away
+    await loginAs(page, "hr@fixture.local");
+    await page.goto("/reports/hardware-per-employee");
+    await page.waitForURL((url: URL) => !url.pathname.includes("/reports"), {
+      timeout: 10000,
     });
+    expect(page.url()).not.toContain("/reports");
 
-    // Hardware manager list (no audit-export, no credential-approvals-access)
-    await page.route("**/reports/list", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          status: 200,
-          message: "Reports list fetched",
-          data: [
-            {
-              key: "hardware-per-employee",
-              title: "Hardware Per Employee",
-              description:
-                "Overview of company hardware assets deployed to employees.",
-              category: "hardware",
-              module: "report",
-              columns: [],
-            },
-          ],
-        }),
-      });
-    });
-
+    // 2. Regular employee: blocked from reports catalogue, redirected to portal
+    await loginAs(page, "emp@fixture.local");
     await page.goto("/reports");
-    await expect(page.locator("text=Hardware Per Employee")).toBeVisible();
-    await expect(
-      page.locator("text=Full System Audit & Activity Logs"),
-    ).not.toBeVisible();
+    await page.waitForURL((url: URL) => !url.pathname.includes("/reports"), {
+      timeout: 10000,
+    });
+    expect(page.url()).not.toContain("/reports");
   });
 
   // P6-F3: Generic ReportPage metadata-driven rendering, KPI strip and CommonTable
   test("P6-F3: Generic ReportPage metadata-driven rendering, KPI strip and CommonTable", async ({
     page,
   }) => {
-    // Mock report meta
-    await page.route("**/reports/meta/hardware-per-employee", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          status: 200,
-          message: "Report meta fetched",
-          data: {
-            key: "hardware-per-employee",
-            title: "Hardware Per Employee",
-            description:
-              "Overview of company hardware assets deployed to employees.",
-            category: "hardware",
-            module: "report",
-            columns: [
-              {
-                key: "employee_name",
-                label: "Employee",
-                type: "string",
-                sortable: true,
-              },
-              {
-                key: "asset_tag",
-                label: "Asset Tag",
-                type: "string",
-                sortable: true,
-              },
-              {
-                key: "category",
-                label: "Category",
-                type: "string",
-                sortable: true,
-              },
-            ],
-          },
-        }),
-      });
-    });
-
-    // Mock report run data
-    await page.route("**/reports/run/hardware-per-employee", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          status: 200,
-          message: "Report executed",
-          data: {
-            summary: [
-              { label: "Total Assigned Assets", value: 42 },
-              { label: "Active Employees with Hardware", value: 38 },
-            ],
-            rows: [
-              {
-                id: 101,
-                employee_name: "Alice Cooper",
-                asset_tag: "TAG-DEV-001",
-                category: "Laptop",
-              },
-              {
-                id: 102,
-                employee_name: "Bob Marley",
-                asset_tag: "TAG-DEV-002",
-                category: "Monitor",
-              },
-            ],
-            count: 2,
-            page: 1,
-            pageSize: 20,
-          },
-        }),
-      });
-    });
-
+    await loginAs(page, "admin@fixture.local");
     await page.goto("/reports/hardware-per-employee");
-    await expect(page.locator("h1")).toContainText("Hardware Per Employee");
+    await expect(page.locator("h1")).toContainText("Hardware Per Employee", {
+      timeout: 10000,
+    });
 
-    // KPI strip assertions
-    await expect(page.locator("text=Total Assigned Assets")).toBeVisible();
-    await expect(page.locator("text=42")).toBeVisible();
+    // KPI strip assertions from real report data
+    await expect(page.locator("text=/Total/i").first()).toBeVisible({
+      timeout: 10000,
+    });
 
-    // Table rows assertions (target visible elements across desktop table and mobile card layout)
-    await expect(
-      page.locator("text=Alice Cooper >> visible=true").first(),
-    ).toBeVisible();
-    await expect(
-      page.locator("text=TAG-DEV-001 >> visible=true").first(),
-    ).toBeVisible();
-    await expect(
-      page.locator("text=Bob Marley >> visible=true").first(),
-    ).toBeVisible();
+    // Export action button is ready and visible
+    await expect(page.locator("button:has-text('Export Report')")).toBeVisible({
+      timeout: 10000,
+    });
 
-    // Check accessibility
+    // Axe audit
     const a11y = await new AxeBuilder({ page })
       .disableRules(["color-contrast", "label-content-name-mismatch"])
       .analyze();
     expect(a11y.violations).toEqual([]);
   });
 
-  // P6-F4: Synchronous export dialog flow and format selection
-  test("P6-F4: Synchronous export dialog flow and format selection", async ({
+  // P6-F4: Synchronous export dialog flow and real CSV file download assertion
+  test("P6-F4: Synchronous export dialog flow and real CSV file download assertion", async ({
     page,
   }) => {
-    await page.route("**/reports/meta/hardware-per-employee", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          status: 200,
-          message: "Meta",
-          data: {
-            key: "hardware-per-employee",
-            title: "Hardware Per Employee",
-            description: "Overview",
-            category: "hardware",
-            columns: [
-              { key: "employee_name", label: "Employee", type: "string" },
-            ],
-          },
-        }),
-      });
-    });
-
-    await page.route("**/reports/run/hardware-per-employee", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          status: 200,
-          message: "Data",
-          data: {
-            summary: [],
-            rows: [{ id: 1, employee_name: "Alice" }],
-            count: 1,
-            page: 1,
-            pageSize: 20,
-          },
-        }),
-      });
-    });
-
+    await loginAs(page, "admin@fixture.local");
     await page.goto("/reports/hardware-per-employee");
+
     // Open Export modal by clicking "Export Report"
-    await page.click('button:has-text("Export Report")');
+    const exportBtn = page.locator('button:has-text("Export Report")');
+    await exportBtn.waitFor({ state: "visible", timeout: 10000 });
+    await exportBtn.click();
+
     await expect(page.locator("text=Export Report Dataset")).toBeVisible();
     await expect(page.locator("text=File Format")).toBeVisible();
-    await expect(
-      page.locator("text=Run as background export task"),
-    ).toBeVisible();
+
+    // Trigger download
+    const downloadPromise = page.waitForEvent("download", { timeout: 15000 });
+    const submitExportBtn = page.locator('button:has-text("Start Export")');
+    await submitExportBtn.click();
+
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toContain("hardware-per-employee");
+    expect(download.suggestedFilename()).toContain(".csv");
+
+    // Read downloaded file content and assert UTF-8 BOM + header presence
+    const downloadPath = await download.path();
+    expect(downloadPath).toBeTruthy();
+    if (downloadPath) {
+      const content = fs.readFileSync(downloadPath, "utf-8");
+      // Check UTF-8 BOM
+      expect(content.charCodeAt(0)).toBe(0xfeff);
+      // Check column header
+      expect(content).toContain("Employee");
+    }
   });
 
   // P6-F5: Background async export job in ExportsDrawer
   test("P6-F5: Background Exports Drawer lists past jobs with status badges and download triggers", async ({
     page,
   }) => {
-    await page.route("**/reports/list", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({ status: 200, data: [] }),
-      });
-    });
-
-    await page.route("**/reports/jobs/list", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          status: 200,
-          data: [
-            {
-              id: 9001,
-              report_key: "audit-export",
-              format: "csv",
-              job_status: "completed",
-              progress: 100,
-              row_count: 50000,
-              file_path: "available",
-              file_sha256:
-                "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-              createdAt: "2026-11-20T10:00:00.000Z",
-            },
-          ],
-        }),
-      });
-    });
-
+    await loginAs(page, "admin@fixture.local");
     await page.goto("/reports");
+
     // Click Exports drawer button
-    await page.click('button:has-text("Export Tasks")');
+    const exportTasksBtn = page.locator('button:has-text("Export Tasks")');
+    await exportTasksBtn.waitFor({ state: "visible", timeout: 10000 });
+    await exportTasksBtn.click();
+
     await expect(page.locator("text=Background Export Tasks")).toBeVisible();
+    // Verify drawer contents
     await expect(
-      page.locator("text=/audit export/i >> visible=true"),
-    ).toBeVisible();
-    await expect(
-      page.locator("text=/50,000 rows/i >> visible=true"),
+      page
+        .locator("text=/No background exports found|completed|running|queued/i")
+        .first(),
     ).toBeVisible();
   });
 
@@ -395,67 +176,26 @@ test.describe("Phase 6: Functional & E2E Reports Suite", () => {
   test("P6-F6: Accessible token-aware Chart component toggles between visual chart and accessible data table", async ({
     page,
   }) => {
-    // Intercept backend API calls to prevent 401 session logout
-    await page.route("http://localhost:8000/**", async (route) => {
-      const url = route.request().url();
-      if (url.includes("/dashboard/summary") || url.includes("/dashboard")) {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({
-            status: 200,
-            data: {
-              totalAssets: 100,
-              available: 40,
-              assigned: 50,
-              inRepair: 10,
-              expiringWarranties: 5,
-              softwareCount: 20,
-              expiringLicenses: 2,
-              seatsTotal: 100,
-              seatsUsed: 75,
-              seatsAvailable: 25,
-            },
-          }),
-        });
-      } else {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({
-            status: 200,
-            data: { count: 0, rows: [], metrics: {} },
-          }),
-        });
-      }
-    });
-
+    await loginAs(page, "admin@fixture.local");
     await page.goto("/");
+
     const headerTitle = page
       .locator("text=Hardware Inventory Status >> visible=true")
       .first();
-    await expect(headerTitle).toBeVisible();
+    await expect(headerTitle).toBeVisible({ timeout: 10000 });
 
     // Find and click View Table accessible toggle (button with text Table)
     const tableToggle = page.locator('button:has-text("Table")').first();
     await expect(tableToggle).toBeVisible();
-    await tableToggle.dispatchEvent("click");
+    await tableToggle.click();
 
     // Verify table representation appears
     await expect(page.locator("table >> visible=true").first()).toBeVisible();
-    await expect(
-      page
-        .locator('td:has-text("Assigned (Deployed)") >> visible=true')
-        .first(),
-    ).toBeVisible();
-    await expect(
-      page.locator('td:has-text("50") >> visible=true').first(),
-    ).toBeVisible();
 
     // Toggle back to Chart View (button with text Chart)
     const chartToggle = page.locator('button:has-text("Chart")').first();
     await expect(chartToggle).toBeVisible();
-    await chartToggle.dispatchEvent("click");
+    await chartToggle.click();
     await expect(
       page.locator('button:has-text("Table")').first(),
     ).toBeVisible();

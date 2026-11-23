@@ -33,8 +33,37 @@ export const errorHandler: ErrorRequestHandler = (error: unknown, req, res, next
       res.handler.conflict(error.details ?? null, error.message);
     else if (error.statusCode === STATUS_CODES.VALIDATION_ERROR)
       res.handler.validationError(error.details ?? null, error.message);
-    else res.handler.badRequest(error.details ?? null, error.message);
+    else if (error.statusCode === 410) {
+      res.status(410).json({ message: error.message, data: null });
+    } else res.handler.badRequest(error.details ?? null, error.message);
     return;
+  }
+  const status =
+    typeof error === 'object' && error !== null
+      ? (error as Record<string, unknown>).status || (error as Record<string, unknown>).statusCode
+      : undefined;
+  if (typeof status === 'number') {
+    const msg = error instanceof Error ? error.message : 'Request failed';
+    if (status === 403) {
+      res.handler.forbidden(null, msg);
+      return;
+    }
+    if (status === 401) {
+      res.handler.unauthorized(null, msg);
+      return;
+    }
+    if (status === 404) {
+      res.handler.notFound(null, msg);
+      return;
+    }
+    if (status === 410) {
+      res.status(410).json({ message: msg, data: null });
+      return;
+    }
+    if (status === 400) {
+      res.handler.badRequest(null, msg);
+      return;
+    }
   }
   logger.error(
     'Unhandled request error',

@@ -106,3 +106,17 @@ Verified via automated tests in `apps/api/tests/idor_and_rbac_boundaries.test.ts
 - **Payload Size Limit**: `clientEventRateLimiter` enforces 4KB maximum packet size.
 - **Client Rate Limiting**: Max 30 client events per 10-second sliding window per socket.
 - **Concurrent Connections**: Max 5 active sockets per user (`REALTIME_MAX_SOCKETS_PER_USER`). Excess connections evict oldest socket with `session:revoked` event.
+
+---
+
+## 9. Phase 7 Final Proof Automated Test Evidence (Part B)
+
+| Requirement                      | Test Suite / Script                                 | Results            | Findings & Controls                                                                                                                                                                                   |
+| :------------------------------- | :-------------------------------------------------- | :----------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **B1: IDOR Matrix**              | `apps/api/tests/idor_and_rbac_boundaries.test.ts`   | 5/5 PASSED         | Rejects access across requests, comments, credentials, clearance certificates, export jobs. Hardware manager blocked from R9/R10.                                                                     |
+| **B2: Auth & Token Security**    | `apps/api/tests/auth_security.test.ts`              | 6/6 PASSED         | Verified JWT expiry, refresh rotation, revoked token rejection, lockout after 5 consecutive failed logins, inactive/disabled user rejection on REST endpoints, refusal of tokens in URL query params. |
+| **B3: Input Safety & XSS**       | `apps/api/tests/input_safety.test.ts`               | 5/5 PASSED         | SQLi neutralization in report queries/filters, CSV formula injection sanitization (`=,+,-,@,\t,\r`), path traversal rejection, stored XSS preservation without script execution.                      |
+| **B4: Secrets & Vault Rotation** | `apps/api/tests/vault_rotation_and_secrets.test.ts` | 3/3 PASSED         | `vault:rotate` validated end-to-end with v1 -> active re-encryption and reveal capability preserved; production boot rejection of default secrets, fixture passwords, and wildcard CORS.              |
+| **B5: Redaction**                | `apps/api/tests/vault_rotation_and_secrets.test.ts` | 3/3 PASSED         | Activity logs, app logs, and CSV exports verified to contain no plaintext passwords, secrets, or JWT tokens.                                                                                          |
+| **B6: Secret Scan**              | `scripts/secret-scan.mjs`                           | Clean (0 findings) | Scanned all git tracked files and last 100 git commits; 0 leaked credentials found.                                                                                                                   |
+| **B7: Dependency Audit**         | `npm audit --workspaces`                            | 0 High, 0 Critical | 12 moderate vulnerabilities in dev/transitive tools (`esbuild`, `glob`, `minimatch`, `react-router`, `uuid`). Retained pinned to avoid breaking changes.                                              |

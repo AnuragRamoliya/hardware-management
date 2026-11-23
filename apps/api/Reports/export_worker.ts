@@ -37,12 +37,30 @@ export class ExportWorker {
 
   public start(intervalMs = 3000): void {
     this.ensureStorageDir();
+    void this.recoverStaleJobs(0);
     if (this.timer) return;
     this.timer = setInterval(() => {
       this.processNextJob().catch((err) => {
         logger.error('ExportWorker process error:', err);
       });
     }, intervalMs);
+  }
+
+  public async recoverStaleJobs(staleThresholdMs = 15 * 60 * 1000): Promise<number> {
+    const cutoff = new Date(Date.now() - staleThresholdMs);
+    const [affected] = await export_jobs.update(
+      {
+        job_status: EXPORT_JOB_STATUS.FAILED,
+        error: 'Job terminated unexpectedly (stale job reaper recovery).',
+      },
+      {
+        where: {
+          job_status: EXPORT_JOB_STATUS.RUNNING,
+          updatedAt: { [Op.lt]: cutoff },
+        },
+      },
+    );
+    return affected;
   }
 
   public stop(): void {

@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { reportService } from '../Services/report.service';
 import { getActor, getRequestBody } from './base_crud.controller';
 import { roles } from '../Database/Schema';
+import { normalizeRoleKey } from '../Reports/registry';
 import { exportReportToCsv } from '../Reports/exporters/csv_exporter';
 import { exportReportToXlsx } from '../Reports/exporters/xlsx_exporter';
 import { exportReportToPdf } from '../Reports/exporters/pdf_exporter';
@@ -11,13 +12,13 @@ import { MODULES } from '@hm/shared';
 async function resolveUserRole(req: Request): Promise<string> {
   const actor = getActor(req);
   if (!actor) return '';
-  if (actor.role_name) return actor.role_name;
+  if (actor.role_name) return normalizeRoleKey(actor.role_name);
   if (!actor.role_id) return '';
   const roleRow = (await roles.findByPk(actor.role_id, {
     attributes: ['id', 'name'],
     raw: true,
   })) as { id: number; name: string } | null;
-  return roleRow?.name || '';
+  return normalizeRoleKey(roleRow?.name || '');
 }
 
 export class ReportController {

@@ -37,13 +37,16 @@ export function getSocket(): Socket | null {
     return socketInstance;
   }
 
-  const socketUrl =
-    (
-      import.meta as unknown as { env: Record<string, string> }
-    ).env?.VITE_API_BASE_URL?.replace(/\/api\/?$/, "") ||
-    (typeof window !== "undefined" ? window.origin : "");
+  const rawHost =
+    (import.meta as unknown as { env: Record<string, string> }).env
+      ?.VITE_HOST_API ||
+    (import.meta as unknown as { env: Record<string, string> }).env
+      ?.VITE_API_BASE_URL ||
+    "http://localhost:8000";
+  const socketUrl = rawHost.replace(/\/api\/?$/, "").replace(/\/$/, "");
 
   socketInstance = io(socketUrl, {
+    path: "/realtime",
     auth: { token },
     transports: ["websocket", "polling"],
     reconnection: true,
@@ -52,6 +55,10 @@ export function getSocket(): Socket | null {
   });
 
   socketInstance.on("connect", () => {
+    if (typeof window !== "undefined") {
+      (window as unknown as { __itam_socket: Socket }).__itam_socket =
+        socketInstance!;
+    }
     stopFallbackPolling();
     // Full query invalidation on reconnect to catch any missed updates
     void queryClient.invalidateQueries();

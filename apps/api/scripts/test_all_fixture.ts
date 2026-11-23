@@ -204,7 +204,11 @@ async function runFixtureTests() {
   }
 
   // R10: Audit Export & Hash Chain
-  const r10 = await reportService.runReport('audit-export', {}, superAdmin);
+  const r10 = await reportService.runReport(
+    'audit-export',
+    { filters: { module_name: 'reports' } },
+    superAdmin,
+  );
   const fixAudit = r10.rows.find((row: any) =>
     (row.description as string)?.includes('DETERMINISTIC_FIXTURE'),
   );

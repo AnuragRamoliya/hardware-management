@@ -75,18 +75,16 @@ export const hardwarePerEmployeeReport: ReportDefinition = {
     if (options.filters?.employee_id) {
       assignWhere.employee_id = options.filters.employee_id;
     }
-    if (options.filters?.condition) {
-      assignWhere.condition_on_assignment = options.filters.condition;
-    }
-
     const empWhere: Record<string, unknown> = { status: STATUS.ACTIVE };
     if (options.filters?.department_id) {
       empWhere.department_id = options.filters.department_id;
     }
-
     const assetWhere: Record<string, unknown> = { status: STATUS.ACTIVE };
     if (options.filters?.category_id) {
       assetWhere.category_id = options.filters.category_id;
+    }
+    if (options.filters?.condition) {
+      assetWhere.condition = options.filters.condition;
     }
 
     const { rows, count } = await asset_assignments.findAndCountAll({

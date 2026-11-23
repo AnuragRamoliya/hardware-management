@@ -26,8 +26,7 @@ reportRouter.get(
   '/reports/meta/:key',
   userAuth,
   reportsRead,
-  param('key').isString().trim().notEmpty(),
-  validate,
+  validate([param('key').isString().trim().notEmpty()]),
   (req: Request, res: Response, next: NextFunction) => report.getMeta(req, res, next),
 );
 
@@ -36,8 +35,7 @@ reportRouter.post(
   userAuth,
   decryptPayload,
   reportsRead,
-  param('key').isString().trim().notEmpty(),
-  validate,
+  validate([param('key').isString().trim().notEmpty()]),
   (req: Request, res: Response, next: NextFunction) => report.getMeta(req, res, next),
 );
 
@@ -47,8 +45,7 @@ reportRouter.post(
   userAuth,
   decryptPayload,
   reportsRead,
-  param('key').isString().trim().notEmpty(),
-  validate,
+  validate([param('key').isString().trim().notEmpty()]),
   (req: Request, res: Response, next: NextFunction) => report.run(req, res, next),
 );
 
@@ -59,8 +56,7 @@ reportRouter.post(
   userAuth,
   decryptPayload,
   reportsRead,
-  param('key').isString().trim().notEmpty(),
-  validate,
+  validate([param('key').isString().trim().notEmpty()]),
   (req: Request, res: Response, next: NextFunction) => report.export(req, res, next),
 );
 
@@ -78,8 +74,7 @@ reportRouter.get(
   '/reports/jobs/get/:id',
   userAuth,
   reportsRead,
-  param('id').isNumeric(),
-  validate,
+  validate([param('id').isNumeric()]),
   (req: Request, res: Response, next: NextFunction) => report.getJob(req, res, next),
 );
 
@@ -88,8 +83,7 @@ reportRouter.post(
   userAuth,
   decryptPayload,
   reportsRead,
-  param('id').isNumeric(),
-  validate,
+  validate([param('id').isNumeric()]),
   (req: Request, res: Response, next: NextFunction) => report.getJob(req, res, next),
 );
 
@@ -99,8 +93,7 @@ reportRouter.get(
   exportRateLimiter,
   userAuth,
   reportsRead,
-  param('id').isNumeric(),
-  validate,
+  validate([param('id').isNumeric()]),
   (req: Request, res: Response, next: NextFunction) => report.downloadJob(req, res, next),
 );
 
@@ -110,7 +103,6 @@ reportRouter.post(
   userAuth,
   decryptPayload,
   reportsRead,
-  param('id').isNumeric(),
-  validate,
+  validate([param('id').isNumeric()]),
   (req: Request, res: Response, next: NextFunction) => report.downloadJob(req, res, next),
 );

@@ -46,5 +46,7 @@ export async function exportReportToCsv(options: CsvExportOptions): Promise<{ ro
     }
   }
 
+  output.end();
+
   return { rowCount };
 }

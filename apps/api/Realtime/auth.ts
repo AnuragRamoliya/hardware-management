@@ -1,7 +1,9 @@
 import type { Socket } from 'socket.io';
+import { Op } from 'sequelize';
 import { user_tokens, users, roles, employees } from '../Database/Schema';
 import { logger } from '../Config/logger';
 import { env } from '../Config/env';
+import { hashToken } from '../Utils/encryption';
 import { REALTIME_ROOMS, REALTIME_EVENTS } from '@hm/shared';
 
 export interface AuthenticatedSocketUser {
@@ -100,9 +102,13 @@ export async function socketAuthMiddleware(
       return next(new Error('Authentication token required'));
     }
 
-    // Lookup token in DB
+    // Lookup token in DB (supports both raw and hashed tokens)
+    const hashed = hashToken(token);
     const tokenRecord = await user_tokens.findOne({
-      where: { token, is_revoked: 0 },
+      where: {
+        token: { [Op.in]: [token, hashed] },
+        is_revoked: 0,
+      },
       include: [
         {
           model: users,

@@ -5,6 +5,7 @@ import { exportWorker, SYNC_ROW_LIMIT, MAX_EXPORT_ROWS } from '../Reports/export
 import { validateAndWhitelistFilters } from '../Reports/helpers';
 import type { ReportDefinition, ReportRunOptions } from '../Reports/types';
 import type { UserInfo } from '../Types/api';
+import { AppError } from '../Config/app_error';
 import {
   type ReportMetadataDto,
   type ReportRunResultDto,
@@ -13,14 +14,8 @@ import {
   EXPORT_JOB_STATUS,
 } from '@hm/shared';
 
-interface ServiceError extends Error {
-  status?: number;
-}
-
-function createError(message: string, status: number): ServiceError {
-  const err: ServiceError = new Error(message);
-  err.status = status;
-  return err;
+function createError(message: string, status: number): AppError {
+  return new AppError(status, message);
 }
 
 function getUserRole(actor: UserInfo): string {

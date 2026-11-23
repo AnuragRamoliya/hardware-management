@@ -1,8 +1,30 @@
 import rateLimit from 'express-rate-limit';
+import { env } from '../Config/env';
+
+export interface RateLimiterLimits {
+  login: number;
+  reveal: number;
+  export: number;
+  options: number;
+  verifyDocument: number;
+}
+
+export function getRateLimiterLimits(nodeEnv: string = env.NODE_ENV): RateLimiterLimits {
+  const isProd = nodeEnv === 'production';
+  return {
+    login: isProd ? 5 : 200,
+    reveal: isProd ? 10 : 100,
+    export: isProd ? 5 : 100,
+    options: isProd ? 120 : 1000,
+    verifyDocument: isProd ? 10 : 100,
+  };
+}
+
+export const RATE_LIMITS = getRateLimiterLimits(env.NODE_ENV);
 
 export const verifyDocumentRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  limit: 30, // max 30 requests per minute per IP
+  limit: RATE_LIMITS.verifyDocument,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -13,7 +35,7 @@ export const verifyDocumentRateLimiter = rateLimit({
 
 export const revealRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  limit: 20, // max 20 reveals per minute per IP
+  limit: RATE_LIMITS.reveal,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -24,7 +46,7 @@ export const revealRateLimiter = rateLimit({
 
 export const exportRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  limit: 15, // max 15 exports per minute per IP
+  limit: RATE_LIMITS.export,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -35,7 +57,7 @@ export const exportRateLimiter = rateLimit({
 
 export const optionsRateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  limit: 120, // max 120 options fetches per minute per IP
+  limit: RATE_LIMITS.options,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
