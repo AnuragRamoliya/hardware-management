@@ -18,6 +18,8 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "test:count": "tsx scripts/test_count.ts",
     "check:ui": "turbo run check:ui",
     "format": "prettier --write \"**/*.{ts,tsx,js,cjs,mjs,json,md,css,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,cjs,mjs,json,md,css,yml,yaml}\"",

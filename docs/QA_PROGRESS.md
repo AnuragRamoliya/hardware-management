@@ -1,0 +1,40 @@
+# Phase 8 QA Progress Tracker
+
+## Module QA Status Matrix
+
+| Module                        | Scope / Key Files                                                     | Test Files                                                          | Status      | Tests Before | Tests After | Coverage (Lines/Branch) | Bugs Open / Fixed |
+| :---------------------------- | :-------------------------------------------------------------------- | :------------------------------------------------------------------ | :---------- | :----------- | :---------- | :---------------------- | :---------------- |
+| **01. Auth & Users**          | `Controllers/users.ts`, `Routes/users.ts`, `Utils/password_policy.ts` | `auth_security.test.ts`, `password_policy.test.ts`                  | In Progress | 12           | -           | -                       | 0 / 0             |
+| **02. Roles & Permissions**   | `Middleware/check_access.ts`, `Config/roles.ts`                       | `idor_and_rbac_boundaries.test.ts`, `route_guard_audit.test.ts`     | Pending     | 11           | -           | -                       | 0 / 0             |
+| **03. Employees**             | `Controllers/employees.ts`, `Routes/employees.ts`                     | Pending                                                             | Pending     | 0            | -           | -                       | 0 / 0             |
+| **04. Master Data**           | Departments, Designations, Locations, Vendors, Categories             | Pending                                                             | Pending     | 0            | -           | -                       | 0 / 0             |
+| **05. Assets**                | `Controllers/assets.ts`, `Routes/assets.ts`                           | Pending                                                             | Pending     | 0            | -           | -                       | 0 / 0             |
+| **06. Assignments**           | `Controllers/asset_assignments.ts`                                    | Pending                                                             | Pending     | 0            | -           | -                       | 0 / 0             |
+| **07. Maintenance**           | `Controllers/asset_maintenance.ts`                                    | `golden_6_repair_history.test.ts`                                   | Pending     | 3            | -           | -                       | 0 / 0             |
+| **08. Software & Licenses**   | `Controllers/software.ts`, `license_seats.ts`                         | `golden_4_software_license_utilization.test.ts`                     | Pending     | 3            | -           | -                       | 0 / 0             |
+| **09. Credential Vault**      | `Vault/`, `Controllers/credentials.ts`                                | `vault_crypto.test.ts`, `vault_rotation_and_secrets.test.ts`        | Pending     | 9            | -           | -                       | 0 / 0             |
+| **10. Requests**              | `Controllers/requests.ts`, SLA, Comments                              | `golden_7_request_turnaround_sla.test.ts`                           | Pending     | 3            | -           | -                       | 0 / 0             |
+| **11. Offboarding**           | `Controllers/offboarding.ts`, tasks, clearance                        | `offboarding_daily.test.ts`, `golden_8_offboarding_status.test.ts`  | Pending     | 5            | -           | -                       | 0 / 0             |
+| **12. Notifications & Prefs** | `Controllers/notifications.ts`, preferences                           | Pending                                                             | Pending     | 0            | -           | -                       | 0 / 0             |
+| **13. Realtime**              | `Realtime/gateway.ts`, rooms, publisher                               | `realtime_rooms.test.ts`, `realtime_security.test.ts`               | Pending     | 8            | -           | -                       | 0 / 0             |
+| **14. Reports & Exports**     | `Reports/`, `Controllers/reports.ts`                                  | `reports.test.ts`, `reports_api_matrix.test.ts`, `golden_*.test.ts` | Pending     | 36           | -           | -                       | 0 / 0             |
+| **15. Dashboard**             | `Controllers/dashboard.ts`                                            | Pending                                                             | Pending     | 0            | -           | -                       | 0 / 0             |
+| **16. Settings**              | `Controllers/settings.ts`, app_settings                               | Pending                                                             | Pending     | 0            | -           | -                       | 0 / 0             |
+| **17. Activity & Logs**       | `Utils/hash_chain.ts`, access logs                                    | `hash_chain.test.ts`, `audit-verify.ts`                             | Pending     | 6            | -           | -                       | 0 / 0             |
+| **18. Pure Utils**            | Options, filters, sorting, redaction, crypto                          | `options_builder.test.ts`, `sorting.test.ts`, `redaction.test.ts`   | Pending     | 15           | -           | -                       | 0 / 0             |
+| **19. Middleware**            | `Middleware/validate.ts`, `rate_limiter.ts`, decrypt                  | `input_safety.test.ts`, `production_limits.test.ts`                 | Pending     | 8            | -           | -                       | 0 / 0             |
+| **20. Background Jobs**       | Daily offboarding, SLA escalations, cron                              | `offboarding_daily.test.ts`                                         | Pending     | 2            | -           | -                       | 0 / 0             |
+
+---
+
+## Web Frontend QA Status Matrix
+
+| Component Area           | Scope                           | Test Files                                  | Status      | Test Count | Coverage | Bugs Open / Fixed |
+| :----------------------- | :------------------------------ | :------------------------------------------ | :---------- | :--------- | :------- | :---------------- |
+| **UI Components**        | `components/ui/*`               | Pending                                     | Pending     | 0          | -        | 0 / 0             |
+| **Common Components**    | `components/common/*`           | `StatusBadge.test.tsx`, `Chart.test.tsx`    | In Progress | 6          | -        | 0 / 0             |
+| **Hook Form Components** | `components/hook-form/*`        | Pending                                     | Pending     | 0          | -        | 0 / 0             |
+| **Validation Schemas**   | `<Name>.schema.ts`              | Pending                                     | Pending     | 0          | -        | 0 / 0             |
+| **Hooks & Stores**       | React Query, Zustand, `callApi` | Pending                                     | Pending     | 0          | -        | 0 / 0             |
+| **Page Walkthroughs**    | RTL + user-event                | `Dashboard.test.tsx`, `ReportPage.test.tsx` | In Progress | 4          | -        | 0 / 0             |
+| **Playwright E2E**       | All primary flows (3 browsers)  | `e2e/*`                                     | Pending     | 7 specs    | -        | 0 / 0             |

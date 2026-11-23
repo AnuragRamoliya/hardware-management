@@ -11,6 +11,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"*.{json,md,ts}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"*.{json,md,ts}\"",
     "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage --passWithNoTests",
     "test:watch": "vitest --passWithNoTests",
     "check:ui": "node scripts/check-ui.mjs",
     "test:e2e": "playwright test",
@@ -56,11 +57,13 @@
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react-swc": "^3.11.0",
+    "@vitest/coverage-v8": "^4.1.12",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "fast-check": "^4.11.0",
     "globals": "^15.15.0",
     "husky": "^9.1.7",
     "jsdom": "^29.0.0",
@@ -72,6 +75,7 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
     "vite": "^6.4.1",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.0",
+    "vitest-axe": "^0.1.0"
   }
 }
