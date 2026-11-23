@@ -297,13 +297,14 @@ export class PortalRequestService {
       throw new AppError(422, `Invalid request type: ${reqType}`);
     }
 
-    // Duplicate guard: no second active request of the same type for the same asset/software
+    // Duplicate guard: no second active request of the same type for the same category/asset/software
     const dupWhere: Record<string | symbol, unknown> = {
       employee_id: empId,
       request_type: reqType,
       request_status: { [Op.in]: [1, 2, 3, 4, 9] },
       status: 1,
     };
+    if (input.category_id) dupWhere.category_id = input.category_id;
     if (input.current_asset_id) dupWhere.current_asset_id = input.current_asset_id;
     if (input.software_id) dupWhere.software_id = input.software_id;
 
