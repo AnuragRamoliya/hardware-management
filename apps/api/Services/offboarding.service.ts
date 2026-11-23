@@ -1179,11 +1179,17 @@ export class OffboardingService {
       throw new AppError(404, 'Case not found.');
     }
 
-    const roleName = typeof actor.role === 'string' ? actor.role : actor.role?.name;
+    const roleId = Number(actor.role_id);
+    const roleNormalized = (typeof actor.role === 'string' ? actor.role : actor.role?.name || '')
+      .toLowerCase()
+      .replace(/\s+/g, '_');
     const isStaff =
-      roleName === ROLES.SUPER_ADMIN ||
-      roleName === ROLES.HARDWARE_MANAGER ||
-      roleName === ROLES.HR;
+      roleId === 1 ||
+      roleId === 2 ||
+      roleId === 3 ||
+      roleNormalized === ROLES.SUPER_ADMIN ||
+      roleNormalized === ROLES.HARDWARE_MANAGER ||
+      roleNormalized === ROLES.HR;
 
     if (!isStaff) {
       const emp = await employees.findOne({ where: { user_id: actor.id, status: 1 } });
@@ -1210,11 +1216,17 @@ export class OffboardingService {
       throw new AppError(404, 'Case not found.');
     }
 
-    const roleName = typeof actor.role === 'string' ? actor.role : actor.role?.name;
+    const roleId = Number(actor.role_id);
+    const roleNormalized = (typeof actor.role === 'string' ? actor.role : actor.role?.name || '')
+      .toLowerCase()
+      .replace(/\s+/g, '_');
     const isStaff =
-      roleName === ROLES.SUPER_ADMIN ||
-      roleName === ROLES.HARDWARE_MANAGER ||
-      roleName === ROLES.HR;
+      roleId === 1 ||
+      roleId === 2 ||
+      roleId === 3 ||
+      roleNormalized === ROLES.SUPER_ADMIN ||
+      roleNormalized === ROLES.HARDWARE_MANAGER ||
+      roleNormalized === ROLES.HR;
 
     if (!isStaff) {
       const emp = await employees.findOne({ where: { user_id: actor.id, status: 1 } });

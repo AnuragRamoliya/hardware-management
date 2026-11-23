@@ -36,12 +36,15 @@ export const userAuth: RequestHandler = async (req, _res, next): Promise<void> =
     });
     if (!user) throw new AppError(401, STATUS_MESSAGES.TOKEN_INVALID);
     const userData = plain(user);
+    const roleObj = userData.role as { id?: number; name?: string } | undefined;
     req.userInfo = {
       id: Number(userData.id),
       role_id: Number(userData.role_id),
       first_name: String(userData.first_name),
       last_name: String(userData.last_name),
       email: String(userData.email),
+      role: roleObj?.name,
+      role_name: roleObj?.name,
     };
     next();
   } catch (error) {
