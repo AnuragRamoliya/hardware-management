@@ -7,8 +7,8 @@
 | **Step 0: Baseline & Infrastructure**      | Completed   | Baseline measurements (lint, typecheck, test counts, coverage, harness, build), stack verification, tracker docs                                                    | 2026-11-23      |
 | **Part A: Common Field Enforcement**       | Completed   | AST static scan (`scripts/check_field_usage.ts`), ESLint restrictions, runtime guard (`data-hm`), TableFilterPanel migrations, design system showcase               | 2026-11-23      |
 | **Part B: Phone Field with Country Code**  | Completed   | `PhoneField` (`RHFPhoneField`, `PhoneDisplay`, country selector sheet, libphonenumber-js), shared E.164 validator, data migration dry run, usage migration          | 2026-11-23      |
-| **Part C: Modern Date/Time/Range Pickers** | In Progress | Headless date pickers (`DatePicker`, `TimePicker`, `DateTimePicker`, `DateRangePicker`), popovers + mobile sheets, token styling, AST migration, old picker removal | -               |
-| **Part D: Browser Walkthrough & Audit**    | Pending     | Audit all 81+ inventory items with real clicks at 360/768/1440 in light & dark, DOM geometry, touch target measurement, zero axe violations                         | -               |
+| **Part C: Modern Date/Time/Range Pickers** | Completed   | Headless date pickers (`DatePicker`, `TimePicker`, `DateTimePicker`, `DateRangePicker`), popovers + mobile sheets, token styling, AST migration, old picker removal | 2026-11-23      |
+| **Part D: Browser Walkthrough & Audit**    | In Progress | Audit all 81+ inventory items with real clicks at 360/768/1440 in light & dark, DOM geometry, touch target measurement, zero axe violations                         | -               |
 | **Part E: Module Test Matrix & Coverage**  | Pending     | Test cases T1-T10 across all modules in `docs/MODULE_TEST_MATRIX.md`, enforce coverage thresholds, mutation testing, flaky test resolution                          | -               |
 | **Part F: Dead Code Removal**              | Pending     | Knip, depcheck, unused exports/components/deps cleanup, `docs/DEAD_CODE_REPORT.md`, bundle size comparison                                                          | -               |
 | **Part G: CI Harness & Quality Gates**     | Pending     | CI job for responsive harness, WebKit status, deterministic test accounts, final quality gate runs                                                                  | -               |
@@ -50,13 +50,13 @@
 
 ### Part C: Modern Date, Time, Date-Time & Range Pickers
 
-- [ ] Implement headless accessible date pickers (`DatePicker`, `TimePicker`, `DateTimePicker`, `DateRangePicker`, and RHF wrappers)
-- [ ] Build popover calendar with desktop collision handling and <= 640px bottom-sheet adaptation
-- [ ] Implement quick-select dropdowns for month/year, range presets (Today, Yesterday, Last 7d, 30d, month, year, FY, custom)
-- [ ] Ensure APP_TIMEZONE (Asia/Kolkata) compliance and YYYY-MM-DD date-only value contract
-- [ ] Migrate all date/time usages in forms, filter panels, reports, dashboard, export dialogs
-- [ ] Remove old native inputs and legacy date picker components
-- [ ] Unit, component, and Playwright tests for all pickers and timezone edge cases
+- [x] Implement headless accessible date pickers (`DatePicker`, `TimePicker`, `DateTimePicker`, `DateRangePicker`, and RHF wrappers)
+- [x] Build popover calendar with desktop collision handling and <= 640px bottom-sheet adaptation
+- [x] Implement quick-select dropdowns for month/year, range presets (Today, Yesterday, Last 7d, 30d, month, year, FY, custom)
+- [x] Ensure APP_TIMEZONE (Asia/Kolkata) compliance and YYYY-MM-DD date-only value contract
+- [x] Migrate all date/time usages in forms, filter panels, reports, dashboard, export dialogs
+- [x] Remove old native inputs and legacy date picker components
+- [x] Unit, component, and Playwright tests for all pickers and timezone edge cases (15 unit/component tests in `DatePicker.test.tsx`)
 
 ### Part D: Real Browser Walkthrough & Audit
 

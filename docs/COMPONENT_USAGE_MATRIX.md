@@ -1,14 +1,14 @@
 # Component Usage Matrix
 
-Generated: 2026-11-23T09:26:45.316Z
-Total scanned field usages: 262
+Generated: 2026-11-23T09:52:03.795Z
+Total scanned field usages: 264
 Violations detected: 0
 
 ## Summary by Component Type
 
 | Component             | Usage Count |
 | :-------------------- | :---------- |
-| `Input`               | 52          |
+| `Input`               | 48          |
 | `RHFTextField`        | 40          |
 | `RHFTextArea`         | 24          |
 | `RHFAsyncSelect`      | 24          |
@@ -23,11 +23,15 @@ Violations detected: 0
 | `RHFCurrencyField`    | 5           |
 | `RHFSegmentedControl` | 2           |
 | `Radio`               | 2           |
+| `DateRangePicker`     | 2           |
+| `RHFPhoneField`       | 2           |
 | `RHFFileField`        | 2           |
 | `RHFNumberField`      | 2           |
 | `RHFPhoneInput`       | 2           |
+| `DatePicker`          | 1           |
+| `DateTimePicker`      | 1           |
 | `PhoneField`          | 1           |
-| `RHFPhoneField`       | 1           |
+| `TimePicker`          | 1           |
 | `RHFCheckbox`         | 1           |
 | `RHFCombobox`         | 1           |
 | `RHFMultiSelect`      | 1           |
@@ -84,15 +88,16 @@ Violations detected: 0
 | `components/common/CommonTable.tsx:387`                        | `Select`              | select         | ✅ Compliant |       |
 | `components/common/KeyValueEditor.tsx:34`                      | `Input`               | text           | ✅ Compliant |       |
 | `components/common/KeyValueEditor.tsx:40`                      | `Input`               | text           | ✅ Compliant |       |
-| `components/common/TableFilters/TableFilterPanel.tsx:141`      | `Input`               | text           | ✅ Compliant |       |
-| `components/common/TableFilters/TableFilterPanel.tsx:163`      | `Checkbox`            | checkbox       | ✅ Compliant |       |
-| `components/common/TableFilters/TableFilterPanel.tsx:170`      | `Radio`               | radio          | ✅ Compliant |       |
-| `components/common/TableFilters/TableFilterPanel.tsx:254`      | `Input`               | text           | ✅ Compliant |       |
-| `components/common/TableFilters/TableFilterPanel.tsx:282`      | `Input`               | text           | ✅ Compliant |       |
-| `components/common/TableFilters/TableFilterPanel.tsx:288`      | `Input`               | text           | ✅ Compliant |       |
-| `components/common/TableFilters/TableFilterPanel.tsx:305`      | `Checkbox`            | checkbox       | ✅ Compliant |       |
-| `components/common/TableFilters/TableFilterPanel.tsx:351`      | `Checkbox`            | checkbox       | ✅ Compliant |       |
-| `components/common/TableFilters/TableFilterPanel.tsx:374`      | `Select`              | select         | ✅ Compliant |       |
+| `components/common/TableFilters/TableFilterPanel.tsx:142`      | `Input`               | text           | ✅ Compliant |       |
+| `components/common/TableFilters/TableFilterPanel.tsx:164`      | `Checkbox`            | checkbox       | ✅ Compliant |       |
+| `components/common/TableFilters/TableFilterPanel.tsx:171`      | `Radio`               | radio          | ✅ Compliant |       |
+| `components/common/TableFilters/TableFilterPanel.tsx:255`      | `Input`               | text           | ✅ Compliant |       |
+| `components/common/TableFilters/TableFilterPanel.tsx:278`      | `DateRangePicker`     | date-range     | ✅ Compliant |       |
+| `components/common/TableFilters/TableFilterPanel.tsx:299`      | `Input`               | number         | ✅ Compliant |       |
+| `components/common/TableFilters/TableFilterPanel.tsx:305`      | `Input`               | number         | ✅ Compliant |       |
+| `components/common/TableFilters/TableFilterPanel.tsx:322`      | `Checkbox`            | checkbox       | ✅ Compliant |       |
+| `components/common/TableFilters/TableFilterPanel.tsx:368`      | `Checkbox`            | checkbox       | ✅ Compliant |       |
+| `components/common/TableFilters/TableFilterPanel.tsx:391`      | `Select`              | select         | ✅ Compliant |       |
 | `components/common/TableSelectFilter.tsx:125`                  | `Select`              | select         | ✅ Compliant |       |
 | `components/common/TableSelectFilter.tsx:170`                  | `Input`               | text           | ✅ Compliant |       |
 | `components/credentials/AddEditCredential.tsx:215`             | `RHFAsyncSelect`      | select (async) | ✅ Compliant |       |
@@ -136,48 +141,49 @@ Violations detected: 0
 | `components/designations/AddEditDesignation.tsx:132`           | `RHFTextField`        | text           | ✅ Compliant |       |
 | `components/designations/AddEditDesignation.tsx:140`           | `RHFSelect`           | select         | ✅ Compliant |       |
 | `components/designations/AddEditDesignation.tsx:148`           | `RHFTextArea`         | textarea       | ✅ Compliant |       |
-| `components/employees/AddEditEmployee.tsx:171`                 | `RHFTextField`        | text           | ✅ Compliant |       |
-| `components/employees/AddEditEmployee.tsx:179`                 | `RHFTextField`        | text           | ✅ Compliant |       |
-| `components/employees/AddEditEmployee.tsx:187`                 | `RHFTextField`        | text           | ✅ Compliant |       |
-| `components/employees/AddEditEmployee.tsx:195`                 | `RHFTextField`        | text           | ✅ Compliant |       |
-| `components/employees/AddEditEmployee.tsx:211`                 | `RHFAsyncSelect`      | select (async) | ✅ Compliant |       |
-| `components/employees/AddEditEmployee.tsx:219`                 | `RHFAsyncSelect`      | select (async) | ✅ Compliant |       |
-| `components/employees/AddEditEmployee.tsx:227`                 | `RHFAsyncSelect`      | select (async) | ✅ Compliant |       |
-| `components/employees/AddEditEmployee.tsx:235`                 | `RHFAsyncSelect`      | select (async) | ✅ Compliant |       |
-| `components/employees/AddEditEmployee.tsx:243`                 | `RHFSelect`           | select         | ✅ Compliant |       |
-| `components/employees/AddEditEmployee.tsx:251`                 | `RHFSelect`           | select         | ✅ Compliant |       |
-| `components/employees/AddEditEmployee.tsx:268`                 | `RHFSelect`           | select         | ✅ Compliant |       |
-| `components/employees/AddEditEmployee.tsx:276`                 | `RHFPasswordField`    | password       | ✅ Compliant |       |
+| `components/employees/AddEditEmployee.tsx:175`                 | `RHFTextField`        | text           | ✅ Compliant |       |
+| `components/employees/AddEditEmployee.tsx:183`                 | `RHFTextField`        | text           | ✅ Compliant |       |
+| `components/employees/AddEditEmployee.tsx:191`                 | `RHFTextField`        | text           | ✅ Compliant |       |
+| `components/employees/AddEditEmployee.tsx:199`                 | `RHFTextField`        | text           | ✅ Compliant |       |
+| `components/employees/AddEditEmployee.tsx:207`                 | `RHFPhoneField`       | phone          | ✅ Compliant |       |
+| `components/employees/AddEditEmployee.tsx:222`                 | `RHFAsyncSelect`      | select (async) | ✅ Compliant |       |
+| `components/employees/AddEditEmployee.tsx:230`                 | `RHFAsyncSelect`      | select (async) | ✅ Compliant |       |
+| `components/employees/AddEditEmployee.tsx:238`                 | `RHFAsyncSelect`      | select (async) | ✅ Compliant |       |
+| `components/employees/AddEditEmployee.tsx:246`                 | `RHFAsyncSelect`      | select (async) | ✅ Compliant |       |
+| `components/employees/AddEditEmployee.tsx:254`                 | `RHFSelect`           | select         | ✅ Compliant |       |
+| `components/employees/AddEditEmployee.tsx:262`                 | `RHFSelect`           | select         | ✅ Compliant |       |
+| `components/employees/AddEditEmployee.tsx:279`                 | `RHFSelect`           | select         | ✅ Compliant |       |
+| `components/employees/AddEditEmployee.tsx:287`                 | `RHFPasswordField`    | password       | ✅ Compliant |       |
 | `components/employees/EmployeeImportDialog.tsx:60`             | `Input`               | file           | ✅ Compliant |       |
+| `components/hook-form/RHFDatePicker.tsx:37`                    | `DatePicker`          | date           | ✅ Compliant |       |
+| `components/hook-form/RHFDateRangePicker.tsx:35`               | `DateRangePicker`     | date-range     | ✅ Compliant |       |
+| `components/hook-form/RHFDateTimePicker.tsx:40`                | `DateTimePicker`      | datetime       | ✅ Compliant |       |
 | `components/hook-form/RHFPhoneField.tsx:45`                    | `PhoneField`          | phone          | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:98`                           | `Input`               | text           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:178`                          | `Input`               | text           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:259`                          | `Textarea`            | textarea       | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:291`                          | `RHFTextField`        | number         | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:336`                          | `Select`              | select         | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:361`                          | `Input`               | text           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:488`                          | `Select`              | select         | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:543`                          | `Input`               | text           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:637`                          | `Switch`              | switch         | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:651`                          | `Checkbox`            | checkbox       | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:677`                          | `Radio`               | radio          | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:703`                          | `Checkbox`            | checkbox       | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:729`                          | `Input`               | date           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:744`                          | `Input`               | text           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:770`                          | `Input`               | search         | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:817`                          | `Input`               | number         | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:847`                          | `Input`               | text           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:916`                          | `Select`              | select         | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:938`                          | `Input`               | text           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1025`                         | `Input`               | date           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1029`                         | `Input`               | date           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1036`                         | `RHFPhoneField`       | phone          | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1078`                         | `Input`               | text           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1103`                         | `Input`               | text           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1150`                         | `Input`               | file           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1191`                         | `RHFFileField`        | file           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1206`                         | `RHFFileField`        | file           | ✅ Compliant |       |
-| `components/hook-form/fields.tsx:1220`                         | `Input`               | text           | ✅ Compliant |       |
+| `components/hook-form/RHFTimePicker.tsx:37`                    | `TimePicker`          | time           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:108`                          | `Input`               | text           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:188`                          | `Input`               | text           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:269`                          | `Textarea`            | textarea       | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:301`                          | `RHFTextField`        | number         | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:346`                          | `Select`              | select         | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:371`                          | `Input`               | text           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:498`                          | `Select`              | select         | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:553`                          | `Input`               | text           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:647`                          | `Switch`              | switch         | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:664`                          | `Checkbox`            | checkbox       | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:690`                          | `Radio`               | radio          | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:712`                          | `Checkbox`            | checkbox       | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:740`                          | `Input`               | search         | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:787`                          | `Input`               | number         | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:817`                          | `Input`               | text           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:886`                          | `Select`              | select         | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:908`                          | `Input`               | text           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:980`                          | `RHFPhoneField`       | phone          | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:1022`                         | `Input`               | text           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:1047`                         | `Input`               | text           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:1094`                         | `Input`               | file           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:1135`                         | `RHFFileField`        | file           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:1150`                         | `RHFFileField`        | file           | ✅ Compliant |       |
+| `components/hook-form/fields.tsx:1164`                         | `Input`               | text           | ✅ Compliant |       |
 | `components/locations/AddEditLocation.tsx:125`                 | `RHFTextField`        | text           | ✅ Compliant |       |
 | `components/locations/AddEditLocation.tsx:133`                 | `RHFSelect`           | select         | ✅ Compliant |       |
 | `components/locations/AddEditLocation.tsx:141`                 | `RHFTextArea`         | textarea       | ✅ Compliant |       |

@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { DateRangePicker } from "@/components/ui/date-picker";
 import { useAsyncOptions } from "@/hooks/use-async-options";
 import { useDebounce } from "@/hooks/use-debounce";
 import type { FilterField, FilterValue, FilterValues } from "./types";
@@ -267,13 +268,29 @@ function FilterControl({
       </div>
     );
   }
-  if (field.type === "daterange" || field.type === "numberrange") {
+  if (field.type === "daterange") {
     const range = rangeValue(value);
-    const inputType = field.type === "daterange" ? "date" : "number";
+    return (
+      <div className="space-y-1.5">
+        <label className="text-xs font-medium text-foreground block">
+          {field.label}
+        </label>
+        <DateRangePicker
+          value={{ from: range.from, to: range.to }}
+          onChange={(newRange) =>
+            onChange({ from: newRange.from || "", to: newRange.to || "" })
+          }
+          placeholder={`Filter by ${field.label}`}
+        />
+      </div>
+    );
+  }
+  if (field.type === "numberrange") {
+    const range = rangeValue(value);
     const updateRange = (key: "from" | "to", raw: string) =>
       onChange({
         ...range,
-        [key]: inputType === "number" && raw ? Number(raw) : raw,
+        [key]: raw ? Number(raw) : "",
       });
     return (
       <fieldset className="space-y-2">
@@ -281,13 +298,13 @@ function FilterControl({
         <div className="grid grid-cols-2 gap-2">
           <Input
             aria-label={`${field.label} from`}
-            type={inputType}
+            type="number"
             value={range.from}
             onChange={(event) => updateRange("from", event.target.value)}
           />
           <Input
             aria-label={`${field.label} to`}
-            type={inputType}
+            type="number"
             value={range.to}
             onChange={(event) => updateRange("to", event.target.value)}
           />

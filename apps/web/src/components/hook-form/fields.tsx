@@ -20,8 +20,18 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Radio } from "@/components/ui/radio";
 import { RHFPhoneField } from "./RHFPhoneField";
+import { RHFDatePicker } from "./RHFDatePicker";
+import { RHFDateRangePicker } from "./RHFDateRangePicker";
+import { RHFTimePicker } from "./RHFTimePicker";
+import { RHFDateTimePicker } from "./RHFDateTimePicker";
 
-export { RHFPhoneField };
+export {
+  RHFPhoneField,
+  RHFDatePicker,
+  RHFDateRangePicker,
+  RHFTimePicker,
+  RHFDateTimePicker,
+};
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAsyncOptions } from "@/hooks/use-async-options";
 import type { OptionItem } from "@/types/select";
@@ -711,46 +721,6 @@ export function RHFCheckboxGroup({
   );
 }
 
-export function RHFDatePicker({
-  name,
-  label,
-  required,
-  helperText,
-}: FieldProps) {
-  const { register } = useFormContext();
-  return (
-    <FieldShell
-      name={name}
-      label={label}
-      required={required}
-      helperText={helperText}
-    >
-      <Input
-        id={name}
-        type="date"
-        {...register(name, {
-          required: required ? `${label} is required` : false,
-        })}
-      />
-    </FieldShell>
-  );
-}
-
-export function RHFTimePicker({ name, label, required }: FieldProps) {
-  const { register } = useFormContext();
-  return (
-    <FieldShell name={name} label={label} required={required}>
-      <Input
-        id={name}
-        type="time"
-        {...register(name, {
-          required: required ? `${label} is required` : false,
-        })}
-      />
-    </FieldShell>
-  );
-}
-
 export function RHFSearchInput({
   name,
   label,
@@ -1001,33 +971,6 @@ export function RHFSegmentedControl({
         )}
       />
     </FieldShell>
-  );
-}
-
-export function RHFDateRangePicker({
-  fromName,
-  toName,
-  label,
-}: {
-  fromName: string;
-  toName: string;
-  label: string;
-}) {
-  const { register } = useFormContext();
-  return (
-    <fieldset className="space-y-1.5">
-      <legend className="text-[13px] font-medium">{label}</legend>
-      <div className="grid grid-cols-2 gap-2">
-        <label className="sr-only" htmlFor={fromName}>
-          Start date
-        </label>
-        <Input id={fromName} type="date" {...register(fromName)} />
-        <label className="sr-only" htmlFor={toName}>
-          End date
-        </label>
-        <Input id={toName} type="date" {...register(toName)} />
-      </div>
-    </fieldset>
   );
 }
 
