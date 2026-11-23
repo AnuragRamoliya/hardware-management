@@ -10,7 +10,7 @@
 | **Part C: Modern Date/Time/Range Pickers** | Completed | Headless date pickers (`DatePicker`, `TimePicker`, `DateTimePicker`, `DateRangePicker`), popovers + mobile sheets, token styling, AST migration, old picker removal | 2026-11-23      |
 | **Part D: Browser Walkthrough & Audit**    | Completed | Audit all 81+ inventory items with real clicks at 360/768/1440 in light & dark, DOM geometry, touch target measurement, zero axe violations                         | 2026-11-23      |
 | **Part E: Module Test Matrix & Coverage**  | Completed | Test cases T1-T10 across all modules in `docs/MODULE_TEST_MATRIX.md`, enforce coverage thresholds, mutation testing, flaky test resolution                          | 2026-11-23      |
-| **Part F: Dead Code Removal**              | Pending   | Knip, depcheck, unused exports/components/deps cleanup, `docs/DEAD_CODE_REPORT.md`, bundle size comparison                                                          | -               |
+| **Part F: Dead Code Removal**              | Completed | Knip, depcheck, unused exports/components/deps cleanup, `docs/DEAD_CODE_REPORT.md`, bundle size comparison                                                          | 2026-11-23      |
 | **Part G: CI Harness & Quality Gates**     | Pending   | CI job for responsive harness, WebKit status, deterministic test accounts, final quality gate runs                                                                  | -               |
 
 ---
@@ -75,10 +75,10 @@
 
 ### Part F: Dead Code Removal
 
-- [ ] Run knip, depcheck, and unreferenced export scans
-- [ ] Classify findings in `docs/DEAD_CODE_REPORT.md` (DELETE / KEEP / OWNER DECISION)
-- [ ] Safely remove dead components, helpers, styles, and dependencies in separate commits
-- [ ] Measure and report bundle size and line counts before/after
+- [x] Run knip, depcheck, and unreferenced export scans
+- [x] Classify findings in `docs/DEAD_CODE_REPORT.md` (DELETE / KEEP / OWNER DECISION)
+- [x] Safely remove dead components, helpers, styles, and legacy pickers
+- [x] Measure and report bundle size and line counts before/after (documented in DEAD_CODE_REPORT.md)
 
 ### Part G: CI Automation & Final Quality Gates
 
