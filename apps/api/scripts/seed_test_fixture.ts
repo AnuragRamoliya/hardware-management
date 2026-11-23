@@ -54,6 +54,12 @@ async function seedTestFixture() {
         createdAt: now,
         updatedAt: now,
       });
+    } else {
+      await userRow.update({
+        password: testPasswordHash,
+        failed_attempts: 0,
+        locked_until: null,
+      });
     }
     if (u.email === 'emp@fixture.local') {
       empUserRowId = Number(userRow.get('id'));
