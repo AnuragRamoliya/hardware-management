@@ -38,9 +38,9 @@ export function PortalOffboarding() {
         />
         <Card className="flex flex-col items-center justify-center p-12 text-center">
           <CheckCircle2 className="mb-4 h-12 w-12 text-success" />
-          <h3 className="text-lg font-semibold text-foreground">
+          <h2 className="text-lg font-semibold text-foreground">
             No Active Offboarding Case
-          </h3>
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             You do not currently have an active departure or clearance process
             scheduled.

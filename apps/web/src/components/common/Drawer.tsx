@@ -21,17 +21,19 @@ export function Drawer({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          "left-auto right-0 top-0 h-dvh max-h-dvh w-full max-w-xl translate-x-0 translate-y-0 rounded-none p-0 sm:rounded-l-2xl",
+          "left-auto right-0 top-0 flex flex-col h-dvh max-h-dvh w-full max-w-none sm:max-w-xl translate-x-0 translate-y-0 rounded-none p-0 sm:rounded-l-2xl",
           className,
         )}
       >
-        <div className="border-b p-6">
+        <div className="border-b p-6 shrink-0">
           <DialogTitle className="text-lg font-semibold">{title}</DialogTitle>
           {description && (
             <p className="mt-1 text-sm text-muted-foreground">{description}</p>
           )}
         </div>
-        <div className="overflow-y-auto p-6">{children}</div>
+        <div className="flex-1 overflow-y-auto p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+          {children}
+        </div>
       </DialogContent>
     </Dialog>
   );

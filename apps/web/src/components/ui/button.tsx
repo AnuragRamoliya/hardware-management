@@ -21,9 +21,9 @@ const variants: Record<Variant, string> = {
   link: "text-primary underline-offset-4 hover:underline",
 };
 const sizes: Record<Size, string> = {
-  default: "h-10 px-4",
-  sm: "h-9 px-3 text-[13px]",
-  icon: "h-10 w-10 p-0",
+  default: "h-10 min-h-[44px] sm:min-h-10 px-4",
+  sm: "h-9 min-h-[44px] sm:min-h-9 px-3 text-[13px]",
+  icon: "h-10 w-10 min-h-[44px] min-w-[44px] sm:min-h-10 sm:min-w-10 p-0",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

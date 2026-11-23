@@ -1164,7 +1164,7 @@ function RHFFileField({
       <div className="flex items-center gap-3">
         <label
           htmlFor={name}
-          className="flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-lg border border-dashed px-4 text-sm text-muted-foreground hover:bg-muted"
+          className="relative overflow-hidden flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-lg border border-dashed px-4 text-sm text-muted-foreground hover:bg-muted"
         >
           {image ? "Choose an image" : "Choose a file"}
           <Input

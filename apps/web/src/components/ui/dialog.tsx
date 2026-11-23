@@ -36,7 +36,7 @@ export function DialogContent({
       <DialogPrimitive.Content
         id={id}
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 max-h-[92vh] w-[calc(100%-24px)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border bg-card p-6 shadow-2xl focus:outline-none",
+          "fixed left-1/2 top-1/2 z-50 max-h-[min(92dvh,calc(100dvh-2rem))] w-[calc(100%-24px)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border bg-card p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl focus:outline-none",
           className,
         )}
       >

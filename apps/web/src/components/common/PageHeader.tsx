@@ -26,7 +26,10 @@ export function PageHeader({
             aria-label="Breadcrumb"
             className="mb-2 flex items-center gap-1.5 text-xs text-muted-foreground"
           >
-            <Link to={PATHS.ROOT} className="hover:text-foreground">
+            <Link
+              to={PATHS.ROOT}
+              className="inline-flex items-center min-h-[36px] py-1 hover:text-foreground"
+            >
               Workspace
             </Link>
             {breadcrumbs.map((item, index) => (
@@ -36,7 +39,10 @@ export function PageHeader({
               >
                 <ChevronRight className="h-3 w-3" />
                 {item.to ? (
-                  <Link to={item.to} className="hover:text-foreground">
+                  <Link
+                    to={item.to}
+                    className="inline-flex items-center min-h-[36px] py-1 hover:text-foreground"
+                  >
                     {item.label}
                   </Link>
                 ) : (

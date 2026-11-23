@@ -31,6 +31,7 @@ export function PasswordStrengthMeter({
         aria-valuenow={result.score}
         aria-valuemin={0}
         aria-valuemax={4}
+        aria-label={`Password strength: ${result.label}`}
       >
         {[1, 2, 3, 4].map((level) => (
           <span

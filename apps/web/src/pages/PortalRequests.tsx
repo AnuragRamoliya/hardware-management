@@ -126,13 +126,15 @@ export function PortalRequests() {
     },
     {
       id: "actions",
-      label: "",
+      label: "Actions",
       render: (row) => (
         <Link
           to={PATHS.PORTAL_REQUEST_DETAIL.replace(":id", String(row.id))}
+          aria-label={`View request ${row.request_no}`}
           className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted text-foreground transition-colors"
         >
-          <Eye className="h-4 w-4" />
+          <Eye className="h-4 w-4" aria-hidden="true" />
+          <span className="sr-only">View request {row.request_no}</span>
         </Link>
       ),
     },

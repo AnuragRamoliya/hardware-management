@@ -204,7 +204,7 @@ export function getRequestColumns(
     },
     {
       id: "actions",
-      label: "",
+      label: "Actions",
       render: (row) => {
         const isClosed = row.request_status === REQUEST_STATUS.CLOSED;
         const isCancelled = row.request_status === REQUEST_STATUS.CANCELLED;

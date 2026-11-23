@@ -48,6 +48,7 @@ export function Stepper({
                 disabled={!isClickable}
                 onClick={() => isClickable && onStepClick?.(index)}
                 aria-current={isCurrent ? "step" : undefined}
+                aria-label={`Step ${index + 1}: ${step.title}${isCompleted ? " (completed)" : isCurrent ? " (current)" : ""}`}
                 className={cn(
                   "relative z-10 flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border-2 text-xs sm:text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   isCompleted &&

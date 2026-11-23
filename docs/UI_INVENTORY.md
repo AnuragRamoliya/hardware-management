@@ -1,6 +1,6 @@
 # UI Inventory & Responsive Audit Register
 
-Total Inventory Count: **80 items** across 15 core modules, public pages, universal overlays, and system utilities.
+Total Inventory Count: **81 items** across 15 core modules, public pages, universal overlays, and system utilities.
 
 ## Module Breakdown
 
@@ -18,10 +18,11 @@ Total Inventory Count: **80 items** across 15 core modules, public pages, univer
 | **Offboarding**           |   5    |    0    |                  2 (Initiate Case, Task Action)                  |                        1 (Task Tab)                        |   8    |
 | **Reports**               |   2    |    1    |                 2 (Export Modal, Confirm Modal)                  |                             0                              |   5    |
 | **Notifications & Prefs** |   2    |    0    |                                0                                 |                             0                              |   2    |
+| **Profile**               |   2    |    0    |                                0                                 |                             0                              |   2    |
 | **Users & Roles**         |   2    |    1    |                                0                                 |                             0                              |   3    |
 | **System & Showcase**     |   2    |    0    |                                0                                 |                             0                              |   2    |
 | **Universal Overlays**    |   0    |    0    |                 2 (ActionDialog, ConfirmDialog)                  |       3 (RowActionsMenu, FilterPanel, SelectPopover)       |   5    |
-| **Total**                 | **43** | **14**  |                              **24**                              |                           **26**                           | **80** |
+| **Total**                 | **44** | **14**  |                              **24**                              |                           **26**                           | **81** |
 
 ---
 
@@ -125,6 +126,7 @@ Total Inventory Count: **80 items** across 15 core modules, public pages, univer
 | `NOTIF-01` | Notifications | `/notifications`             | Page                 | admin, hardware, hr, employee | `admin@fixture.local` | Nav / Bell -> "View All"                 | Notification center, Filter unread, Grouping          |
 | `NOTIF-02` | Notifications | `/notifications/preferences` | Page                 | admin, hardware, hr, employee | `admin@fixture.local` | Settings -> Preferences                  | Channel switches, Event frequency radios              |
 | `PROF-01`  | Profile       | `/profile`                   | Page                 | admin, hardware, hr, employee | `admin@fixture.local` | User menu -> Profile                     | Profile info, Password change form                    |
+| `PROF-02`  | Profile       | `/portal/profile`            | Page                 | employee                      | `emp@fixture.local`   | Portal Nav -> Profile                    | Employee profile & personal info                      |
 | `USR-01`   | Users         | `/users`                     | Page                 | admin                         | `admin@fixture.local` | Nav -> Users                             | Users table, Role badge, Status switch                |
 | `USR-02`   | Users         | Add/Edit User Drawer         | Drawer / Sheet       | admin                         | `admin@fixture.local` | Click "Add User" / Edit                  | Name, Email, Role select, Password, Active            |
 | `ROL-01`   | Roles         | `/roles`                     | Page                 | admin                         | `admin@fixture.local` | Nav -> Roles                             | Roles table, Permission matrix grid                   |

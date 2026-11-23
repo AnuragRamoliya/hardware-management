@@ -1,13 +1,20 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 
-interface SelectTriggerProps {
+export interface SelectTriggerProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   children?: React.ReactNode;
   hasValue: boolean;
   onToggle: () => void;
   placeholder?: string;
+  sizeVariant?: "sm" | "md" | "lg";
 }
+
+const sizeClasses = {
+  sm: "h-9 text-xs px-2.5",
+  md: "h-10 text-base sm:text-sm px-3",
+  lg: "h-12 text-base px-4",
+};
 
 export function SelectTrigger({
   className,
@@ -15,6 +22,8 @@ export function SelectTrigger({
   hasValue,
   onToggle,
   placeholder = "Choose",
+  sizeVariant = "md",
+  ...props
 }: SelectTriggerProps) {
   return (
     <div
@@ -23,9 +32,11 @@ export function SelectTrigger({
       aria-expanded={false}
       onClick={onToggle}
       className={cn(
-        "h-10 w-full rounded-md border border-input bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+        "w-full rounded-md border border-input bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+        sizeClasses[sizeVariant],
         className,
       )}
+      {...props}
     >
       {children}
       {hasValue ? null : (

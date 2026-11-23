@@ -82,5 +82,8 @@ jobs:
       - name: Check UI Standards
         run: npm run check:ui
 
+      - name: Check UI Inventory Coverage
+        run: npm run check:ui-inventory
+
       - name: Build All Workspaces
         run: npm run build

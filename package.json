@@ -21,6 +21,7 @@
     "test:coverage": "turbo run test:coverage",
     "test:count": "tsx scripts/test_count.ts",
     "check:ui": "turbo run check:ui",
+    "check:ui-inventory": "tsx scripts/check_ui_inventory.ts",
     "format": "prettier --write \"**/*.{ts,tsx,js,cjs,mjs,json,md,css,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,cjs,mjs,json,md,css,yml,yaml}\"",
     "clean": "turbo run clean && rm -rf node_modules apps/*/node_modules apps/*/dist packages/*/node_modules packages/*/dist",

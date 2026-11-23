@@ -564,7 +564,7 @@ export function TableFilterPanel({
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent
             id="table-filter-panel"
-            className="fixed bottom-0 left-0 top-auto max-h-[85vh] w-full max-w-none translate-x-0 translate-y-0 rounded-b-none rounded-t-2xl p-5"
+            className="fixed bottom-0 left-0 top-auto max-h-[85dvh] w-full max-w-none translate-x-0 translate-y-0 overflow-y-auto rounded-b-none rounded-t-2xl p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]"
           >
             <DialogTitle className="sr-only">Filters</DialogTitle>
             {panelContent}

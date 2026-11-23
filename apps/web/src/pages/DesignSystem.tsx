@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  AlertCircle,
   Bell,
   Check,
   ChevronDown,
@@ -11,6 +12,10 @@ import {
   Trash2,
   KeyRound,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SelectTrigger } from "@/components/ui/select/SelectTrigger";
 import { PasswordStrengthMeter } from "@/components/common/PasswordStrengthMeter";
 import { Stepper, type StepItem } from "@/components/common/Stepper";
 import { RevealSecretDialog } from "@/components/credentials/RevealSecretDialog";
@@ -392,7 +397,11 @@ export function DesignSystem() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex border-b">
+              <div
+                className="flex border-b overflow-x-auto no-scrollbar"
+                role="tablist"
+                aria-label="Sample tabs"
+              >
                 {["Overview", "Settings", "Activity"].map((tab) => (
                   <Button
                     type="button"
@@ -887,6 +896,242 @@ export function DesignSystem() {
                 >
                   Next Step
                 </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* PART C: FIELD DESIGN CONSISTENCY MATRIX */}
+        <Card
+          className="lg:col-span-2 min-w-0 overflow-hidden"
+          data-testid="field-consistency-matrix"
+        >
+          <CardHeader>
+            <div>
+              <h2 className="text-sm font-semibold">
+                Field Design Consistency Matrix (Types x States x Sizes)
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Shared inputs guarantee uniform height (sm: 36px, md: 40px, lg:
+                48px), radius (6px / var(--radius)), uniform border color, focus
+                ring, and mobile touch sizing (&gt;= 16px).
+              </p>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-8">
+            {/* 1. Size Uniformity Grid */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                1. Size Uniformity Row (Exact 36px, 40px, 48px across field
+                types)
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="border-b bg-muted/50 text-muted-foreground">
+                    <tr>
+                      <th className="p-2 font-medium">Type</th>
+                      <th className="p-2 font-medium">Small (sm: 36px)</th>
+                      <th className="p-2 font-medium">Default (md: 40px)</th>
+                      <th className="p-2 font-medium">Large (lg: 48px)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    <tr>
+                      <td className="p-2 font-medium">Text Input</td>
+                      <td className="p-2">
+                        <Input
+                          sizeVariant="sm"
+                          defaultValue="Small text"
+                          placeholder="Small"
+                          aria-label="Small text input"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          sizeVariant="md"
+                          defaultValue="Standard text"
+                          placeholder="Default"
+                          aria-label="Default text input"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          sizeVariant="lg"
+                          defaultValue="Large text"
+                          placeholder="Large"
+                          aria-label="Large text input"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="p-2 font-medium">Password Input</td>
+                      <td className="p-2">
+                        <Input
+                          type="password"
+                          sizeVariant="sm"
+                          defaultValue="secret123"
+                          aria-label="Small password input"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          type="password"
+                          sizeVariant="md"
+                          defaultValue="secret123"
+                          aria-label="Default password input"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          type="password"
+                          sizeVariant="lg"
+                          defaultValue="secret123"
+                          aria-label="Large password input"
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="p-2 font-medium">Select Trigger</td>
+                      <td className="p-2">
+                        <SelectTrigger
+                          sizeVariant="sm"
+                          hasValue={true}
+                          onToggle={() => {}}
+                          aria-label="Small select trigger"
+                        >
+                          <span>Option A</span>
+                        </SelectTrigger>
+                      </td>
+                      <td className="p-2">
+                        <SelectTrigger
+                          sizeVariant="md"
+                          hasValue={true}
+                          onToggle={() => {}}
+                          aria-label="Default select trigger"
+                        >
+                          <span>Option A</span>
+                        </SelectTrigger>
+                      </td>
+                      <td className="p-2">
+                        <SelectTrigger
+                          sizeVariant="lg"
+                          hasValue={true}
+                          onToggle={() => {}}
+                          aria-label="Large select trigger"
+                        >
+                          <span>Option A</span>
+                        </SelectTrigger>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 2. State Matrix */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                2. Field States Matrix (Default, Filled, Focus, Disabled,
+                Read-only, Error, Skeleton)
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <label
+                    htmlFor="ds-state-default"
+                    className="text-xs font-medium"
+                  >
+                    Default
+                  </label>
+                  <Input id="ds-state-default" placeholder="Placeholder text" />
+                </div>
+                <div className="space-y-1">
+                  <label
+                    htmlFor="ds-state-filled"
+                    className="text-xs font-medium"
+                  >
+                    Filled
+                  </label>
+                  <Input
+                    id="ds-state-filled"
+                    defaultValue="Active value entered"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label
+                    htmlFor="ds-state-disabled"
+                    className="text-xs font-medium"
+                  >
+                    Disabled
+                  </label>
+                  <Input
+                    id="ds-state-disabled"
+                    disabled
+                    defaultValue="Disabled field"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label
+                    htmlFor="ds-state-readonly"
+                    className="text-xs font-medium"
+                  >
+                    Read-only
+                  </label>
+                  <Input
+                    id="ds-state-readonly"
+                    readOnly
+                    defaultValue="Read only value"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label
+                    htmlFor="ds-state-error"
+                    className="text-xs font-medium"
+                  >
+                    Error State (aria-invalid)
+                  </label>
+                  <Input
+                    id="ds-state-error"
+                    aria-invalid="true"
+                    defaultValue="Invalid email"
+                  />
+                  <p className="flex items-center gap-1 text-[11px] text-danger mt-1">
+                    <AlertCircle className="h-3 w-3" />
+                    Please enter a valid email address
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">
+                    Loading / Skeleton
+                  </label>
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="space-y-1">
+                  <label
+                    htmlFor="ds-state-textarea-default"
+                    className="text-xs font-medium"
+                  >
+                    Textarea Default
+                  </label>
+                  <Textarea
+                    id="ds-state-textarea-default"
+                    placeholder="Multi-line notes..."
+                    className="min-h-16"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label
+                    htmlFor="ds-state-textarea-disabled"
+                    className="text-xs font-medium"
+                  >
+                    Textarea Disabled
+                  </label>
+                  <Textarea
+                    id="ds-state-textarea-disabled"
+                    disabled
+                    defaultValue="Disabled notes content"
+                    className="min-h-16"
+                  />
+                </div>
               </div>
             </div>
           </CardContent>
