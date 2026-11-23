@@ -19,6 +19,7 @@ test.describe("Phase 9 UI Defect Regression Suite (UI-BUG-001 through UI-BUG-008
   test("UI-BUG-002 - CommonTable View trigger button matches visible text 'View' with accessible label", async ({
     page,
   }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/login");
     await page.fill('input[name="email"]', "admin@fixture.local");
     await page.fill('input[name="password"]', "TestPassword123!");
@@ -82,6 +83,7 @@ test.describe("Phase 9 UI Defect Regression Suite (UI-BUG-001 through UI-BUG-008
   test("UI-BUG-005 - PortalRequests actions column has header label and link has accessible name", async ({
     page,
   }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/login");
     await page.fill('input[name="email"]', "emp@fixture.local");
     await page.fill('input[name="password"]', "TestPassword123!");
