@@ -1,0 +1,79 @@
+import type { TableColumn } from "@/components/common/CommonTable";
+import { RowActionsMenu } from "@/components/common/RowActionsMenu";
+import { StatusBadge } from "@/components/common/StatusBadge";
+import type { DepartmentRecord } from "@/hooks/queries/departments";
+
+export interface DepartmentColumnActions {
+  onEdit: (department: DepartmentRecord) => void;
+  onDelete: (department: DepartmentRecord) => void;
+  canWrite?: boolean;
+  canDelete?: boolean;
+}
+
+export function getDepartmentColumns(
+  actions: DepartmentColumnActions,
+): TableColumn<DepartmentRecord>[] {
+  return [
+    {
+      id: "name",
+      label: "Department name",
+      sortable: true,
+      render: (row) => (
+        <div>
+          <span className="font-medium text-foreground">{row.name}</span>
+        </div>
+      ),
+    },
+    {
+      id: "description",
+      label: "Description",
+      sortable: false,
+      render: (row) => (
+        <span className="text-sm text-muted-foreground">
+          {row.description || "—"}
+        </span>
+      ),
+    },
+    {
+      id: "employees_count",
+      label: "Employees",
+      sortable: true,
+      render: (row) => (
+        <span className="inline-flex items-center rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
+          {row.employees_count ?? 0}
+        </span>
+      ),
+    },
+    {
+      id: "status",
+      label: "Status",
+      sortable: true,
+      render: (row) => <StatusBadge status={row.status} />,
+    },
+    {
+      id: "actions",
+      label: "Actions",
+      sortable: false,
+      render: (row) => {
+        const menuActions = [];
+        if (actions.canWrite !== false) {
+          menuActions.push({
+            label: "Edit",
+            onSelect: () => actions.onEdit(row),
+          });
+        }
+        if (actions.canDelete !== false) {
+          menuActions.push({
+            label: "Delete",
+            destructive: true,
+            onSelect: () => actions.onDelete(row),
+          });
+        }
+        if (menuActions.length === 0) return null;
+        return (
+          <RowActionsMenu label="Department actions" actions={menuActions} />
+        );
+      },
+    },
+  ];
+}

@@ -1,0 +1,265 @@
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import {
+  Laptop,
+  PackageCheck,
+  ShieldAlert,
+  UsersRound,
+  CheckSquare,
+  FileText,
+  ShieldCheck,
+} from "lucide-react";
+import { callApi } from "@/api/callApi";
+import { endPoints } from "@/api/endpoint";
+import { PageHeader } from "@/components/common/PageHeader";
+import { StatCard } from "@/components/common/StatCard";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PATHS } from "@/routes/paths";
+import {
+  useCredentialApprovalsList,
+  useCredentialRequestsList,
+  useCredentialAccessLogsList,
+} from "@/hooks/queries/credentials";
+
+type Summary = {
+  totalAssets: number;
+  available: number;
+  assigned: number;
+  inRepair: number;
+  expiringWarranties: number;
+  softwareCount: number;
+  expiringLicenses: number;
+  seatsTotal: number;
+  seatsUsed: number;
+  seatsAvailable: number;
+};
+
+export function Dashboard() {
+  const summaryQuery = useQuery({
+    queryKey: ["dashboard-summary"],
+    queryFn: async () => {
+      const response = await callApi<Summary>({
+        url: endPoints.dashboard,
+        method: "GET",
+      });
+      if (!response.ok || !response.data)
+        throw new Error(response.message || "Unable to load dashboard");
+      return response.data;
+    },
+    retry: 1,
+  });
+  const summary = summaryQuery.data;
+  const approvalsQuery = useCredentialApprovalsList({
+    currentPage: 1,
+    itemsPerPage: 1,
+    sortBy: [],
+    filters: {},
+  });
+  const requestsQuery = useCredentialRequestsList({
+    currentPage: 1,
+    itemsPerPage: 1,
+    sortBy: [],
+    filters: {},
+  });
+  const accessLogsQuery = useCredentialAccessLogsList({
+    currentPage: 1,
+    itemsPerPage: 1,
+    sortBy: [],
+    filters: {},
+  });
+
+  const seatsUsedPercent = summary?.seatsTotal
+    ? Math.min(100, (summary.seatsUsed / summary.seatsTotal) * 100)
+    : 0;
+  return (
+    <>
+      <PageHeader
+        title="Good morning"
+        description="Here’s what’s happening across your workspace."
+        breadcrumbs={[{ label: "Dashboard" }]}
+      />
+      {summaryQuery.isError && (
+        <p
+          role="status"
+          className="mb-4 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning"
+        >
+          Live inventory metrics are unavailable: {summaryQuery.error.message}
+        </p>
+      )}
+      <section
+        aria-label="Workspace metrics"
+        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+      >
+        <StatCard
+          label="Tracked assets"
+          value={summary?.totalAssets ?? "—"}
+          icon={<Laptop className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Available assets"
+          value={summary?.available ?? "—"}
+          icon={<PackageCheck className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Assigned assets"
+          value={summary?.assigned ?? "—"}
+          icon={<UsersRound className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Expiring soon"
+          value={
+            summary
+              ? summary.expiringWarranties + summary.expiringLicenses
+              : "—"
+          }
+          icon={<ShieldAlert className="h-4 w-4" />}
+        />
+      </section>
+      <section className="mt-5 grid gap-5 xl:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <div>
+              <h2 className="text-sm font-semibold">Asset availability</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Current inventory status
+              </p>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {[
+              ["Available", summary?.available],
+              ["Assigned", summary?.assigned],
+              ["In repair", summary?.inRepair],
+            ].map(([label, value]) => {
+              const count = typeof value === "number" ? value : 0;
+              const percent = summary?.totalAssets
+                ? Math.min(100, (count / summary.totalAssets) * 100)
+                : 0;
+              return (
+                <div key={String(label)}>
+                  <div className="mb-1 flex justify-between text-sm">
+                    <span>{label}</span>
+                    <span className="text-muted-foreground">
+                      {value ?? "—"}
+                    </span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{ width: percent + "%" }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <div>
+              <h2 className="text-sm font-semibold">Software licenses</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Seat usage across active licenses
+              </p>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end justify-between">
+              <p className="text-3xl font-semibold">
+                {summary?.seatsUsed ?? "—"}
+                <span className="text-base font-normal text-muted-foreground">
+                  {" "}
+                  / {summary?.seatsTotal ?? "—"}
+                </span>
+              </p>
+              <span className="text-sm text-muted-foreground">
+                {summary?.seatsAvailable ?? "—"} available
+              </span>
+            </div>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary"
+                style={{ width: seatsUsedPercent + "%" }}
+              />
+            </div>
+            <p className="mt-4 text-sm text-muted-foreground">
+              {summary?.softwareCount ?? "—"} software products ·{" "}
+              {summary?.expiringLicenses ?? "—"} licenses expiring in 30 days
+            </p>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Credential Vault Overview Section */}
+      <section className="mt-6">
+        <h2 className="text-base font-semibold mb-3">
+          Credential Vault & Security
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Link to={PATHS.CREDENTIAL_APPROVALS} className="group">
+            <Card className="p-4 transition-colors group-hover:border-primary/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    Pending Approvals
+                  </p>
+                  <p className="text-2xl font-bold mt-1">
+                    {approvalsQuery.data?.count ?? 0}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-amber-500/10 p-2.5 text-amber-500">
+                  <CheckSquare className="h-5 w-5" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1 group-hover:text-primary">
+                Review employee accounts →
+              </p>
+            </Card>
+          </Link>
+
+          <Link to={PATHS.CREDENTIAL_REQUESTS} className="group">
+            <Card className="p-4 transition-colors group-hover:border-primary/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    Open Collection Requests
+                  </p>
+                  <p className="text-2xl font-bold mt-1">
+                    {requestsQuery.data?.count ?? 0}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-blue-500/10 p-2.5 text-blue-500">
+                  <FileText className="h-5 w-5" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1 group-hover:text-primary">
+                Manage collection requests →
+              </p>
+            </Card>
+          </Link>
+
+          <Link to={PATHS.CREDENTIAL_ACCESS_LOGS} className="group">
+            <Card className="p-4 transition-colors group-hover:border-primary/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    Vault Access Events
+                  </p>
+                  <p className="text-2xl font-bold mt-1">
+                    {accessLogsQuery.data?.count ?? 0}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-green-500/10 p-2.5 text-green-500">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1 group-hover:text-primary">
+                Inspect audit trail →
+              </p>
+            </Card>
+          </Link>
+        </div>
+      </section>
+    </>
+  );
+}

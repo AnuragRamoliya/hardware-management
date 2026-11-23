@@ -1,0 +1,26 @@
+import {
+  STATUS,
+  STATUS_CODES,
+  STATUS_MESSAGES,
+  MODULES,
+  ACCESS_TYPES,
+  ACTIVITY_ACTIONS,
+  ROLES,
+} from '@hm/shared';
+
+export { STATUS, STATUS_CODES, STATUS_MESSAGES, MODULES, ACCESS_TYPES, ACTIVITY_ACTIONS, ROLES };
+
+export const ACTIVITY_MODULES = MODULES;
+
+export const RESOURCE_MODULES = {
+  user: MODULES.USER,
+  role: MODULES.ROLE,
+  module: MODULES.MODULE,
+  permission: MODULES.PERMISSION,
+  employee: MODULES.EMPLOYEE,
+  department: MODULES.DEPARTMENT,
+  designation: MODULES.DESIGNATION,
+  location: MODULES.LOCATION,
+  vendor: MODULES.VENDOR,
+  asset_category: MODULES.ASSET_CATEGORY,
+} as const;

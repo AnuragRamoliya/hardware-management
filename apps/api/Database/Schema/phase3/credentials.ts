@@ -1,0 +1,26 @@
+import { DataTypes } from 'sequelize';
+
+export const credentialsSchema = {
+  employee_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
+  credential_type_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false },
+  software_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
+  asset_id: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
+  label: { type: DataTypes.STRING(255), allowNull: false },
+  username: { type: DataTypes.STRING(255), allowNull: false },
+  url: { type: DataTypes.STRING(500), allowNull: true },
+  password_enc: { type: DataTypes.TEXT, allowNull: false },
+  iv: { type: DataTypes.STRING(64), allowNull: false },
+  auth_tag: { type: DataTypes.STRING(64), allowNull: false },
+  key_version: { type: DataTypes.STRING(20), allowNull: false, defaultValue: '1' },
+  notes: { type: DataTypes.TEXT, allowNull: true },
+  provided_by: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 1 },
+  approval_status: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 1 },
+  submitted_at: { type: DataTypes.DATE, allowNull: true },
+  reviewed_by: { type: DataTypes.BIGINT.UNSIGNED, allowNull: true },
+  reviewed_at: { type: DataTypes.DATE, allowNull: true },
+  review_feedback: { type: DataTypes.TEXT, allowNull: true },
+  must_change_on_first_use: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 0 },
+  expires_at: { type: DataTypes.DATE, allowNull: true },
+  last_changed_at: { type: DataTypes.DATE, allowNull: true },
+  last_revealed_at: { type: DataTypes.DATE, allowNull: true },
+};
