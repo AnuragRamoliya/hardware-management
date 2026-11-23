@@ -15,4 +15,5 @@ export const employeesSchema = {
   last_working_date: { type: DataTypes.DATEONLY, allowNull: true },
   employment_status: { type: DataTypes.TINYINT.UNSIGNED, allowNull: false, defaultValue: 1 },
   profile_image: { type: DataTypes.STRING(255), allowNull: true },
+  vault_consent_accepted_at: { type: DataTypes.DATE, allowNull: true },
 };

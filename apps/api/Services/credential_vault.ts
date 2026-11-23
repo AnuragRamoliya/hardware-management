@@ -49,12 +49,7 @@ async function getEmployeeUserId(
   const emp = await employees.findByPk(Number(employeeId), { transaction });
   if (!emp) return null;
   const userId = emp.get('user_id');
-  if (userId) return Number(userId);
-  const user = await users.findOne({
-    where: { employee_id: Number(employeeId), status: 1 },
-    transaction,
-  });
-  return user ? Number(user.get('id')) : null;
+  return userId ? Number(userId) : null;
 }
 
 export class CredentialVaultService {
@@ -895,6 +890,14 @@ export class CredentialVaultService {
       throw new AppError(404, 'Credential not found.');
     }
 
+    const status = Number(cred.get('approval_status'));
+    if (
+      status !== CREDENTIAL_APPROVAL_STATUS.PENDING &&
+      status !== CREDENTIAL_APPROVAL_STATUS.NEEDS_CHANGE
+    ) {
+      throw new AppError(400, 'Credential is not pending approval.');
+    }
+
     return sequelize.transaction(async (transaction) => {
       await cred.update(
         {
@@ -990,6 +993,14 @@ export class CredentialVaultService {
     const cred = await credentials.findByPk(id);
     if (!cred || Number(cred.get('status')) === STATUS.DELETED) {
       throw new AppError(404, 'Credential not found.');
+    }
+
+    const status = Number(cred.get('approval_status'));
+    if (
+      status !== CREDENTIAL_APPROVAL_STATUS.PENDING &&
+      status !== CREDENTIAL_APPROVAL_STATUS.NEEDS_CHANGE
+    ) {
+      throw new AppError(400, 'Credential is not pending approval.');
     }
 
     return sequelize.transaction(async (transaction) => {
