@@ -38,3 +38,31 @@
 | Bug ID   | Severity | Root Cause | Why Previous Gate Missed It | Required Test to Prevent Recurrence |
 | :------- | :------- | :--------- | :-------------------------- | :---------------------------------- |
 | _(None)_ |          |            |                             |                                     |
+
+---
+
+# Phase 9 Responsive & UI Defect Register
+
+## Severity Classification (UI / Responsive)
+
+- **S1 (Critical)**: Screen or overlay completely unusable on mobile/tablet (e.g. content cut off with no way to scroll, primary submit/action inaccessible, crash on viewport resize, touch targets completely unclickable).
+- **S2 (Major)**: Significant layout overflow (horizontal scroll on page), modal exceeding viewport height with hidden action buttons, drawer failing to adapt to full-screen Sheet on mobile, form field labels clipped or obscured, touch target size < 44x44px for primary actions, focus trapped permanently without escape.
+- **S3 (Minor)**: Non-blocking visual misalignment, table cards missing secondary column metadata, icon button lacking visible focus ring or accessible name, suboptimal wrap on secondary buttons, minor spacing variance between design system tokens.
+- **S4 (Cosmetic)**: Micro-alignment variance (1-2px), subtle theme color contrast edge cases on muted secondary text, cosmetic transition glitch on drawer close.
+
+## UI Defect Summary
+
+| Severity          | Found | Fixed | Open | Moved to Backlog |
+| :---------------- | :---- | :---- | :--- | :--------------- |
+| **S1 (Critical)** | 0     | 0     | 0    | 0                |
+| **S2 (Major)**    | 0     | 0     | 0    | 0                |
+| **S3 (Minor)**    | 0     | 0     | 0    | 0                |
+| **S4 (Cosmetic)** | 0     | 0     | 0    | 0                |
+| **Total**         | 0     | 0     | 0    | 0                |
+
+---
+
+## Detailed UI Defect Register
+
+| ID  | Sev | Module | Component / Selector | Viewport & Browser | Expected Behavior | Actual Behavior | Root Cause | Status | Fix Commit | Regression Test |
+| :-- | :-- | :----- | :------------------- | :----------------- | :---------------- | :-------------- | :--------- | :----- | :--------- | :-------------- |
