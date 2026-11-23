@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { createApp } from '../Config/app';
@@ -9,6 +9,7 @@ import {
   employees,
   asset_categories,
   assets,
+  asset_assignments,
   requests,
 } from '../Database/Schema';
 import { hashToken } from '../Utils/encryption';
@@ -481,5 +482,16 @@ describe('API Module 10: Requests Workflow Comprehensive QA Suite', () => {
 
       expect(res.status).toBe(401);
     });
+  });
+
+  afterAll(async () => {
+    if (testAssetId) {
+      await requests.update(
+        { assigned_asset_id: null },
+        { where: { assigned_asset_id: testAssetId } },
+      );
+      await asset_assignments.destroy({ where: { asset_id: testAssetId } });
+      await assets.destroy({ where: { id: testAssetId } });
+    }
   });
 });

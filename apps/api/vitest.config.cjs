@@ -7,6 +7,7 @@ module.exports = defineConfig({
     clearMocks: true,
     restoreMocks: true,
     passWithNoTests: true,
+    fileParallelism: false,
     testTimeout: 20000,
     coverage: {
       provider: 'v8',
