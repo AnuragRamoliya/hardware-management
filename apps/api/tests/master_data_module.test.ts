@@ -3,9 +3,9 @@ import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { createApp } from '../Config/app';
 import { env } from '../Config/env';
-import { users, user_tokens, departments, activity_logs } from '../Database/Schema';
+import { users, user_tokens } from '../Database/Schema';
 import { hashToken } from '../Utils/encryption';
-import { STATUS, MODULES } from '../Config/constant';
+import { MODULES } from '../Config/constant';
 
 describe('API Module 04: Master Data Comprehensive QA Suite', () => {
   const app = createApp();

@@ -3,16 +3,9 @@ import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { createApp } from '../Config/app';
 import { env } from '../Config/env';
-import {
-  users,
-  user_tokens,
-  software,
-  software_licenses,
-  software_assignments,
-  activity_logs,
-} from '../Database/Schema';
+import { users, user_tokens, software, software_assignments } from '../Database/Schema';
 import { hashToken } from '../Utils/encryption';
-import { STATUS, MODULES } from '../Config/constant';
+import { STATUS } from '../Config/constant';
 
 describe('API Module 08: Software, Licenses & Concurrent Seat Allocation Suite', () => {
   const app = createApp();

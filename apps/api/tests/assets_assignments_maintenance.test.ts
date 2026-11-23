@@ -3,14 +3,7 @@ import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { createApp } from '../Config/app';
 import { env } from '../Config/env';
-import {
-  users,
-  user_tokens,
-  assets,
-  asset_assignments,
-  asset_maintenances,
-  activity_logs,
-} from '../Database/Schema';
+import { users, user_tokens, assets, asset_assignments, activity_logs } from '../Database/Schema';
 import { hashToken } from '../Utils/encryption';
 import { STATUS, MODULES } from '../Config/constant';
 import { ASSET_STATUS } from '@hm/shared';

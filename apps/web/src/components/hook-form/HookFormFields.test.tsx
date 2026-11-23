@@ -16,11 +16,7 @@ const testSchema = yup.object().shape({
   notifications: yup.boolean().default(false),
 });
 
-type FormValues = {
-  username?: string;
-  password?: string;
-  notifications?: boolean;
-};
+type FormValues = yup.InferType<typeof testSchema>;
 
 function TestFormWrapper({
   onSubmit,
@@ -28,7 +24,7 @@ function TestFormWrapper({
   onSubmit: (data: FormValues) => void;
 }) {
   const methods = useForm<FormValues>({
-    resolver: yupResolver(testSchema) as any,
+    resolver: yupResolver(testSchema),
     defaultValues: {
       username: "",
       password: "",

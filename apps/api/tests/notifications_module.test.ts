@@ -10,7 +10,6 @@ import { NOTIFICATION_CATEGORIES, NOTIFICATION_PRIORITY } from '@hm/shared';
 describe('API Module 12: Notifications & Preferences Comprehensive QA Suite', () => {
   const app = createApp();
   let userAToken: string;
-  let userBToken: string;
   let userAId: number;
   let userBId: number;
   let notifA1Id: number;
@@ -42,7 +41,6 @@ describe('API Module 12: Notifications & Preferences Comprehensive QA Suite', ()
     userAId = userA.userId;
 
     const userB = await getOrCreateToken('emp@fixture.local');
-    userBToken = userB.token;
     userBId = userB.userId;
 
     // Seed test notifications for user A

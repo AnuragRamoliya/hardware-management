@@ -11,7 +11,6 @@ import { EMPLOYMENT_STATUS } from '@hm/shared';
 describe('API Module 03: Employees Comprehensive QA Suite', () => {
   const app = createApp();
   let adminToken: string;
-  let hrToken: string;
   let empToken: string;
 
   async function getOrCreateToken(email: string): Promise<string> {
@@ -31,7 +30,6 @@ describe('API Module 03: Employees Comprehensive QA Suite', () => {
 
   beforeAll(async () => {
     adminToken = await getOrCreateToken('admin@fixture.local');
-    hrToken = await getOrCreateToken('hr@fixture.local');
     empToken = await getOrCreateToken('emp@fixture.local');
   });
 
