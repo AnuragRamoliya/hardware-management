@@ -4,8 +4,6 @@ import { getOptions } from '../Models/options';
 import { buildOptions, clearOptionsCountCache, escapeLikeTerm } from '../Utils/options_builder';
 import type { OptionId } from '../Types/options';
 
-const performanceTest = it;
-
 interface FixtureRow extends Record<string, unknown> {
   value: OptionId;
   label: string;

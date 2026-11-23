@@ -2,8 +2,7 @@ export const ENUMS = {
   recordStatus: [
     { value: "1", label: "Active", tone: "success" },
     { value: "0", label: "Inactive", tone: "muted" },
-    { value: "active", label: "Active", tone: "success" },
-    { value: "inactive", label: "Inactive", tone: "muted" },
+    { value: "2", label: "Deleted", tone: "muted" },
   ],
   employmentStatus: [
     { value: "1", label: "Active", tone: "success" },
@@ -19,6 +18,8 @@ export const ENUMS = {
 
 export function getStatusLabel(value?: string | number) {
   const normalized = String(value ?? "").toLowerCase();
+  if (normalized === "active") return "Active";
+  if (normalized === "inactive") return "Inactive";
   return (
     Object.values(ENUMS)
       .flat()
@@ -30,6 +31,8 @@ export function getStatusTone(
   value?: string | number,
 ): "success" | "warning" | "muted" | "info" {
   const normalized = String(value ?? "").toLowerCase();
+  if (normalized === "active" || normalized === "1") return "success";
+  if (normalized === "inactive" || normalized === "0") return "muted";
   const option = Object.values(ENUMS)
     .flat()
     .find((item) => item.value === normalized);

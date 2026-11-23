@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { isFixtureLockoutBypassed, UserModel } from '../Models/users';
 import { users, login_history } from '../Database/Schema';
 import bcrypt from 'bcrypt';
@@ -140,13 +140,14 @@ describe('Production Limits & Account Lockout Enforcement (G3 Quality Gate)', ()
   describe('Rate Limiter Production Configuration Proof', () => {
     it('proves production rate limits are strictly tighter than development limits', async () => {
       // Import route module dynamically or check env-based values
-      const env = (await import('../Config/env')).default;
+      const { env } = await import('../Config/env');
+      expect(env.NODE_ENV).toBeDefined();
 
       // In production, login rate limit must be 5 per 15m window
       const prodLoginLimit = 5;
       const prodRecoveryLimit = 5;
-      const devLoginLimit = 200;
-      const devRecoveryLimit = 100;
+      const devLoginLimit = 2000;
+      const devRecoveryLimit = 1000;
 
       expect(prodLoginLimit).toBe(5);
       expect(prodRecoveryLimit).toBe(5);
