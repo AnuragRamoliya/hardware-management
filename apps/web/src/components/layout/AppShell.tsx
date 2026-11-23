@@ -747,7 +747,7 @@ export function AppShell() {
         <header className="sticky top-0 z-20 flex h-[68px] items-center justify-between border-b bg-background/85 px-4 backdrop-blur-xl sm:px-7">
           <div className="flex min-w-0 items-center gap-3">
             <button
-              aria-label="Open navigation"
+              aria-label="Open navigation menu"
               className="rounded-md p-2 hover:bg-muted lg:hidden"
               onClick={() => setMobileOpen(true)}
             >

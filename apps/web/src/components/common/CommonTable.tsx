@@ -395,7 +395,7 @@ export function CommonTable<T extends { id: string | number }>({
             >
               <SelectTrigger
                 aria-label="Rows per page"
-                className="h-8 w-[74px] bg-card px-2.5 text-xs font-medium"
+                className="min-h-[36px] h-9 w-[74px] bg-card px-2.5 text-xs font-medium"
               >
                 <SelectValue placeholder={String(query.itemsPerPage)} />
               </SelectTrigger>

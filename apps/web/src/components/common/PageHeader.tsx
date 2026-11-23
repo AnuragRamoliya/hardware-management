@@ -28,7 +28,7 @@ export function PageHeader({
           >
             <Link
               to={PATHS.ROOT}
-              className="inline-flex items-center min-h-[36px] py-1 hover:text-foreground"
+              className="inline-flex items-center min-h-[36px] px-1.5 py-1 hover:text-foreground"
             >
               Workspace
             </Link>
@@ -41,7 +41,7 @@ export function PageHeader({
                 {item.to ? (
                   <Link
                     to={item.to}
-                    className="inline-flex items-center min-h-[36px] py-1 hover:text-foreground"
+                    className="inline-flex items-center min-h-[36px] px-1.5 py-1 hover:text-foreground"
                   >
                     {item.label}
                   </Link>

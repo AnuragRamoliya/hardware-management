@@ -101,7 +101,7 @@ export function Login() {
                 <div className="flex justify-end">
                   <Link
                     to={PATHS.FORGOT_PASSWORD}
-                    className="text-xs font-medium text-primary hover:underline"
+                    className="text-xs font-medium text-primary hover:underline min-h-[36px] inline-flex items-center"
                   >
                     Forgot password?
                   </Link>

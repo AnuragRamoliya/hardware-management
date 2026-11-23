@@ -55,7 +55,7 @@ export function PhoneDisplay({
       )}
       <a
         href={telLink}
-        className="hover:underline hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+        className="min-h-[36px] inline-flex items-center px-1 hover:underline hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
         aria-label={`Call ${formatted}`}
       >
         {formatted}
@@ -65,7 +65,7 @@ export function PhoneDisplay({
           type="button"
           onClick={handleCopy}
           aria-label={copied ? "Phone number copied" : "Copy phone number"}
-          className="inline-flex h-6 w-6 min-h-[24px] min-w-[24px] items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="inline-flex h-9 w-9 min-h-[36px] min-w-[36px] items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring p-1.5"
         >
           {copied ? (
             <Check className="h-3 w-3 text-success" />

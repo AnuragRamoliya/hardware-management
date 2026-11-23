@@ -56,7 +56,7 @@ export function Portal() {
                 {String(description)}
               </p>
               <Link
-                className="mt-4 inline-flex text-sm font-medium text-primary hover:underline"
+                className="mt-3 inline-flex min-h-[36px] items-center text-sm font-medium text-primary hover:underline py-1.5"
                 to={String(to)}
               >
                 {String(action)}

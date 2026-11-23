@@ -242,7 +242,7 @@ export function Dashboard() {
           <h2 className="text-base font-semibold">Reports & Intelligence</h2>
           <Link
             to={PATHS.REPORTS}
-            className="text-xs font-medium text-primary hover:underline"
+            className="text-xs font-medium text-primary hover:underline min-h-[36px] inline-flex items-center"
           >
             Explore all 10 reports →
           </Link>
@@ -406,7 +406,7 @@ export function Dashboard() {
           <span>Offboarding & Returns Lifecycle</span>
           <Link
             to={PATHS.OFFBOARDING_CASES}
-            className="text-xs font-normal text-primary hover:underline"
+            className="text-xs font-normal text-primary hover:underline min-h-[36px] inline-flex items-center"
           >
             View all cases →
           </Link>

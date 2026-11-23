@@ -94,7 +94,7 @@ export function ReportCatalogue() {
             placeholder="Search reports by name, key, or metric..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-9 text-sm"
+            className="pl-9 h-9 text-base sm:text-sm"
           />
         </div>
 
@@ -106,7 +106,7 @@ export function ReportCatalogue() {
               variant={selectedCategory === cat ? "primary" : "ghost"}
               size="sm"
               onClick={() => setSelectedCategory(cat)}
-              className="h-8 text-xs capitalize whitespace-nowrap"
+              className="min-h-[36px] min-w-[36px] px-3 text-xs capitalize whitespace-nowrap"
             >
               {cat.replace("-", " ")}
             </Button>

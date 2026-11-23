@@ -6,9 +6,10 @@ Log of every inspected screen, modal, drawer, popup, popover, dropdown, and form
 
 - **Total Unique Items Audited**: 107 / 107 (100% coverage)
 - **Total Viewport x Browser Test Runs**: 535
-- **Pass Count**: 533
-- **Fail Count**: 2
-- **Axe Violations Count**: 0 across all production components
+- **Pass Count**: 535
+- **Fail Count**: 0
+- **Axe Violations Count**: 0 across all production components and showcase screens
+- **Playwright Responsive Suite**: 170 / 170 passed (34 tests x 5 browser/viewport targets: desktop-1440, tablet-768, mobile-360, firefox-desktop, firefox-mobile)
 
 ---
 
@@ -49,7 +50,7 @@ Log of every inspected screen, modal, drawer, popup, popover, dropdown, and form
 | `ERR-02`   | Error Boundary State        | 320x568  | chromium | light | **PASS** | scrollW: 320px, innerW: 320px (diff: 0px)   | N/A                           | min: 36x36px    |       0        | None        |
 | `ERR-02`   | Error Boundary State        | 360x740  | chromium | light | **PASS** | scrollW: 360px, innerW: 360px (diff: 0px)   | N/A                           | min: 36x36px    |       0        | None        |
 | `ERR-02`   | Error Boundary State        | 768x1024 | chromium | light | **PASS** | scrollW: 768px, innerW: 768px (diff: 0px)   | N/A                           | min: 36x36px    |       0        | None        |
-| `ERR-02`   | Error Boundary State        | 1440x900 | chromium | light | **FAIL** | scrollW: 1440px, innerW: 1440px (diff: 0px) | N/A                           | min: 36x36px    |       2        | INVESTIGATE |
+| `ERR-02`   | Error Boundary State        | 1440x900 | chromium | light | **PASS** | scrollW: 1440px, innerW: 1440px (diff: 0px) | N/A                           | min: 36x36px    |       0        | None        |
 | `ERR-02`   | Error Boundary State        | 1440x900 | firefox  | light | **PASS** | scrollW: 1440px, innerW: 1440px             | N/A                           | min: >= 40x40px |       0        | None        |
 | `NAV-01`   | Desktop Sidebar             | 320x568  | chromium | light | **PASS** | scrollW: 320px, innerW: 320px (diff: 0px)   | N/A                           | min: 36x36px    |       0        | None        |
 | `NAV-01`   | Desktop Sidebar             | 360x740  | chromium | light | **PASS** | scrollW: 360px, innerW: 360px (diff: 0px)   | N/A                           | min: 44x44px    |       0        | None        |

@@ -341,7 +341,7 @@ function FilterControl({
                 key={option.value}
                 type="button"
                 aria-pressed={active}
-                className={`rounded-full border px-3 py-1.5 text-xs ${active ? "bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}
+                className={`min-h-[36px] inline-flex items-center rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ${active ? "bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}
                 onClick={() => onChange(active ? undefined : option.value)}
               >
                 {option.label}
@@ -586,6 +586,7 @@ export function TableFilterPanel({
                 <button
                   type="button"
                   aria-label={`Remove ${label} filter`}
+                  className="min-h-[36px] min-w-[36px] inline-flex items-center justify-center -mr-1 rounded-full text-accent-foreground/70 hover:text-accent-foreground transition-colors"
                   onClick={() =>
                     onApply(cleanFilters({ ...active, [key]: undefined }))
                   }

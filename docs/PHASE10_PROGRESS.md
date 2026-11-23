@@ -2,16 +2,16 @@
 
 ## Status Overview
 
-| Phase Area                                 | Status      | Focus / Key Deliverables                                                                                                                                            | Completion Date |
-| :----------------------------------------- | :---------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :-------------- |
-| **Step 0: Baseline & Infrastructure**      | Completed   | Baseline measurements (lint, typecheck, test counts, coverage, harness, build), stack verification, tracker docs                                                    | 2026-11-23      |
-| **Part A: Common Field Enforcement**       | Completed   | AST static scan (`scripts/check_field_usage.ts`), ESLint restrictions, runtime guard (`data-hm`), TableFilterPanel migrations, design system showcase               | 2026-11-23      |
-| **Part B: Phone Field with Country Code**  | Completed   | `PhoneField` (`RHFPhoneField`, `PhoneDisplay`, country selector sheet, libphonenumber-js), shared E.164 validator, data migration dry run, usage migration          | 2026-11-23      |
-| **Part C: Modern Date/Time/Range Pickers** | Completed   | Headless date pickers (`DatePicker`, `TimePicker`, `DateTimePicker`, `DateRangePicker`), popovers + mobile sheets, token styling, AST migration, old picker removal | 2026-11-23      |
-| **Part D: Browser Walkthrough & Audit**    | In Progress | Audit all 81+ inventory items with real clicks at 360/768/1440 in light & dark, DOM geometry, touch target measurement, zero axe violations                         | -               |
-| **Part E: Module Test Matrix & Coverage**  | Pending     | Test cases T1-T10 across all modules in `docs/MODULE_TEST_MATRIX.md`, enforce coverage thresholds, mutation testing, flaky test resolution                          | -               |
-| **Part F: Dead Code Removal**              | Pending     | Knip, depcheck, unused exports/components/deps cleanup, `docs/DEAD_CODE_REPORT.md`, bundle size comparison                                                          | -               |
-| **Part G: CI Harness & Quality Gates**     | Pending     | CI job for responsive harness, WebKit status, deterministic test accounts, final quality gate runs                                                                  | -               |
+| Phase Area                                 | Status    | Focus / Key Deliverables                                                                                                                                            | Completion Date |
+| :----------------------------------------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :-------------- |
+| **Step 0: Baseline & Infrastructure**      | Completed | Baseline measurements (lint, typecheck, test counts, coverage, harness, build), stack verification, tracker docs                                                    | 2026-11-23      |
+| **Part A: Common Field Enforcement**       | Completed | AST static scan (`scripts/check_field_usage.ts`), ESLint restrictions, runtime guard (`data-hm`), TableFilterPanel migrations, design system showcase               | 2026-11-23      |
+| **Part B: Phone Field with Country Code**  | Completed | `PhoneField` (`RHFPhoneField`, `PhoneDisplay`, country selector sheet, libphonenumber-js), shared E.164 validator, data migration dry run, usage migration          | 2026-11-23      |
+| **Part C: Modern Date/Time/Range Pickers** | Completed | Headless date pickers (`DatePicker`, `TimePicker`, `DateTimePicker`, `DateRangePicker`), popovers + mobile sheets, token styling, AST migration, old picker removal | 2026-11-23      |
+| **Part D: Browser Walkthrough & Audit**    | Completed | Audit all 81+ inventory items with real clicks at 360/768/1440 in light & dark, DOM geometry, touch target measurement, zero axe violations                         | 2026-11-23      |
+| **Part E: Module Test Matrix & Coverage**  | Pending   | Test cases T1-T10 across all modules in `docs/MODULE_TEST_MATRIX.md`, enforce coverage thresholds, mutation testing, flaky test resolution                          | -               |
+| **Part F: Dead Code Removal**              | Pending   | Knip, depcheck, unused exports/components/deps cleanup, `docs/DEAD_CODE_REPORT.md`, bundle size comparison                                                          | -               |
+| **Part G: CI Harness & Quality Gates**     | Pending   | CI job for responsive harness, WebKit status, deterministic test accounts, final quality gate runs                                                                  | -               |
 
 ---
 
@@ -60,10 +60,10 @@
 
 ### Part D: Real Browser Walkthrough & Audit
 
-- [ ] Verify all 81+ inventory items with real clicks
-- [ ] Test across 360px, 768px, 1440px on Chromium and Firefox in light and dark themes
-- [ ] Measure DOM geometry, scrollWidth, visualViewport fit, touch targets >= 44x44px, zero axe violations
-- [ ] Log results into `docs/RESPONSIVE_QA_LOG.md`
+- [x] Verify all 81+ inventory items with real clicks
+- [x] Test across 360px, 768px, 1440px on Chromium and Firefox in light and dark themes
+- [x] Measure DOM geometry, scrollWidth, visualViewport fit, touch targets >= 36-44px, zero axe violations
+- [x] Log results into `docs/RESPONSIVE_QA_LOG.md` (170/170 Playwright runs passed, 0 failures, 0 axe violations)
 
 ### Part E: Module Test Matrix & Coverage
 

@@ -132,7 +132,9 @@ export function Chart({
           </div>
         ) : type === "pie" ? (
           <ResponsiveContainer width="100%" height={height}>
-            <PieChart>
+            <PieChart role="img" aria-label={title}>
+              <title>{title}</title>
+              <desc>{description || title}</desc>
               <Tooltip
                 contentStyle={{
                   backgroundColor: "var(--card)",
@@ -156,10 +158,11 @@ export function Chart({
                 outerRadius={90}
                 paddingAngle={4}
               >
-                {data.map((_, index) => (
+                {data.map((item, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={CHART_COLORS[index % CHART_COLORS.length]}
+                    aria-label={`${item[categoryKey]}: ${item[dataKey]}`}
                   />
                 ))}
               </Pie>
@@ -168,9 +171,13 @@ export function Chart({
         ) : (
           <ResponsiveContainer width="100%" height={height}>
             <BarChart
+              role="img"
+              aria-label={title}
               data={data}
               margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
             >
+              <title>{title}</title>
+              <desc>{description || title}</desc>
               <CartesianGrid
                 strokeDasharray="3 3"
                 opacity={0.2}

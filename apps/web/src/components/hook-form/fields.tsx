@@ -188,7 +188,7 @@ export function RHFPasswordField(props: RHFPasswordFieldProps) {
         <Input
           id={name}
           type={visible ? "text" : "password"}
-          className={`pr-28 font-mono text-sm ${className || ""}`}
+          className={`pr-28 font-mono text-base sm:text-sm ${className || ""}`}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${name}-error` : undefined}
           {...inputProps}
@@ -196,13 +196,13 @@ export function RHFPasswordField(props: RHFPasswordFieldProps) {
             required: required ? `${label} is required` : false,
           })}
         />
-        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+        <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
           {showCopy && password.length > 0 && (
             <button
               type="button"
               aria-label={copied ? "Copied" : "Copy password"}
               title="Copy password"
-              className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              className="rounded min-h-[36px] min-w-[36px] flex items-center justify-center p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
               onClick={handleCopy}
             >
               {copied ? (
@@ -217,7 +217,7 @@ export function RHFPasswordField(props: RHFPasswordFieldProps) {
               type="button"
               aria-label="Generate strong password"
               title="Generate strong password"
-              className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              className="rounded min-h-[36px] min-w-[36px] flex items-center justify-center p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
               onClick={handleGenerate}
             >
               <KeyRound className="h-4 w-4 text-primary" />
@@ -227,7 +227,7 @@ export function RHFPasswordField(props: RHFPasswordFieldProps) {
             type="button"
             aria-label={visible ? "Hide password" : "Show password"}
             title={visible ? "Hide password" : "Show password"}
-            className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            className="rounded min-h-[36px] min-w-[36px] flex items-center justify-center p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             onClick={() => setVisible((value) => !value)}
           >
             {visible ? (
