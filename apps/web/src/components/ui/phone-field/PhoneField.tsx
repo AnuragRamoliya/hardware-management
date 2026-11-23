@@ -215,7 +215,7 @@ export const PhoneField = React.forwardRef<HTMLInputElement, PhoneFieldProps>(
           onClick={() => setSelectorOpen((prev) => !prev)}
           aria-expanded={selectorOpen}
           aria-haspopup="dialog"
-          aria-label={`Selected country: ${currentCountryInfo.name} (${currentCountryInfo.dialCode}). Click to change.`}
+          aria-label={`${currentCountryInfo.code} ${currentCountryInfo.dialCode} ${currentCountryInfo.name}. Click to change country.`}
           className={cn(
             "flex h-10 min-h-[44px] items-center gap-1.5 rounded-l-md border border-r-0 border-input bg-muted px-2.5 text-sm font-medium text-foreground transition-colors",
             "hover:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",

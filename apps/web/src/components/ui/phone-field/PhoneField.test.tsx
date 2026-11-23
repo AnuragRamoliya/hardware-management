@@ -16,7 +16,7 @@ describe("PhoneField Component (apps/web)", () => {
     expect(container).toBeInTheDocument();
 
     const trigger = screen.getByRole("button", {
-      name: /Selected country: India \(\+91\)/i,
+      name: /IN \+91 India/i,
     });
     expect(trigger).toBeInTheDocument();
   });
@@ -37,7 +37,7 @@ describe("PhoneField Component (apps/web)", () => {
     render(<PhoneField onChange={handleChange} />);
 
     const trigger = screen.getByRole("button", {
-      name: /Selected country: India/i,
+      name: /IN \+91 India/i,
     });
     fireEvent.click(trigger);
 
@@ -58,7 +58,7 @@ describe("PhoneField Component (apps/web)", () => {
     // Trigger should now show US +1
     expect(
       screen.getByRole("button", {
-        name: /Selected country: United States \(\+1\)/i,
+        name: /US \+1 United States/i,
       }),
     ).toBeInTheDocument();
 
@@ -79,14 +79,16 @@ describe("PhoneField Component (apps/web)", () => {
     // Should have automatically switched country button to GB
     expect(
       screen.getByRole("button", {
-        name: /Selected country: United Kingdom \(\+44\)/i,
+        name: /GB \+44 United Kingdom/i,
       }),
     ).toBeInTheDocument();
   });
 
   it("respects disabled state and prevents country selection", () => {
     render(<PhoneField disabled />);
-    const trigger = screen.getByRole("button", { name: /Selected country/i });
+    const trigger = screen.getByRole("button", {
+      name: /click to change country/i,
+    });
     const input = screen.getByPlaceholderText("Enter phone number");
 
     expect(trigger).toBeDisabled();

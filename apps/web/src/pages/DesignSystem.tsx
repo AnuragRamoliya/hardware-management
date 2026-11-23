@@ -997,7 +997,7 @@ export function DesignSystem() {
                           sizeVariant="sm"
                           hasValue={true}
                           onToggle={() => {}}
-                          aria-label="Small select trigger"
+                          aria-label="Option A (Small)"
                         >
                           <span>Option A</span>
                         </SelectTrigger>
@@ -1007,7 +1007,7 @@ export function DesignSystem() {
                           sizeVariant="md"
                           hasValue={true}
                           onToggle={() => {}}
-                          aria-label="Default select trigger"
+                          aria-label="Option A (Default)"
                         >
                           <span>Option A</span>
                         </SelectTrigger>
@@ -1017,7 +1017,7 @@ export function DesignSystem() {
                           sizeVariant="lg"
                           hasValue={true}
                           onToggle={() => {}}
-                          aria-label="Large select trigger"
+                          aria-label="Option A (Large)"
                         >
                           <span>Option A</span>
                         </SelectTrigger>
