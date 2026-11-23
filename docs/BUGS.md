@@ -14,18 +14,18 @@
 | Severity          | Found | Fixed | Open | Moved to Backlog |
 | :---------------- | :---- | :---- | :--- | :--------------- |
 | **S1 (Critical)** | 0     | 0     | 0    | 0                |
-| **S2 (Major)**    | 0     | 0     | 0    | 0                |
+| **S2 (Major)**    | 1     | 1     | 0    | 0                |
 | **S3 (Minor)**    | 0     | 0     | 0    | 0                |
 | **S4 (Cosmetic)** | 0     | 0     | 0    | 0                |
-| **Total**         | 0     | 0     | 0    | 0                |
+| **Total**         | 1     | 1     | 0    | 0                |
 
 ---
 
 ## Detailed Bug Register
 
-| ID                  | Sev | Module | Title | Steps to Reproduce | Expected Result | Actual Result | Root Cause | Status | Fix Commit | Regression Test |
-| :------------------ | :-- | :----- | :---- | :----------------- | :-------------- | :------------ | :--------- | :----- | :--------- | :-------------- |
-| _(None logged yet)_ |     |        |       |                    |                 |               |            |        |            |                 |
+| ID          | Sev | Module                       | Title                                                                                              | Steps to Reproduce                                                                                                                                 | Expected Result                            | Actual Result                                                                 | Root Cause                                                                                           | Status | Fix Commit       | Regression Test                                   |
+| :---------- | :-- | :--------------------------- | :------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------- | :---------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------- | :----- | :--------------- | :------------------------------------------------ |
+| **BUG-001** | S2  | Pure Utils / Options Builder | SQL 3VL bug causes records with NULL search fields to disappear from prefix/contains search phases | 1. Create record with null optional search field (e.g. `contact_name: null` on vendor).<br>2. Call options search with prefix query matching name. | Record is returned in prefix search phase. | Record omitted because SQL `NOT (col = ?)` evaluates to NULL instead of TRUE. | SQL Three-Valued Logic: `NOT (UNKNOWN)` yields `UNKNOWN` (falsy in WHERE). Fixed with `IS NOT TRUE`. | Fixed  | (pending commit) | `tests/options_builder_bug001_regression.test.ts` |
 
 ---
 

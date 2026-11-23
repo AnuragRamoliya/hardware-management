@@ -226,7 +226,7 @@ export function buildOptions(
           replacements: searchFields.map(() => search),
         },
         {
-          predicate: `${prefixPredicate} AND NOT (${exactMatch})`,
+          predicate: `${prefixPredicate} AND (${exactMatch}) IS NOT TRUE`,
           rank: 1,
           replacements: [
             ...searchFields.map(() => prefixPattern),
@@ -234,7 +234,7 @@ export function buildOptions(
           ],
         },
         {
-          predicate: `${containsPredicate} AND NOT (${prefixPredicate}) AND NOT (${exactMatch})`,
+          predicate: `${containsPredicate} AND (${prefixPredicate}) IS NOT TRUE AND (${exactMatch}) IS NOT TRUE`,
           rank: 2,
           replacements: [
             ...searchFields.map(() => containsPattern),
