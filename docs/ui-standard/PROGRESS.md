@@ -17,8 +17,8 @@
 | **Part C**  | Field Standards                    | ✅ Completed   | `04-field-standards.md`, browser measurements, field decision matrix.                |
 | **Part D**  | Page & Pattern Standards           | ✅ Completed   | `05-page-patterns.md`, recipes, golden Employee reference.                           |
 | **Part E**  | Responsive Standards               | ✅ Completed   | `06-responsive-standards.md`, multi-viewport harness results.                        |
-| **Part F**  | Accessibility & UX Conventions     | ⏳ In Progress | `07-accessibility-ux-conventions.md`, WCAG & axe-core rules, copy conventions.       |
-| **Part G**  | Front-End Architecture Conventions | ⬜ Pending     | `08-frontend-architecture.md`, generic vs domain separation.                         |
+| **Part F**  | Accessibility & UX Conventions     | ✅ Completed   | `07-accessibility-ux-conventions.md`, WCAG & axe-core rules, copy conventions.       |
+| **Part G**  | Front-End Architecture Conventions | ⏳ In Progress | `08-frontend-architecture.md`, generic vs domain separation.                         |
 | **Part H**  | Guardrails and Automation          | ⬜ Pending     | `09-guardrails-and-automation.md`, `rules.json`, breaking proof logs.                |
 | **Part I**  | Gap Analysis & Maturity Scores     | ⬜ Pending     | `10-gap-analysis.md`, AST scans, maturity scores (0-5) per area.                     |
 | **Part J**  | Portability & Starter Kit          | ⬜ Pending     | `11-portability-and-adoption-guide.md`, `starter-kit/`, verification in `/tmp`.      |
@@ -36,7 +36,7 @@
 - [x] `docs/ui-standard/04-field-standards.md`
 - [x] `docs/ui-standard/05-page-patterns.md`
 - [x] `docs/ui-standard/06-responsive-standards.md`
-- [ ] `docs/ui-standard/07-accessibility-ux-conventions.md`
+- [x] `docs/ui-standard/07-accessibility-ux-conventions.md`
 - [ ] `docs/ui-standard/08-frontend-architecture.md`
 - [ ] `docs/ui-standard/09-guardrails-and-automation.md`
 - [ ] `docs/ui-standard/10-gap-analysis.md`
