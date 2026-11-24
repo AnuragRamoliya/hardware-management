@@ -12,8 +12,8 @@
 | Step / Part | Description                        | Status         | Deliverables / Evidence                                                              |
 | :---------- | :--------------------------------- | :------------- | :----------------------------------------------------------------------------------- |
 | **Step 0**  | Scope and Baseline Setup           | ✅ Completed   | Versions table, src/ depth 3 map, UI docs index, feature-presence table.             |
-| **Part A**  | Design Tokens and Theming          | ⏳ In Progress | `02-design-tokens.md`, `tokens.json`, `scripts/ui-standard/generate-tokens.ts`.      |
-| **Part B**  | Component Catalog                  | ⬜ Pending     | `03-component-catalog.md`, `component-catalog.json`, AST catalog generator.          |
+| **Part A**  | Design Tokens and Theming          | ✅ Completed   | `02-design-tokens.md`, `tokens.json`, `scripts/ui-standard/generate-tokens.ts`.      |
+| **Part B**  | Component Catalog                  | ⏳ In Progress | `03-component-catalog.md`, `component-catalog.json`, AST catalog generator.          |
 | **Part C**  | Field Standards                    | ⬜ Pending     | `04-field-standards.md`, browser measurements, field decision matrix.                |
 | **Part D**  | Page & Pattern Standards           | ⬜ Pending     | `05-page-patterns.md`, recipes, golden Employee reference.                           |
 | **Part E**  | Responsive Standards               | ⬜ Pending     | `06-responsive-standards.md`, multi-viewport harness results.                        |
@@ -31,7 +31,7 @@
 - [x] `docs/ui-standard/PROGRESS.md`
 - [ ] `docs/ui-standard/00-README.md`
 - [ ] `docs/ui-standard/01-overview-and-principles.md`
-- [ ] `docs/ui-standard/02-design-tokens.md`
+- [x] `docs/ui-standard/02-design-tokens.md`
 - [ ] `docs/ui-standard/03-component-catalog.md`
 - [ ] `docs/ui-standard/04-field-standards.md`
 - [ ] `docs/ui-standard/05-page-patterns.md`
@@ -43,8 +43,8 @@
 - [ ] `docs/ui-standard/11-portability-and-adoption-guide.md`
 - [ ] `docs/ui-standard/UI_STANDARD_SUMMARY.md`
 - [ ] `docs/ui-standard/AGENT_PROMPT_FOR_NEW_PROJECT.md`
-- [ ] `docs/ui-standard/tokens.json`
+- [x] `docs/ui-standard/tokens.json`
 - [ ] `docs/ui-standard/component-catalog.json`
 - [ ] `docs/ui-standard/rules.json`
 - [ ] `docs/ui-standard/starter-kit/`
-- [ ] `scripts/ui-standard/`
+- [x] `scripts/ui-standard/`
