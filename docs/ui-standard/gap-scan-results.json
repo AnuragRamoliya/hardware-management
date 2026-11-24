@@ -1,0 +1,854 @@
+{
+  "nativeControlsOutsideUi": [],
+  "directRadixOutsideUi": [
+    {
+      "file": "components/common/ConfirmDialog.tsx",
+      "line": 1,
+      "importClause": "@radix-ui/react-alert-dialog"
+    },
+    {
+      "file": "components/common/RowActionsMenu.tsx",
+      "line": 9,
+      "importClause": "@radix-ui/react-dialog"
+    }
+  ],
+  "hardcodedColors": [
+    {
+      "file": "components/assets/AssetQrModal.tsx",
+      "line": 28,
+      "match": "#000"
+    },
+    {
+      "file": "components/assets/AssetQrModal.tsx",
+      "line": 31,
+      "match": "#555"
+    },
+    {
+      "file": "components/common/Chart.tsx",
+      "line": 20,
+      "match": "#2563EB"
+    },
+    {
+      "file": "components/common/Chart.tsx",
+      "line": 21,
+      "match": "#10B981"
+    },
+    {
+      "file": "components/common/Chart.tsx",
+      "line": 22,
+      "match": "#F59E0B"
+    },
+    {
+      "file": "components/common/Chart.tsx",
+      "line": 23,
+      "match": "#EF4444"
+    },
+    {
+      "file": "components/common/Chart.tsx",
+      "line": 24,
+      "match": "#8B5CF6"
+    },
+    {
+      "file": "components/common/Chart.tsx",
+      "line": 25,
+      "match": "#06B6D4"
+    },
+    {
+      "file": "components/common/Chart.tsx",
+      "line": 26,
+      "match": "#EC4899"
+    },
+    {
+      "file": "components/common/Chart.tsx",
+      "line": 27,
+      "match": "#64748B"
+    },
+    {
+      "file": "components/common/Chart.tsx",
+      "line": 57,
+      "match": "#2563EB"
+    },
+    {
+      "file": "components/common/Chart.tsx",
+      "line": 188,
+      "match": "#888888"
+    },
+    {
+      "file": "components/common/Chart.tsx",
+      "line": 194,
+      "match": "#888888"
+    },
+    {
+      "file": "components/credentials/RevealSecretDialog.tsx",
+      "line": 252,
+      "match": "#102"
+    },
+    {
+      "file": "pages/Dashboard.tsx",
+      "line": 231,
+      "match": "#10B981"
+    }
+  ],
+  "arbitraryPxTailwind": [
+    {
+      "file": "components/common/Chart.tsx",
+      "line": 106,
+      "match": "max-h-[300px]"
+    },
+    {
+      "file": "components/common/CommonTable.tsx",
+      "line": 398,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "components/common/CommonTable.tsx",
+      "line": 398,
+      "match": "w-[74px]"
+    },
+    {
+      "file": "components/common/CommonTable.tsx",
+      "line": 402,
+      "match": "min-w-[74px]"
+    },
+    {
+      "file": "components/common/DataDisplay.tsx",
+      "line": 42,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "components/common/DropdownMenu.tsx",
+      "line": 35,
+      "match": "min-w-[180px]"
+    },
+    {
+      "file": "components/common/PageHeader.tsx",
+      "line": 31,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "components/common/PageHeader.tsx",
+      "line": 44,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "components/common/PageHeader.tsx",
+      "line": 55,
+      "match": "text-[24px]"
+    },
+    {
+      "file": "components/common/PageHeader.tsx",
+      "line": 55,
+      "match": "text-[30px]"
+    },
+    {
+      "file": "components/common/PasswordStrengthMeter.tsx",
+      "line": 46,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "components/common/RowActionsMenu.tsx",
+      "line": 114,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "components/common/RowActionsMenu.tsx",
+      "line": 114,
+      "match": "min-w-[36px]"
+    },
+    {
+      "file": "components/common/RowActionsMenu.tsx",
+      "line": 143,
+      "match": "backdrop-blur-[2px]"
+    },
+    {
+      "file": "components/common/RowActionsMenu.tsx",
+      "line": 182,
+      "match": "min-h-[48px]"
+    },
+    {
+      "file": "components/common/RowActionsMenu.tsx",
+      "line": 205,
+      "match": "min-h-[48px]"
+    },
+    {
+      "file": "components/common/RowActionsMenu.tsx",
+      "line": 232,
+      "match": "min-w-[200px]"
+    },
+    {
+      "file": "components/common/RowActionsMenu.tsx",
+      "line": 232,
+      "match": "max-w-[280px]"
+    },
+    {
+      "file": "components/common/RowActionsMenu.tsx",
+      "line": 263,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "components/common/Stepper.tsx",
+      "line": 85,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "components/common/Stepper.tsx",
+      "line": 85,
+      "match": "max-w-[120px]"
+    },
+    {
+      "file": "components/common/TableFilters/TableFilterPanel.tsx",
+      "line": 344,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "components/common/TableFilters/TableFilterPanel.tsx",
+      "line": 589,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "components/common/TableFilters/TableFilterPanel.tsx",
+      "line": 589,
+      "match": "min-w-[36px]"
+    },
+    {
+      "file": "components/common/TableFilters/TableFilterPanel.tsx",
+      "line": 619,
+      "match": "max-h-[1000px]"
+    },
+    {
+      "file": "components/credentials/CredentialAccessLogColumns.tsx",
+      "line": 74,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "components/credentials/CredentialAccessLogColumns.tsx",
+      "line": 99,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "components/credentials/CredentialTypeColumns.tsx",
+      "line": 76,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "components/credentials/CredentialTypeColumns.tsx",
+      "line": 80,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "components/credentials/CredentialTypeColumns.tsx",
+      "line": 85,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "components/credentials/RevealSecretDialog.tsx",
+      "line": 332,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "components/hook-form/RHFDatePicker.tsx",
+      "line": 28,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "components/hook-form/RHFDateRangePicker.tsx",
+      "line": 32,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "components/hook-form/RHFDateTimePicker.tsx",
+      "line": 31,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "components/hook-form/RHFPhoneField.tsx",
+      "line": 32,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "components/hook-form/RHFTimePicker.tsx",
+      "line": 28,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "components/hook-form/fields.tsx",
+      "line": 67,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "components/hook-form/fields.tsx",
+      "line": 205,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "components/hook-form/fields.tsx",
+      "line": 205,
+      "match": "min-w-[36px]"
+    },
+    {
+      "file": "components/hook-form/fields.tsx",
+      "line": 220,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "components/hook-form/fields.tsx",
+      "line": 220,
+      "match": "min-w-[36px]"
+    },
+    {
+      "file": "components/hook-form/fields.tsx",
+      "line": 230,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "components/hook-form/fields.tsx",
+      "line": 230,
+      "match": "min-w-[36px]"
+    },
+    {
+      "file": "components/hook-form/fields.tsx",
+      "line": 284,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "components/hook-form/fields.tsx",
+      "line": 684,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "components/hook-form/fields.tsx",
+      "line": 706,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 473,
+      "match": "h-[68px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 513,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 541,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 556,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 561,
+      "match": "h-[18px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 561,
+      "match": "w-[18px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 574,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 579,
+      "match": "h-[18px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 579,
+      "match": "w-[18px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 650,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 659,
+      "match": "h-[18px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 659,
+      "match": "w-[18px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 703,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 727,
+      "match": "w-[72px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 727,
+      "match": "w-[260px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 735,
+      "match": "w-[280px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 744,
+      "match": "ml-[72px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 744,
+      "match": "ml-[260px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 747,
+      "match": "h-[68px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 779,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 791,
+      "match": "h-[18px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 791,
+      "match": "w-[18px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 796,
+      "match": "text-[9px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 811,
+      "match": "h-[18px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 811,
+      "match": "w-[18px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 813,
+      "match": "h-[18px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 813,
+      "match": "w-[18px]"
+    },
+    {
+      "file": "components/layout/AppShell.tsx",
+      "line": 851,
+      "match": "max-w-[1600px]"
+    },
+    {
+      "file": "components/reports/ExportsDrawer.tsx",
+      "line": 220,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "components/reports/ExportsDrawer.tsx",
+      "line": 282,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "components/software/LicenseColumns.tsx",
+      "line": 76,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "components/ui/button.tsx",
+      "line": 24,
+      "match": "min-h-[44px]"
+    },
+    {
+      "file": "components/ui/button.tsx",
+      "line": 25,
+      "match": "min-h-[44px]"
+    },
+    {
+      "file": "components/ui/button.tsx",
+      "line": 25,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "components/ui/button.tsx",
+      "line": 26,
+      "match": "min-h-[44px]"
+    },
+    {
+      "file": "components/ui/button.tsx",
+      "line": 26,
+      "match": "min-w-[44px]"
+    },
+    {
+      "file": "components/ui/date-picker/DateRangePicker.tsx",
+      "line": 229,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "components/ui/date-picker/DateRangePicker.tsx",
+      "line": 285,
+      "match": "max-w-[200px]"
+    },
+    {
+      "file": "components/ui/date-picker/DateTimePicker.tsx",
+      "line": 420,
+      "match": "max-w-[160px]"
+    },
+    {
+      "file": "components/ui/date-picker/TimePicker.tsx",
+      "line": 206,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "components/ui/date-picker/TimePicker.tsx",
+      "line": 236,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "components/ui/dialog.tsx",
+      "line": 35,
+      "match": "backdrop-blur-[2px]"
+    },
+    {
+      "file": "components/ui/dropdown-menu.tsx",
+      "line": 81,
+      "match": "min-w-[200px]"
+    },
+    {
+      "file": "components/ui/dropdown-menu.tsx",
+      "line": 81,
+      "match": "max-w-[280px]"
+    },
+    {
+      "file": "components/ui/dropdown-menu.tsx",
+      "line": 104,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "components/ui/phone-field/PhoneDisplay.tsx",
+      "line": 58,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "components/ui/phone-field/PhoneDisplay.tsx",
+      "line": 68,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "components/ui/phone-field/PhoneDisplay.tsx",
+      "line": 68,
+      "match": "min-w-[36px]"
+    },
+    {
+      "file": "components/ui/phone-field/PhoneField.tsx",
+      "line": 220,
+      "match": "min-h-[44px]"
+    },
+    {
+      "file": "components/ui/phone-field/PhoneField.tsx",
+      "line": 228,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "components/ui/phone-field/PhoneField.tsx",
+      "line": 332,
+      "match": "min-h-[44px]"
+    },
+    {
+      "file": "components/ui/phone-field/PhoneField.tsx",
+      "line": 338,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "components/ui/select/SelectList.tsx",
+      "line": 36,
+      "match": "min-h-[200px]"
+    },
+    {
+      "file": "components/ui/select/SelectList.tsx",
+      "line": 36,
+      "match": "max-h-[300px]"
+    },
+    {
+      "file": "pages/AssetDetail.tsx",
+      "line": 532,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "pages/AssetDetail.tsx",
+      "line": 747,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "pages/AuthFlow.tsx",
+      "line": 153,
+      "match": "max-w-[420px]"
+    },
+    {
+      "file": "pages/Dashboard.tsx",
+      "line": 245,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "pages/Dashboard.tsx",
+      "line": 256,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "pages/Dashboard.tsx",
+      "line": 266,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "pages/Dashboard.tsx",
+      "line": 274,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "pages/Dashboard.tsx",
+      "line": 284,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "pages/Dashboard.tsx",
+      "line": 395,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "pages/Dashboard.tsx",
+      "line": 409,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "pages/DesignSystem.tsx",
+      "line": 1097,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "pages/EmployeeDetail.tsx",
+      "line": 634,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "pages/Login.tsx",
+      "line": 71,
+      "match": "max-w-[390px]"
+    },
+    {
+      "file": "pages/Login.tsx",
+      "line": 104,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "pages/OffboardingCaseDetail.tsx",
+      "line": 289,
+      "match": "min-w-[240px]"
+    },
+    {
+      "file": "pages/OffboardingCaseDetail.tsx",
+      "line": 430,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "pages/OffboardingCaseDetail.tsx",
+      "line": 442,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "pages/OffboardingTemplates.tsx",
+      "line": 185,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "pages/Portal.tsx",
+      "line": 59,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "pages/PortalAssets.tsx",
+      "line": 130,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "pages/PortalOffboarding.tsx",
+      "line": 96,
+      "match": "min-w-[260px]"
+    },
+    {
+      "file": "pages/PortalRequestDetail.tsx",
+      "line": 71,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "pages/PortalRequestDetail.tsx",
+      "line": 279,
+      "match": "max-h-[400px]"
+    },
+    {
+      "file": "pages/PortalRequestDetail.tsx",
+      "line": 294,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "pages/PortalRequests.tsx",
+      "line": 134,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "pages/PortalRequests.tsx",
+      "line": 134,
+      "match": "min-w-[36px]"
+    },
+    {
+      "file": "pages/Profile.tsx",
+      "line": 324,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "pages/Profile.tsx",
+      "line": 335,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "pages/Profile.tsx",
+      "line": 394,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "pages/Profile.tsx",
+      "line": 400,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "pages/Profile.tsx",
+      "line": 437,
+      "match": "min-w-[100px]"
+    },
+    {
+      "file": "pages/ReportCatalogue.tsx",
+      "line": 109,
+      "match": "min-h-[36px]"
+    },
+    {
+      "file": "pages/ReportCatalogue.tsx",
+      "line": 109,
+      "match": "min-w-[36px]"
+    },
+    {
+      "file": "pages/ReportCatalogue.tsx",
+      "line": 159,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "pages/RequestDetail.tsx",
+      "line": 140,
+      "match": "text-[13px]"
+    },
+    {
+      "file": "pages/RequestDetail.tsx",
+      "line": 444,
+      "match": "max-h-[500px]"
+    },
+    {
+      "file": "pages/RequestDetail.tsx",
+      "line": 467,
+      "match": "text-[10px]"
+    },
+    {
+      "file": "pages/RequestDetail.tsx",
+      "line": 571,
+      "match": "text-[11px]"
+    },
+    {
+      "file": "pages/Roles.tsx",
+      "line": 269,
+      "match": "min-w-[560px]"
+    },
+    {
+      "file": "pages/SoftwareDetail.tsx",
+      "line": 442,
+      "match": "text-[11px]"
+    }
+  ],
+  "inlineStyles": [
+    {
+      "file": "components/common/Chart.tsx",
+      "line": 98,
+      "style": "style={{ minHeight: height }}"
+    },
+    {
+      "file": "components/offboarding/OffboardingColumns.tsx",
+      "line": 148,
+      "style": "style={{ width: `${percent}%` }}"
+    },
+    {
+      "file": "components/reports/ExportsDrawer.tsx",
+      "line": 266,
+      "style": "style={{ width: `${job.progress}%` }}"
+    },
+    {
+      "file": "components/ui/select/SelectList.tsx",
+      "line": 39,
+      "style": "style={{ minHeight }}"
+    },
+    {
+      "file": "components/ui/select/SelectPopover.tsx",
+      "line": 28,
+      "style": "style={{ fontSize: \"14px\" }}"
+    },
+    {
+      "file": "pages/Dashboard.tsx",
+      "line": 169,
+      "style": "style={{ width: percent + \"%\" }}"
+    },
+    {
+      "file": "pages/Dashboard.tsx",
+      "line": 202,
+      "style": "style={{ width: seatsUsedPercent + \"%\" }}"
+    },
+    {
+      "file": "pages/OffboardingCaseDetail.tsx",
+      "line": 303,
+      "style": "style={{ width: `${progressPercent}%` }}"
+    },
+    {
+      "file": "pages/PortalOffboarding.tsx",
+      "line": 106,
+      "style": "style={{ width: `${percent}%` }}"
+    }
+  ],
+  "consoleStatements": [
+    {
+      "file": "components/common/ErrorBoundary.tsx",
+      "line": 18,
+      "call": "console.error(\"Application rendering error\", error, info.componentStack);"
+    }
+  ],
+  "todosAndFixmes": [],
+  "filesOutsideModuleStructure": [
+    "zustand/permission-store.ts",
+    "zustand/site-setting.ts",
+    "zustand/user-store.ts"
+  ]
+}
