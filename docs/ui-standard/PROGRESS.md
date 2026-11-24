@@ -14,8 +14,8 @@
 | **Step 0**  | Scope and Baseline Setup           | ✅ Completed   | Versions table, src/ depth 3 map, UI docs index, feature-presence table.             |
 | **Part A**  | Design Tokens and Theming          | ✅ Completed   | `02-design-tokens.md`, `tokens.json`, `scripts/ui-standard/generate-tokens.ts`.      |
 | **Part B**  | Component Catalog                  | ✅ Completed   | `03-component-catalog.md`, `component-catalog.json`, AST catalog generator.          |
-| **Part C**  | Field Standards                    | ⏳ In Progress | `04-field-standards.md`, browser measurements, field decision matrix.                |
-| **Part D**  | Page & Pattern Standards           | ⬜ Pending     | `05-page-patterns.md`, recipes, golden Employee reference.                           |
+| **Part C**  | Field Standards                    | ✅ Completed   | `04-field-standards.md`, browser measurements, field decision matrix.                |
+| **Part D**  | Page & Pattern Standards           | ⏳ In Progress | `05-page-patterns.md`, recipes, golden Employee reference.                           |
 | **Part E**  | Responsive Standards               | ⬜ Pending     | `06-responsive-standards.md`, multi-viewport harness results.                        |
 | **Part F**  | Accessibility & UX Conventions     | ⬜ Pending     | `07-accessibility-ux-conventions.md`, WCAG & axe-core rules, copy conventions.       |
 | **Part G**  | Front-End Architecture Conventions | ⬜ Pending     | `08-frontend-architecture.md`, generic vs domain separation.                         |
@@ -33,7 +33,7 @@
 - [ ] `docs/ui-standard/01-overview-and-principles.md`
 - [x] `docs/ui-standard/02-design-tokens.md`
 - [x] `docs/ui-standard/03-component-catalog.md`
-- [ ] `docs/ui-standard/04-field-standards.md`
+- [x] `docs/ui-standard/04-field-standards.md`
 - [ ] `docs/ui-standard/05-page-patterns.md`
 - [ ] `docs/ui-standard/06-responsive-standards.md`
 - [ ] `docs/ui-standard/07-accessibility-ux-conventions.md`
