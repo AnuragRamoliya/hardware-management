@@ -21,8 +21,8 @@
 | **Part G**  | Front-End Architecture Conventions | ✅ Completed   | `08-frontend-architecture.md`, generic vs domain separation.                         |
 | **Part H**  | Guardrails and Automation          | ✅ Completed   | `09-guardrails-and-automation.md`, `rules.json`, breaking proof logs.                |
 | **Part I**  | Gap Analysis & Maturity Scores     | ✅ Completed   | `10-gap-analysis.md`, AST scans, maturity scores (0-5) per area.                     |
-| **Part J**  | Portability & Starter Kit          | ⏳ In Progress | `11-portability-and-adoption-guide.md`, `starter-kit/`, verification in `/tmp`.      |
-| **Part K**  | Report Integrity & Delivery        | ⬜ Pending     | `verify-report.ts`, 10 spot checks, `00-README.md`, `01-overview-and-principles.md`. |
+| **Part J**  | Portability & Starter Kit          | ✅ Completed   | `11-portability-and-adoption-guide.md`, `starter-kit/`, verification in `/tmp`.      |
+| **Part K**  | Report Integrity & Delivery        | ⏳ In Progress | `verify-report.ts`, 10 spot checks, `00-README.md`, `01-overview-and-principles.md`. |
 
 ---
 
@@ -40,11 +40,11 @@
 - [x] `docs/ui-standard/08-frontend-architecture.md`
 - [x] `docs/ui-standard/09-guardrails-and-automation.md`
 - [x] `docs/ui-standard/10-gap-analysis.md`
-- [ ] `docs/ui-standard/11-portability-and-adoption-guide.md`
-- [ ] `docs/ui-standard/UI_STANDARD_SUMMARY.md`
-- [ ] `docs/ui-standard/AGENT_PROMPT_FOR_NEW_PROJECT.md`
+- [x] `docs/ui-standard/11-portability-and-adoption-guide.md`
+- [x] `docs/ui-standard/UI_STANDARD_SUMMARY.md`
+- [x] `docs/ui-standard/AGENT_PROMPT_FOR_NEW_PROJECT.md`
 - [x] `docs/ui-standard/tokens.json`
 - [x] `docs/ui-standard/component-catalog.json`
 - [x] `docs/ui-standard/rules.json`
-- [ ] `docs/ui-standard/starter-kit/`
+- [x] `docs/ui-standard/starter-kit/`
 - [x] `scripts/ui-standard/`
