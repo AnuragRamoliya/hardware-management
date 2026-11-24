@@ -1,0 +1,2641 @@
+{
+  "totalComponents": 58,
+  "activeComponents": 47,
+  "unusedComponents": 9,
+  "nearDuplicates": 2,
+  "components": [
+    {
+      "name": "Badge",
+      "file": "apps/web/src/components/ui/badge.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 107,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/assets/AssetStatusBadge.tsx",
+        "line": 16,
+        "snippet": "return <Badge variant={variant}>{getAssetStatusLabel(status)}</Badge>;\n}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Button",
+      "file": "apps/web/src/components/ui/button.tsx",
+      "props": [
+        {
+          "name": "variant",
+          "type": "Variant",
+          "optional": true
+        },
+        {
+          "name": "size",
+          "type": "Size",
+          "optional": true
+        },
+        {
+          "name": "loading",
+          "type": "boolean",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "children (ReactNode)",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-hidden"],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": [],
+      "usageCount": 187,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/assets/AssetImportDialog.tsx",
+        "line": 80,
+        "snippet": "<Button\n            variant=\"outline\"\n            size=\"sm\"\n            type=\"button\""
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Card",
+      "file": "apps/web/src/components/ui/card.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 112,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/assets/AssetImportDialog.tsx",
+        "line": 137,
+        "snippet": "<Card className=\"p-4 space-y-2\">\n              <div className=\"flex items-center gap-2 text-sm font-medium text-success\">\n                <CheckCircle2 className=\"h-4 w-4\" />\n                <span>{report.imported} items successfully imported</span>"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Checkbox",
+      "file": "apps/web/src/components/ui/checkbox.tsx",
+      "props": [
+        {
+          "name": "\"data-hm\"",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 9,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/common/CommonTable.tsx",
+        "line": 231,
+        "snippet": "<Checkbox\n                      aria-label=\"Select all rows\"\n                      checked={\n                        rows.length > 0 && selected.length === rows.length"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "DatePicker",
+      "file": "apps/web/src/components/ui/date-picker/DatePicker.tsx",
+      "props": [
+        {
+          "name": "id",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "value",
+          "type": "string | Date | null",
+          "optional": true
+        },
+        {
+          "name": "onChange",
+          "type": "(value: string) => void",
+          "optional": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "\"data-hm\"",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "minDate",
+          "type": "Date | string",
+          "optional": true
+        },
+        {
+          "name": "maxDate",
+          "type": "Date | string",
+          "optional": true
+        },
+        {
+          "name": "\"aria-label\"",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": ["button", "dialog"],
+        "ariaAttributes": [
+          "aria-haspopup",
+          "aria-expanded",
+          "aria-label",
+          "aria-hidden",
+          "aria-modal"
+        ],
+        "keyboardHandlers": ["onKeyDown"],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": ["react-day-picker", "lucide-react"],
+      "internalSharedDeps": [],
+      "usageCount": 1,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": true,
+      "testFile": "apps/web/src/components/ui/date-picker/DatePicker.test.tsx",
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/hook-form/RHFDatePicker.tsx",
+        "line": 39,
+        "snippet": "<DatePicker\n            id={name}\n            name={name}\n            value={field.value}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "DateRangePicker",
+      "file": "apps/web/src/components/ui/date-picker/DateRangePicker.tsx",
+      "props": [
+        {
+          "name": "id",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "value",
+          "type": "DateRangeValue | null",
+          "optional": true
+        },
+        {
+          "name": "onChange",
+          "type": "(value: DateRangeValue) => void",
+          "optional": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "\"data-hm\"",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "\"aria-label\"",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "numberOfMonths",
+          "type": "number",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": ["button", "dialog"],
+        "ariaAttributes": [
+          "aria-haspopup",
+          "aria-expanded",
+          "aria-label",
+          "aria-hidden",
+          "aria-modal"
+        ],
+        "keyboardHandlers": ["onKeyDown"],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": ["react-day-picker", "lucide-react"],
+      "internalSharedDeps": [],
+      "usageCount": 2,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/common/TableFilters/TableFilterPanel.tsx",
+        "line": 278,
+        "snippet": "<DateRangePicker\n          value={{ from: range.from, to: range.to }}\n          onChange={(newRange) =>\n            onChange({ from: newRange.from || \"\", to: newRange.to || \"\" })"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "DateTimePicker",
+      "file": "apps/web/src/components/ui/date-picker/DateTimePicker.tsx",
+      "props": [
+        {
+          "name": "id",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "value",
+          "type": "string | Date | null",
+          "optional": true
+        },
+        {
+          "name": "onChange",
+          "type": "(value: string) => void",
+          "optional": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "\"data-hm\"",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "\"aria-label\"",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "minDate",
+          "type": "Date | string",
+          "optional": true
+        },
+        {
+          "name": "maxDate",
+          "type": "Date | string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": ["button", "dialog"],
+        "ariaAttributes": [
+          "aria-haspopup",
+          "aria-expanded",
+          "aria-label",
+          "aria-hidden",
+          "aria-modal"
+        ],
+        "keyboardHandlers": ["onKeyDown"],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": ["react-day-picker", "lucide-react"],
+      "internalSharedDeps": [],
+      "usageCount": 1,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/hook-form/RHFDateTimePicker.tsx",
+        "line": 42,
+        "snippet": "<DateTimePicker\n            id={name}\n            name={name}\n            value={field.value}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "TimePicker",
+      "file": "apps/web/src/components/ui/date-picker/TimePicker.tsx",
+      "props": [
+        {
+          "name": "id",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "value",
+          "type": "string | null",
+          "optional": true
+        },
+        {
+          "name": "onChange",
+          "type": "(value: string) => void",
+          "optional": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "\"data-hm\"",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "\"aria-label\"",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": ["button", "dialog"],
+        "ariaAttributes": [
+          "aria-haspopup",
+          "aria-expanded",
+          "aria-label",
+          "aria-hidden",
+          "aria-modal"
+        ],
+        "keyboardHandlers": ["onKeyDown"],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": [],
+      "usageCount": 1,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/hook-form/RHFTimePicker.tsx",
+        "line": 39,
+        "snippet": "<TimePicker\n            id={name}\n            name={name}\n            value={field.value}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Dialog",
+      "file": "apps/web/src/components/ui/dialog.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "children (ReactNode)",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-label"],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["@radix-ui/react-dialog", "lucide-react"],
+      "internalSharedDeps": [],
+      "usageCount": 16,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/assets/AssetImportDialog.tsx",
+        "line": 64,
+        "snippet": "<Dialog open={open} onOpenChange={handleClose}>\n      <DialogContent className=\"max-w-xl\">\n        <DialogTitle>Import hardware assets</DialogTitle>\n        <p className=\"text-xs text-muted-foreground -mt-2\">"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "dropdown-menu",
+      "file": "apps/web/src/components/ui/dropdown-menu.tsx",
+      "props": [],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "children (ReactNode)",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["@radix-ui/react-dropdown-menu", "lucide-react"],
+      "internalSharedDeps": [],
+      "usageCount": 0,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "status": "unused",
+      "notes": "Zero usages in application and not displayed in DesignSystem showcase"
+    },
+    {
+      "name": "Input",
+      "file": "apps/web/src/components/ui/input.tsx",
+      "props": [
+        {
+          "name": "sizeVariant",
+          "type": "\"sm\" | \"md\" | \"lg\"",
+          "optional": true
+        },
+        {
+          "name": "\"data-hm\"",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 48,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/assets/AssetImportDialog.tsx",
+        "line": 106,
+        "snippet": "<Input\n                  type=\"file\"\n                  accept=\".csv,.xlsx\"\n                  className=\"sr-only\""
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Label",
+      "file": "apps/web/src/components/ui/label.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 34,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/portal/NewRequestDrawer.tsx",
+        "line": 216,
+        "snippet": "<Label className=\"text-xs font-semibold text-foreground\">\n                Select Request Category\n              </Label>\n              <div className=\"grid grid-cols-1 gap-2.5\">"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "NativeSelect",
+      "file": "apps/web/src/components/ui/native-select.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "children (ReactNode)",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 12,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/portal/NewRequestDrawer.tsx",
+        "line": 288,
+        "snippet": "<NativeSelect\n                    id=\"req-cat\"\n                    value={categoryId}\n                    onChange={(e) => setCategoryId(e.target.value)}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "PhoneDisplay",
+      "file": "apps/web/src/components/ui/phone-field/PhoneDisplay.tsx",
+      "props": [
+        {
+          "name": "value",
+          "type": "string | null",
+          "optional": true
+        },
+        {
+          "name": "mode",
+          "type": "\"international\" | \"national\" | \"e164\"",
+          "optional": true
+        },
+        {
+          "name": "showIcon",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "allowCopy",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-hidden", "aria-label"],
+        "keyboardHandlers": [],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": [],
+      "usageCount": 3,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/employees/EmployeeColumns.tsx",
+        "line": 69,
+        "snippet": "render: (row) => <PhoneDisplay value={row.phone} />,\n    },\n    {\n      id: \"department_id\","
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "PhoneField",
+      "file": "apps/web/src/components/ui/phone-field/PhoneField.tsx",
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "onChange",
+          "type": "(e164Value: string) => void",
+          "optional": true
+        },
+        {
+          "name": "onBlur",
+          "type": "() => void",
+          "optional": true
+        },
+        {
+          "name": "defaultCountry",
+          "type": "CountryCode",
+          "optional": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "readOnly",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "\"aria-invalid\"",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "\"aria-describedby\"",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "sizeVariant",
+          "type": "\"sm\" | \"md\" | \"lg\"",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": ["dialog", "listbox", "option"],
+        "ariaAttributes": [
+          "aria-expanded",
+          "aria-haspopup",
+          "aria-label",
+          "aria-hidden",
+          "aria-invalid",
+          "aria-describedby",
+          "aria-modal",
+          "aria-selected"
+        ],
+        "keyboardHandlers": [],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": ["libphonenumber-js", "lucide-react"],
+      "internalSharedDeps": ["@/components/ui/input", "@/components/ui/button"],
+      "usageCount": 1,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": true,
+      "testFile": "apps/web/src/components/ui/phone-field/PhoneField.test.tsx",
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/hook-form/RHFPhoneField.tsx",
+        "line": 45,
+        "snippet": "<PhoneField\n            id={name}\n            name={name}\n            value={field.value || \"\"}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Radio",
+      "file": "apps/web/src/components/ui/radio.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 2,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/common/TableFilters/TableFilterPanel.tsx",
+        "line": 171,
+        "snippet": "<Radio\n                    name={`filter-${field.key}`}\n                    checked={checked}\n                    onChange={(event) =>"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "SelectChip",
+      "file": "apps/web/src/components/ui/select/SelectChip.tsx",
+      "props": [
+        {
+          "name": "value",
+          "type": "string | number",
+          "optional": false
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "onRemove",
+          "type": "() => void",
+          "optional": false
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "tone",
+          "type": "\"default\" | \"primary\" | \"secondary\" | \"success\" | \"warning\" | \"danger\"",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-label"],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 0,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "status": "unused",
+      "notes": "Zero usages in application and not displayed in DesignSystem showcase"
+    },
+    {
+      "name": "SelectList",
+      "file": "apps/web/src/components/ui/select/SelectList.tsx",
+      "props": [
+        {
+          "name": "options",
+          "type": "SelectOptionVirtual[]",
+          "optional": false
+        },
+        {
+          "name": "onSelect",
+          "type": "(value: string | number) => void",
+          "optional": false
+        },
+        {
+          "name": "isMulti",
+          "type": "boolean",
+          "optional": false
+        },
+        {
+          "name": "isLoading",
+          "type": "boolean",
+          "optional": false
+        },
+        {
+          "name": "error",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "searchValue",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "minHeight",
+          "type": "number",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": ["option"],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 0,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "status": "unused",
+      "notes": "Zero usages in application and not displayed in DesignSystem showcase"
+    },
+    {
+      "name": "SelectOption",
+      "file": "apps/web/src/components/ui/select/SelectOption.tsx",
+      "props": [
+        {
+          "name": "option",
+          "type": "{\n    value: string | number;\n    label: string;\n    subLabel?: string;\n    disabled?: boolean;\n    badge?: { text: string; tone: string };\n    avatar?: string;\n  }",
+          "optional": false
+        },
+        {
+          "name": "isSelected",
+          "type": "boolean",
+          "optional": false
+        },
+        {
+          "name": "onSelect",
+          "type": "(value: string | number) => void",
+          "optional": false
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": ["option"],
+        "ariaAttributes": [],
+        "keyboardHandlers": ["onKeyDown"],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 0,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "status": "unused",
+      "notes": "Zero usages in application and not displayed in DesignSystem showcase"
+    },
+    {
+      "name": "SelectPopover",
+      "file": "apps/web/src/components/ui/select/SelectPopover.tsx",
+      "props": [
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "side",
+          "type": "\"top\" | \"bottom\"",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-hidden"],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": [],
+      "usageCount": 0,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "status": "unused",
+      "notes": "Zero usages in application and not displayed in DesignSystem showcase"
+    },
+    {
+      "name": "SelectSearchInput",
+      "file": "apps/web/src/components/ui/select/SelectSearchInput.tsx",
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "onChange",
+          "type": "(value: string) => void",
+          "optional": false
+        },
+        {
+          "name": "debounceDelay",
+          "type": "number",
+          "optional": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-hidden"],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": [],
+      "usageCount": 0,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "status": "unused",
+      "notes": "Zero usages in application and not displayed in DesignSystem showcase"
+    },
+    {
+      "name": "SelectTrigger",
+      "file": "apps/web/src/components/ui/select/SelectTrigger.tsx",
+      "props": [
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "children",
+          "type": "React.ReactNode",
+          "optional": true
+        },
+        {
+          "name": "hasValue",
+          "type": "boolean",
+          "optional": false
+        },
+        {
+          "name": "onToggle",
+          "type": "() => void",
+          "optional": false
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "sizeVariant",
+          "type": "\"sm\" | \"md\" | \"lg\"",
+          "optional": true
+        },
+        {
+          "name": "\"data-hm\"",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "children (ReactNode)",
+      "accessibility": {
+        "roles": ["combobox"],
+        "ariaAttributes": ["aria-haspopup", "aria-expanded"],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 10,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/common/CommonTable.tsx",
+        "line": 396,
+        "snippet": "<SelectTrigger\n                aria-label=\"Rows per page\"\n                className=\"min-h-[36px] h-9 w-[74px] bg-card px-2.5 text-xs font-medium\"\n              >"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Select",
+      "file": "apps/web/src/components/ui/select/index.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "children (ReactNode)",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": ["@radix-ui/react-select", "lucide-react"],
+      "internalSharedDeps": [],
+      "usageCount": 7,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/common/CommonTable.tsx",
+        "line": 387,
+        "snippet": "<Select\n              value={String(query.itemsPerPage)}\n              onValueChange={(value) =>\n                onQueryChange({"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Skeleton",
+      "file": "apps/web/src/components/ui/skeleton.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-hidden"],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 61,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/asset-categories/AddEditAssetCategory.tsx",
+        "line": 117,
+        "snippet": "<Skeleton className=\"h-8 w-1/3\" />\n            <Skeleton className=\"h-12 w-full\" />\n            <Skeleton className=\"h-24 w-full\" />\n          </div>"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Switch",
+      "file": "apps/web/src/components/ui/switch.tsx",
+      "props": [
+        {
+          "name": "\"data-hm\"",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": ["@radix-ui/react-switch"],
+      "internalSharedDeps": [],
+      "usageCount": 11,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/hook-form/fields.tsx",
+        "line": 647,
+        "snippet": "<Switch\n        id={name}\n        aria-label={label}\n        data-hm=\"switch\""
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "TabsList",
+      "file": "apps/web/src/components/ui/tabs.tsx",
+      "props": [
+        {
+          "name": "activeTab",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "onTabChange",
+          "type": "(tab: string) => void",
+          "optional": false
+        },
+        {
+          "name": "tabs",
+          "type": "readonly string[] | string[]",
+          "optional": false
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": ["tablist", "tab"],
+        "ariaAttributes": ["aria-selected"],
+        "keyboardHandlers": [],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 6,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/pages/AssetDetail.tsx",
+        "line": 327,
+        "snippet": "<TabsList\n        tabs={tabs}\n        activeTab={activeTab}\n        onTabChange={(tab) => setActiveTab(tab as Tab)}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Textarea",
+      "file": "apps/web/src/components/ui/textarea.tsx",
+      "props": [
+        {
+          "name": "\"data-hm\"",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 10,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/hook-form/fields.tsx",
+        "line": 269,
+        "snippet": "<Textarea\n        id={name}\n        aria-invalid={Boolean(error)}\n        {...props}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "ActionDialogLayout",
+      "file": "apps/web/src/components/common/ActionDialogLayout.tsx",
+      "props": [
+        {
+          "name": "open",
+          "type": "boolean",
+          "optional": false
+        },
+        {
+          "name": "onOpenChange",
+          "type": "(open: boolean) => void",
+          "optional": false
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "summaryCard",
+          "type": "ReactNode",
+          "optional": true
+        },
+        {
+          "name": "children",
+          "type": "ReactNode",
+          "optional": false
+        },
+        {
+          "name": "maxWidth",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "children (ReactNode)",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": ["@/components/ui/dialog", "@/components/ui/card"],
+      "usageCount": 13,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/credentials/ApprovalActionDialogs.tsx",
+        "line": 99,
+        "snippet": "<ActionDialogLayout\n      open={open}\n      onOpenChange={onOpenChange}\n      title=\"Reject Credential Submission\""
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Chart",
+      "file": "apps/web/src/components/common/Chart.tsx",
+      "props": [
+        {
+          "name": "title",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "data",
+          "type": "ChartDataItem[]",
+          "optional": false
+        },
+        {
+          "name": "type",
+          "type": "\"bar\" | \"pie\"",
+          "optional": true
+        },
+        {
+          "name": "dataKey",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "categoryKey",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "height",
+          "type": "number",
+          "optional": true
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "barColor",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": ["img"],
+        "ariaAttributes": ["aria-label"],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["recharts", "lucide-react"],
+      "internalSharedDeps": ["@/components/ui/card", "@/components/ui/button"],
+      "usageCount": 2,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": true,
+      "testFile": "apps/web/src/components/common/Chart.test.tsx",
+      "realUsageSnippet": {
+        "file": "apps/web/src/pages/Dashboard.tsx",
+        "line": 215,
+        "snippet": "<Chart\n          title=\"Hardware Inventory Status\"\n          description=\"Live distribution of assets across stock, employee deployment, and maintenance\"\n          type=\"pie\""
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "CommonTable",
+      "file": "apps/web/src/components/common/CommonTable.tsx",
+      "props": [
+        {
+          "name": "columns",
+          "type": "TableColumn<T>[]",
+          "optional": false
+        },
+        {
+          "name": "rows",
+          "type": "T[]",
+          "optional": false
+        },
+        {
+          "name": "count",
+          "type": "number",
+          "optional": false
+        },
+        {
+          "name": "query",
+          "type": "ListQuery",
+          "optional": false
+        },
+        {
+          "name": "onQueryChange",
+          "type": "(query: Partial<ListQuery>) => void",
+          "optional": false
+        },
+        {
+          "name": "loading",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "error",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "onRetry",
+          "type": "() => void",
+          "optional": true
+        },
+        {
+          "name": "onRowClick",
+          "type": "(row: T) => void",
+          "optional": true
+        },
+        {
+          "name": "onBulkAction",
+          "type": "(ids: Array<T[\"id\"]>) => void",
+          "optional": true
+        },
+        {
+          "name": "emptyTitle",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "filterFields",
+          "type": "FilterField[]",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": ["alert"],
+        "ariaAttributes": ["aria-label", "aria-live"],
+        "keyboardHandlers": ["onKeyDown"],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": [
+        "@/components/ui/input",
+        "@/components/ui/button",
+        "@/components/ui/checkbox",
+        "@/components/common/States",
+        "@/components/common/TableFilters/TableFilterPanel",
+        "@/components/common/TableFilters/types",
+        "@/components/ui/dropdown-menu",
+        "@/components/ui/select"
+      ],
+      "usageCount": 8,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/common/ListPageScaffold.tsx",
+        "line": 55,
+        "snippet": "<CommonTable\n        columns={columns}\n        rows={rows}\n        count={count}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "ConfirmDialog",
+      "file": "apps/web/src/components/common/ConfirmDialog.tsx",
+      "props": [
+        {
+          "name": "open",
+          "type": "boolean",
+          "optional": false
+        },
+        {
+          "name": "onOpenChange",
+          "type": "(open: boolean) => void",
+          "optional": false
+        },
+        {
+          "name": "onConfirm",
+          "type": "() => void",
+          "optional": false
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "confirmText",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "variant",
+          "type": "\"destructive\" | \"warning\" | \"default\"",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["@radix-ui/react-alert-dialog"],
+      "internalSharedDeps": ["@/components/ui/button"],
+      "usageCount": 40,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/asset-categories/AddEditAssetCategory.tsx",
+        "line": 168,
+        "snippet": "<ConfirmDialog\n        open={confirmDiscard}\n        onOpenChange={setConfirmDiscard}\n        title=\"Discard unsaved changes?\""
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Stepper",
+      "file": "apps/web/src/components/common/DataDisplay.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-label", "aria-current"],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": [],
+      "usageCount": 2,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/portal/NewRequestDrawer.tsx",
+        "line": 201,
+        "snippet": "<Stepper\n            steps={STEPS}\n            activeStep={step}\n            onStepClick={(i) => i < step && setStep(i)}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Drawer",
+      "file": "apps/web/src/components/common/Drawer.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "children (ReactNode)",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": ["@/components/ui/dialog"],
+      "usageCount": 22,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/asset-categories/AddEditAssetCategory.tsx",
+        "line": 103,
+        "snippet": "<Drawer\n        open={open}\n        onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}\n        title={"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "DropdownMenu",
+      "file": "apps/web/src/components/common/DropdownMenu.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "children (ReactNode)",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-label"],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": ["@/components/ui/dropdown-menu"],
+      "usageCount": 2,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/common/CommonTable.tsx",
+        "line": 151,
+        "snippet": "<DropdownMenu>\n            <DropdownMenuTrigger asChild>\n              <Button\n                variant=\"outline\""
+      },
+      "status": "near-duplicate",
+      "notes": "Common wrapper around components/ui/dropdown-menu"
+    },
+    {
+      "name": "ErrorBoundary",
+      "file": "apps/web/src/components/common/ErrorBoundary.tsx",
+      "props": [
+        {
+          "name": "children",
+          "type": "ReactNode",
+          "optional": false
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "children (ReactNode)",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": ["@/components/ui/button"],
+      "usageCount": 3,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/App.tsx",
+        "line": 24,
+        "snippet": "<ErrorBoundary>\n      <ThemeProvider\n        attribute=\"class\"\n        defaultTheme=\"system\""
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "FormSection",
+      "file": "apps/web/src/components/common/FormLayout.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "children (ReactNode)",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-labelledby"],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": ["@/components/ui/button"],
+      "usageCount": 39,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/asset-categories/AddEditAssetCategory.tsx",
+        "line": 124,
+        "snippet": "<FormSection\n                title=\"Category Information\"\n                description=\"Define the hardware category name and scope.\"\n              >"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "KeyValueEditor",
+      "file": "apps/web/src/components/common/KeyValueEditor.tsx",
+      "props": [],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-label"],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": ["@/components/ui/button", "@/components/ui/input"],
+      "usageCount": 1,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/assets/AddEditAsset.tsx",
+        "line": 274,
+        "snippet": "<KeyValueEditor\n                  label=\"Technical Specs\"\n                  value={specsValue}\n                  onChange={(next) =>"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "ListPageScaffold",
+      "file": "apps/web/src/components/common/ListPageScaffold.tsx",
+      "props": [
+        {
+          "name": "title",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "action",
+          "type": "ReactNode",
+          "optional": true
+        },
+        {
+          "name": "breadcrumbs",
+          "type": "Array<{ label: string; to?: string; href?: string }>",
+          "optional": true
+        },
+        {
+          "name": "columns",
+          "type": "TableColumn<T>[]",
+          "optional": false
+        },
+        {
+          "name": "rows",
+          "type": "T[]",
+          "optional": false
+        },
+        {
+          "name": "count",
+          "type": "number",
+          "optional": false
+        },
+        {
+          "name": "query",
+          "type": "ListQuery",
+          "optional": false
+        },
+        {
+          "name": "onQueryChange",
+          "type": "(query: Partial<ListQuery>) => void",
+          "optional": false
+        },
+        {
+          "name": "loading",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "error",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "onRetry",
+          "type": "() => void",
+          "optional": true
+        },
+        {
+          "name": "filterFields",
+          "type": "FilterField[]",
+          "optional": true
+        },
+        {
+          "name": "onRowClick",
+          "type": "(row: T) => void",
+          "optional": true
+        },
+        {
+          "name": "onBulkAction",
+          "type": "(ids: Array<T[\"id\"]>) => void",
+          "optional": true
+        },
+        {
+          "name": "emptyTitle",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 16,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/pages/AssetCategories.tsx",
+        "line": 65,
+        "snippet": "<ListPageScaffold\n        title=\"Asset categories\"\n        description=\"Create categories to organize your organization's assets.\"\n        breadcrumbs={["
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "PageHeader",
+      "file": "apps/web/src/components/common/PageHeader.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-label", "aria-current"],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": [],
+      "usageCount": 26,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/common/ListPageScaffold.tsx",
+        "line": 46,
+        "snippet": "<PageHeader\n        title={title}\n        description={description}\n        action={action}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "PasswordGeneratorButton",
+      "file": "apps/web/src/components/common/PasswordGenerator.tsx",
+      "props": [
+        {
+          "name": "onGenerate",
+          "type": "(password: string) => void",
+          "optional": false
+        },
+        {
+          "name": "length",
+          "type": "number",
+          "optional": true
+        },
+        {
+          "name": "requireComplexity",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "size",
+          "type": "\"default\" | \"sm\" | \"icon\"",
+          "optional": true
+        },
+        {
+          "name": "variant",
+          "type": "\"outline\" | \"secondary\" | \"ghost\"",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-label"],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": ["@/components/ui/button"],
+      "usageCount": 0,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "status": "unused",
+      "notes": "Zero usages in application and not displayed in DesignSystem showcase"
+    },
+    {
+      "name": "PasswordStrengthMeter",
+      "file": "apps/web/src/components/common/PasswordStrengthMeter.tsx",
+      "props": [
+        {
+          "name": "password",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "minLength",
+          "type": "number",
+          "optional": true
+        },
+        {
+          "name": "requireComplexity",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": ["progressbar"],
+        "ariaAttributes": [
+          "aria-label",
+          "aria-valuenow",
+          "aria-valuemin",
+          "aria-valuemax"
+        ],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 5,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/hook-form/fields.tsx",
+        "line": 242,
+        "snippet": "<PasswordStrengthMeter\n          password={password}\n          minLength={policy?.minLength || 12}\n          requireComplexity={policy?.requireComplexity ?? true}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "ReferenceLabel",
+      "file": "apps/web/src/components/common/ReferenceLabel.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 17,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/employees/EmployeeColumns.tsx",
+        "line": 76,
+        "snippet": "<ReferenceLabel\n          id={row.department_id}\n          endpoint=\"department/options\"\n          relation={row.department}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "RowActionsMenu",
+      "file": "apps/web/src/components/common/RowActionsMenu.tsx",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "actions",
+          "type": "RowAction[]",
+          "optional": false
+        },
+        {
+          "name": "align",
+          "type": "\"start\" | \"end\" | \"center\"",
+          "optional": true
+        },
+        {
+          "name": "side",
+          "type": "\"top\" | \"bottom\" | \"left\" | \"right\"",
+          "optional": true
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-label", "aria-hidden", "aria-describedby"],
+        "keyboardHandlers": ["onKeyDown"],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": ["@radix-ui/react-dialog", "lucide-react"],
+      "internalSharedDeps": ["@/components/ui/dropdown-menu"],
+      "usageCount": 25,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/asset-categories/AssetCategoryColumns.tsx",
+        "line": 82,
+        "snippet": "<RowActionsMenu label=\"Category actions\" actions={menuActions} />\n        );\n      },\n    },"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "SelectFilter",
+      "file": "apps/web/src/components/common/SelectFilter.tsx",
+      "props": [
+        {
+          "name": "endpoint",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "onChange",
+          "type": "(value?: string) => void",
+          "optional": false
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 0,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "status": "unused",
+      "notes": "Zero usages in application and not displayed in DesignSystem showcase"
+    },
+    {
+      "name": "StatCard",
+      "file": "apps/web/src/components/common/StatCard.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": ["@/components/ui/card"],
+      "usageCount": 17,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/pages/Dashboard.tsx",
+        "line": 113,
+        "snippet": "<StatCard\n          label=\"Tracked assets\"\n          value={summary?.totalAssets ?? \"—\"}\n          icon={<Laptop className=\"h-4 w-4\" />}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Spinner",
+      "file": "apps/web/src/components/common/States.tsx",
+      "props": [],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": ["status", "alert"],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": ["@/components/ui/button"],
+      "usageCount": 7,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/assets/AssetQrModal.tsx",
+        "line": 60,
+        "snippet": "<Spinner label=\"Generating QR code\" />\n            </div>\n          ) : qrQuery.error ? (\n            <p className=\"text-xs text-danger\">{qrQuery.error.message}</p>"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "StatusBadge",
+      "file": "apps/web/src/components/common/StatusBadge.tsx",
+      "props": [
+        {
+          "name": "status",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "labelMap",
+          "type": "Record<string, string>",
+          "optional": true
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "tone",
+          "type": "StatusBadgeTone",
+          "optional": true
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": ["@/components/ui/badge"],
+      "usageCount": 19,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": true,
+      "testFile": "apps/web/src/components/common/StatusBadge.test.tsx",
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/asset-categories/AssetCategoryColumns.tsx",
+        "line": 53,
+        "snippet": "<StatusBadge status={row.status === 1 ? \"active\" : \"inactive\"} />\n      ),\n    },\n    {"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "Stepper",
+      "file": "apps/web/src/components/common/Stepper.tsx",
+      "props": [
+        {
+          "name": "steps",
+          "type": "StepItem[]",
+          "optional": false
+        },
+        {
+          "name": "activeStep",
+          "type": "number",
+          "optional": false
+        },
+        {
+          "name": "onStepClick",
+          "type": "(stepIndex: number) => void",
+          "optional": true
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-label", "aria-current", "aria-hidden"],
+        "keyboardHandlers": [],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": ["@/components/ui/button"],
+      "usageCount": 2,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/portal/NewRequestDrawer.tsx",
+        "line": 201,
+        "snippet": "<Stepper\n            steps={STEPS}\n            activeStep={step}\n            onStepClick={(i) => i < step && setStep(i)}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "TableFilterPanel",
+      "file": "apps/web/src/components/common/TableFilters/TableFilterPanel.tsx",
+      "props": [],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [
+          "aria-label",
+          "aria-pressed",
+          "aria-hidden",
+          "aria-expanded",
+          "aria-controls"
+        ],
+        "keyboardHandlers": [],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": [
+        "@/components/ui/button",
+        "@/components/ui/input",
+        "@/components/ui/checkbox",
+        "@/components/ui/radio",
+        "@/components/ui/select",
+        "@/components/ui/dialog",
+        "@/components/ui/date-picker"
+      ],
+      "usageCount": 3,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/common/CommonTable.tsx",
+        "line": 209,
+        "snippet": "<TableFilterPanel\n          config={filterFields}\n          value={query.filters}\n          open={filtersOpen}"
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "TableSelectFilter",
+      "file": "apps/web/src/components/common/TableSelectFilter.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-label"],
+        "keyboardHandlers": ["onKeyDown"],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": [],
+      "internalSharedDeps": ["@/components/ui/input", "@/components/ui/select"],
+      "usageCount": 1,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/common/SelectFilter.tsx",
+        "line": 19,
+        "snippet": "<TableSelectFilter\n      config={{\n        name: \"select\",\n        label: placeholder || \"Select...\","
+      },
+      "status": "near-duplicate",
+      "notes": "Near-duplicate of TableSelectFilter"
+    },
+    {
+      "name": "RHFDatePicker",
+      "file": "apps/web/src/components/hook-form/RHFDatePicker.tsx",
+      "props": [
+        {
+          "name": "name",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "helperText",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": [],
+      "internalSharedDeps": ["@/components/ui/date-picker"],
+      "usageCount": 13,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/assets/AddEditAsset.tsx",
+        "line": 260,
+        "snippet": "<RHFDatePicker name=\"purchase_date\" label=\"Purchase Date\" />\n                  <RHFCurrencyField\n                    name=\"purchase_cost\"\n                    label=\"Purchase Cost\""
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "RHFDateRangePicker",
+      "file": "apps/web/src/components/hook-form/RHFDateRangePicker.tsx",
+      "props": [
+        {
+          "name": "fromName",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "toName",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "helperText",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": ["@/components/ui/date-picker"],
+      "usageCount": 1,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "RHFDateTimePicker",
+      "file": "apps/web/src/components/hook-form/RHFDateTimePicker.tsx",
+      "props": [
+        {
+          "name": "name",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "helperText",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": [],
+      "internalSharedDeps": ["@/components/ui/date-picker"],
+      "usageCount": 0,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "status": "unused",
+      "notes": "Zero usages in application and not displayed in DesignSystem showcase"
+    },
+    {
+      "name": "RHFPhoneField",
+      "file": "apps/web/src/components/hook-form/RHFPhoneField.tsx",
+      "props": [
+        {
+          "name": "name",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "helperText",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "defaultCountry",
+          "type": "CountryCode",
+          "optional": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "className",
+          "type": "string",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [
+          "aria-hidden",
+          "aria-invalid",
+          "aria-describedby",
+          "aria-live"
+        ],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": ["libphonenumber-js", "lucide-react"],
+      "internalSharedDeps": ["@/components/ui/phone-field"],
+      "usageCount": 2,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/employees/AddEditEmployee.tsx",
+        "line": 207,
+        "snippet": "<RHFPhoneField\n                      name=\"phone\"\n                      label=\"Contact phone\"\n                      placeholder=\"e.g. 98765 43210\""
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "RHFTimePicker",
+      "file": "apps/web/src/components/hook-form/RHFTimePicker.tsx",
+      "props": [
+        {
+          "name": "name",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "helperText",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "none",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": [],
+      "internalSharedDeps": ["@/components/ui/date-picker"],
+      "usageCount": 1,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "RHFTextField",
+      "file": "apps/web/src/components/hook-form/fields.tsx",
+      "props": [
+        {
+          "name": "name",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "helperText",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "optional": true
+        },
+        {
+          "name": "leading",
+          "type": "ReactNode",
+          "optional": true
+        }
+      ],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "children (ReactNode)",
+      "accessibility": {
+        "roles": ["alert", "group"],
+        "ariaAttributes": [
+          "aria-hidden",
+          "aria-live",
+          "aria-invalid",
+          "aria-describedby",
+          "aria-label",
+          "aria-pressed"
+        ],
+        "keyboardHandlers": ["onKeyDown"],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": [
+        "@/components/ui/input",
+        "@/components/ui/textarea",
+        "@/components/ui/checkbox",
+        "@/components/ui/switch",
+        "@/components/ui/radio",
+        "@/components/common/PasswordStrengthMeter",
+        "@/components/ui/select"
+      ],
+      "usageCount": 39,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/asset-categories/AddEditAssetCategory.tsx",
+        "line": 130,
+        "snippet": "<RHFTextField\n                      name=\"name\"\n                      label=\"Category name\"\n                      placeholder=\"e.g. Laptops, Monitors, Keyboards, Servers\""
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "FormProvider",
+      "file": "apps/web/src/components/hook-form/form-provider.tsx",
+      "props": [],
+      "variantsAndSizes": [],
+      "slotsAndChildren": "children (ReactNode)",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": [],
+        "keyboardHandlers": [],
+        "focusManagement": []
+      },
+      "externalDeps": [],
+      "internalSharedDeps": [],
+      "usageCount": 33,
+      "inDesignSystem": true,
+      "designSystemStates": ["disabled", "error", "loading", "default"],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/components/asset-categories/AddEditAssetCategory.tsx",
+        "line": 122,
+        "snippet": "<FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>\n            <div className=\"space-y-6\">\n              <FormSection\n                title=\"Category Information\""
+      },
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "name": "AppShell",
+      "file": "apps/web/src/components/layout/AppShell.tsx",
+      "props": [],
+      "variantsAndSizes": ["sm", "md", "lg"],
+      "slotsAndChildren": "children (ReactNode)",
+      "accessibility": {
+        "roles": [],
+        "ariaAttributes": ["aria-label", "aria-hidden"],
+        "keyboardHandlers": ["onKeyDown"],
+        "focusManagement": ["focus-management-present"]
+      },
+      "externalDeps": ["lucide-react"],
+      "internalSharedDeps": [
+        "@/components/ui/button",
+        "@/components/ui/dialog"
+      ],
+      "usageCount": 1,
+      "inDesignSystem": false,
+      "designSystemStates": [],
+      "hasTests": false,
+      "realUsageSnippet": {
+        "file": "apps/web/src/routes/sections.tsx",
+        "line": 310,
+        "snippet": "element: <AppShell />,\n            children: [\n              { path: PATHS.ROOT, element: page(<RootRoute />) },\n              {"
+      },
+      "status": "active",
+      "notes": ""
+    }
+  ],
+  "dependencyGraphMermaid": "graph TD\n  PhoneField --> input\n  PhoneField --> button\n  ActionDialogLayout --> dialog\n  ActionDialogLayout --> card\n  Chart --> card\n  Chart --> button\n  CommonTable --> input\n  CommonTable --> button\n  CommonTable --> checkbox\n  CommonTable --> States\n  CommonTable --> TableFilterPanel\n  CommonTable --> types\n  CommonTable --> dropdown-menu\n  CommonTable --> select\n  ConfirmDialog --> button\n  Drawer --> dialog\n  DropdownMenu --> dropdown-menu\n  ErrorBoundary --> button\n  FormSection --> button\n  KeyValueEditor --> button\n  KeyValueEditor --> input\n  PasswordGeneratorButton --> button\n  RowActionsMenu --> dropdown-menu\n  StatCard --> card\n  Spinner --> button\n  StatusBadge --> badge\n  Stepper --> button\n  TableFilterPanel --> button\n  TableFilterPanel --> input\n  TableFilterPanel --> checkbox\n  TableFilterPanel --> radio\n  TableFilterPanel --> select\n  TableFilterPanel --> dialog\n  TableFilterPanel --> date-picker\n  TableSelectFilter --> input\n  TableSelectFilter --> select\n  RHFDatePicker --> date-picker\n  RHFDateRangePicker --> date-picker\n  RHFDateTimePicker --> date-picker\n  RHFPhoneField --> phone-field\n  RHFTimePicker --> date-picker\n  RHFTextField --> input\n  RHFTextField --> textarea\n  RHFTextField --> checkbox\n  RHFTextField --> switch\n  RHFTextField --> radio\n  RHFTextField --> PasswordStrengthMeter\n  RHFTextField --> select\n  AppShell --> button\n  AppShell --> dialog"
+}
