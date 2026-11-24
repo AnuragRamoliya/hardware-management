@@ -1,0 +1,209 @@
+[
+  {
+    "id": "R-UI-01",
+    "statement": "No one-off UI. Every screen must be built from shared components only (src/components/ui, src/components/common, src/components/hook-form).",
+    "source": "AGENTS.md / UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "script",
+    "enforcementMechanism": "npm run check:ui & npm run check:field-usage",
+    "evidence": "scripts/check_field_usage.ts:40 (AST validation across 264 usages)"
+  },
+  {
+    "id": "R-UI-02",
+    "statement": "Native <input>, <select>, <textarea>, <button> outside components/ui are strictly forbidden.",
+    "source": "AGENTS.md / UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "script",
+    "enforcementMechanism": "scripts/check_field_usage.ts & apps/web/scripts/check-ui.mjs",
+    "evidence": "scripts/check_field_usage.ts:133 (flags raw native elements)"
+  },
+  {
+    "id": "R-UI-03",
+    "statement": "Forms must follow FormProvider -> FormSection -> FormGrid (1/2/3 cols) -> RHF fields -> sticky FormActions.",
+    "source": "FORM_FIELD_GUIDELINES.md",
+    "implemented": "yes",
+    "enforcedBy": "script",
+    "enforcementMechanism": "apps/web/scripts/check-ui.mjs:89",
+    "evidence": "apps/web/src/components/employees/AddEditEmployee.tsx:120"
+  },
+  {
+    "id": "R-UI-04",
+    "statement": "Forms render in Drawer on desktop and full-screen Sheet on mobile (<= 640px).",
+    "source": "UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "test",
+    "enforcementMechanism": "apps/web/e2e/responsive/responsive_audit.spec.ts:168",
+    "evidence": "apps/web/e2e/responsive/responsive_audit.spec.ts (EMP-02 mobile sheet test)"
+  },
+  {
+    "id": "R-UI-05",
+    "statement": "Forms must enforce dirty-state guard before closing drawer/modal.",
+    "source": "UI_STANDARDS.md / FORM_FIELD_GUIDELINES.md",
+    "implemented": "yes",
+    "enforcedBy": "test",
+    "enforcementMechanism": "apps/web/src/components/employees/AddEditEmployee.tsx & Vitest",
+    "evidence": "AddEditEmployee.tsx:95 (handleCloseGuard checks methods.formState.isDirty)"
+  },
+  {
+    "id": "R-UI-06",
+    "statement": "Edit mode forms must render prefill skeletons while initial entity data loads.",
+    "source": "UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "test",
+    "enforcementMechanism": "Vitest / RTL",
+    "evidence": "apps/web/src/components/employees/AddEditEmployee.tsx:135 (FormPrefillSkeleton)"
+  },
+  {
+    "id": "R-UI-07",
+    "statement": "Every form has a co-located <Name>.schema.ts using FORM_VALIDATION error messages.",
+    "source": "FORM_FIELD_GUIDELINES.md",
+    "implemented": "yes",
+    "enforcedBy": "lint / test",
+    "enforcementMechanism": "TypeScript & Vitest",
+    "evidence": "apps/web/src/components/employees/Employee.schema.ts"
+  },
+  {
+    "id": "R-UI-08",
+    "statement": "Every data table must use CommonTable with sorting, pagination, and mobile card list fallback.",
+    "source": "UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "script",
+    "enforcementMechanism": "apps/web/scripts/check-ui.mjs:93",
+    "evidence": "apps/web/src/components/common/CommonTable.tsx"
+  },
+  {
+    "id": "R-UI-09",
+    "statement": "Raw <details>/<summary> dropdowns are forbidden; use DropdownMenu or RowActionsMenu.",
+    "source": "UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "script",
+    "enforcementMechanism": "apps/web/scripts/check-ui.mjs:53",
+    "evidence": "apps/web/scripts/check-ui.mjs:53"
+  },
+  {
+    "id": "R-UI-10",
+    "statement": "Raw action trigger icons (MoreHorizontal, MoreVertical) outside RowActionsMenu are forbidden.",
+    "source": "UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "script",
+    "enforcementMechanism": "apps/web/scripts/check-ui.mjs:57",
+    "evidence": "apps/web/scripts/check-ui.mjs:57"
+  },
+  {
+    "id": "R-UI-11",
+    "statement": "Custom row menu markup in table column definitions is forbidden.",
+    "source": "UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "script",
+    "enforcementMechanism": "apps/web/scripts/check-ui.mjs:65",
+    "evidence": "apps/web/scripts/check-ui.mjs:65"
+  },
+  {
+    "id": "R-UI-12",
+    "statement": "Destructive actions require ConfirmDialog with danger variant.",
+    "source": "UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "test",
+    "enforcementMechanism": "Vitest & Playwright",
+    "evidence": "apps/web/src/components/common/ConfirmDialog.tsx"
+  },
+  {
+    "id": "R-UI-13",
+    "statement": "Interactive targets must be >= 44px on touch viewports (<= 1024px) and >= 36px on desktop.",
+    "source": "UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "test",
+    "enforcementMechanism": "apps/web/e2e/responsive/responsive_checker.ts:160 (R6 check)",
+    "evidence": "apps/web/e2e/responsive/responsive_audit.spec.ts"
+  },
+  {
+    "id": "R-UI-14",
+    "statement": "Mobile inputs must have computed font-size >= 16px on mobile viewports to prevent iOS auto-zoom.",
+    "source": "UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "test",
+    "enforcementMechanism": "apps/web/e2e/responsive/responsive_checker.ts:135 (R5 check)",
+    "evidence": "apps/web/src/components/ui/input.tsx:16 (text-base sm:text-sm)"
+  },
+  {
+    "id": "R-UI-15",
+    "statement": "Zero horizontal scroll (diff === 0px) at all supported viewports down to 320px.",
+    "source": "UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "test",
+    "enforcementMechanism": "apps/web/e2e/responsive/responsive_checker.ts:15 (R1 check)",
+    "evidence": "apps/web/e2e/responsive/responsive_audit.spec.ts"
+  },
+  {
+    "id": "R-UI-16",
+    "statement": "Overlay geometry must respect dvh and safe-area insets.",
+    "source": "UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "test",
+    "enforcementMechanism": "apps/web/e2e/responsive/responsive_checker.ts:60 (R3 check)",
+    "evidence": "apps/web/e2e/responsive/responsive_audit.spec.ts"
+  },
+  {
+    "id": "R-UI-17",
+    "statement": "All registered application routes must be cataloged in UI_INVENTORY.md.",
+    "source": "UI_STANDARDS.md / MODULE_CHECKLIST.md",
+    "implemented": "yes",
+    "enforcedBy": "script",
+    "enforcementMechanism": "scripts/check_ui_inventory.ts",
+    "evidence": "scripts/check_ui_inventory.ts (verifies 81 inventory items)"
+  },
+  {
+    "id": "R-UI-18",
+    "statement": "Zero axe-core accessibility violations across all application screens.",
+    "source": "UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "test",
+    "enforcementMechanism": "apps/web/e2e/responsive/responsive_checker.ts:240 (R10 check)",
+    "evidence": "apps/web/e2e/responsive/responsive_audit.spec.ts"
+  },
+  {
+    "id": "R-UI-19",
+    "statement": "Console.log statements are forbidden in production source code.",
+    "source": "AGENTS.md / UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "script",
+    "enforcementMechanism": "apps/web/scripts/check-ui.mjs:47",
+    "evidence": "apps/web/scripts/check-ui.mjs:47"
+  },
+  {
+    "id": "R-UI-20",
+    "statement": "Direct axios imports outside src/api are forbidden; all network calls must use src/api.",
+    "source": "AGENTS.md",
+    "implemented": "yes",
+    "enforcedBy": "script",
+    "enforcementMechanism": "apps/web/scripts/check-ui.mjs:42",
+    "evidence": "apps/web/scripts/check-ui.mjs:42"
+  },
+  {
+    "id": "R-UI-21",
+    "statement": "Direct window.location navigation is forbidden; use React Router useNavigate.",
+    "source": "UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "script",
+    "enforcementMechanism": "apps/web/scripts/check-ui.mjs:49",
+    "evidence": "apps/web/scripts/check-ui.mjs:49"
+  },
+  {
+    "id": "R-UI-22",
+    "statement": "Literal #hex colors in className or inline styles are forbidden; use design tokens.",
+    "source": "UI_STANDARDS.md",
+    "implemented": "yes",
+    "enforcedBy": "script",
+    "enforcementMechanism": "apps/web/scripts/check-ui.mjs:51",
+    "evidence": "apps/web/scripts/check-ui.mjs:51"
+  },
+  {
+    "id": "R-UI-23",
+    "statement": "Strict TypeScript compilation with zero errors across all workspaces.",
+    "source": "AGENTS.md",
+    "implemented": "yes",
+    "enforcedBy": "lint / script",
+    "enforcementMechanism": "npm run typecheck & husky pre-commit",
+    "evidence": "turbo run typecheck (4/4 successful)"
+  }
+]
