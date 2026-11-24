@@ -119,7 +119,7 @@ In strict compliance with the **READ-ONLY** mandate, none of the findings below 
      - `apps/web/src/components/common/TableSelectFilter.tsx`
        Both render select dropdowns for table filters. `TableSelectFilter` was added during Phase 10 to provide standardized chip-style triggers. `SelectFilter` remains in the tree as legacy code.
   3. **Menu Wrappers**:
-     - `apps/web/src/components/ui/DropdownMenu.tsx` (generic Radix wrapper)
+     - `apps/web/src/components/ui/dropdown-menu.tsx` (generic Radix wrapper)
      - `apps/web/src/components/common/RowActionsMenu.tsx` (table row action trigger with standard 3-dot Lucide icon and permission filtering).
 
 ---

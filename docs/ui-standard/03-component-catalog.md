@@ -71,7 +71,7 @@ graph TD
 - **External Dependencies**: `@radix-ui/react-slot`, `class-variance-authority`.
 - **Usage Count**: **186 usages** across all modules.
 - **Showcased on `/design-system`**: Yes (All variants, sizes, and disabled state).
-- **Unit Tested**: Yes (`apps/web/src/test/button.test.tsx` or module tests).
+- **Unit Tested**: Yes (`apps/web/src/components/ui/UIComponents.test.tsx` or module tests).
 - **Real Usage Example** (`apps/web/src/pages/Dashboard.tsx:75`):
   ```tsx
   <Button

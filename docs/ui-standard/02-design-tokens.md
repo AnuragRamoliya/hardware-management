@@ -11,7 +11,7 @@
 
 - **Dark Mode Strategy**: Class-based (`darkMode: ["class"]` in `apps/web/tailwind.config.ts:4`).
 - **Target Element**: The `dark` class is applied directly to the root `<html>` element (`<html class="dark">` vs `<html class="light">`).
-- **Theme State Management**: Handled reactively via `apps/web/src/zustand/themeStore.ts` and synced to localStorage key `theme`.
+- **Theme State Management**: Handled reactively via `apps/web/src/zustand/site-setting.ts` and synced to localStorage key `theme`.
 - **CSS Variables Source**: Defined in HSL channels (without `hsl(...)` wrapper) in `apps/web/src/index.css:6-64`:
   - `:root` for light mode.
   - `.dark` for dark mode.
